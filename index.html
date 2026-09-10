@@ -1526,8 +1526,7 @@
           <p>
             <span class="live-status-pill" id="liveStatusPill">
               <span class="pulse-dot" id="livePulseDot"></span>
-              <span id="liveStatusText">AO VIVO • Auto-sync 10m</span>
-              <span id="liveCountdownText" style="opacity:0.75; font-size:0.7rem;">(10m 0s)</span>
+              <span id="liveStatusText">☁️ NUVEM ATIVA • Tempo Real</span>
             </span>
             <span style="font-size:0.78rem; color:var(--text-dim);">• Gestão de Contingência Meta Ads</span>
           </p>
@@ -3386,7 +3385,7 @@
     }
 
     // ==========================================
-    // REAL-TIME SYNC ENGINE
+    // REAL-TIME SYNC ENGINE (SUPABASE NUVEM)
     // ==========================================
     function startLiveSyncEngine() {
       const btnSync = document.getElementById('btnSyncSheets');
@@ -3395,37 +3394,20 @@
           syncFromGoogleSheets(true);
         });
       }
-      resetSyncTimer();
+      // O timer automático de 10m foi removido para não sobrescrever suas edições em tempo real.
+      // A sincronização agora é 100% contínua via Supabase Nuvem.
     }
 
     function resetSyncTimer() {
-      if (syncTimer) clearInterval(syncTimer);
-      if (countdownTimer) clearInterval(countdownTimer);
-
-      countdown = syncIntervalSeconds;
-      updateCountdownDisplay();
-
-      countdownTimer = setInterval(() => {
-        countdown--;
-        if (countdown <= 0) countdown = syncIntervalSeconds;
-        updateCountdownDisplay();
-      }, 1000);
-
-      syncTimer = setInterval(() => {
-        syncFromGoogleSheets(false);
-      }, syncIntervalSeconds * 1000);
+      // Desativado: timer de sobrescrita removido
     }
 
     function updateCountdownDisplay() {
-      const el = document.getElementById('liveCountdownText');
-      if (el) {
-        const m = Math.floor(countdown / 60);
-        const s = countdown % 60;
-        el.textContent = m > 0 ? `(${m}m ${s}s)` : `(${s}s)`;
-      }
+      // Desativado
     }
 
     async function syncFromGoogleSheets(manualTrigger = false) {
+      if (!manualTrigger) return; // Só roda se o usuário clicar explicitamente em atualizar da planilha
       const pill = document.getElementById('liveStatusPill');
       const pulseDot = document.getElementById('livePulseDot');
       const statusText = document.getElementById('liveStatusText');
