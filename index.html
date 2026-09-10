@@ -1872,15 +1872,15 @@
           </div>
           <div style="display:flex; align-items:baseline; gap:8px; margin-bottom:4px;">
             <span class="kpi-value" id="kpiBMsActiveCount" style="color:#ffffff; margin-bottom:0;">0</span>
-            <span style="font-size:1.1rem; font-weight:700; color:#38bdf8;">BMs</span>
+            <span style="font-size:1.1rem; font-weight:700; color:#38bdf8;">BMs Ativas</span>
             <span style="color:var(--text-dim); font-size:0.9rem;">•</span>
             <span id="kpiVendorsTotal" style="font-size:0.95rem; font-weight:600; color:#94a3b8;">0 Fornecedores</span>
           </div>
           <div class="kpi-meta" style="display:flex; align-items:center; justify-content:space-between; width:100%; border-top:1px solid rgba(255,255,255,0.06); padding-top:6px; margin-top:4px;">
             <div style="font-size: 0.72rem; color: var(--text-muted); display:flex; align-items:center; gap:5px;">
-              <span>BMs cadastradas:</span>
-              <strong id="kpiBMsRegisteredCount" style="color:#38bdf8; font-weight:700;">0</strong>
-              <span style="font-size:0.68rem; color:var(--text-dim);">(ativas no dash)</span>
+              <span>Total no dash:</span>
+              <strong id="kpiBMsRegisteredCount" style="color:#e2e8f0; font-weight:700;">0 BMs</strong>
+              <span id="kpiBMsDownSubtext" style="font-size:0.68rem; color:#fb7185;">(0 caídas)</span>
             </div>
           </div>
           <div id="kpiBmsPreview" style="display:flex; flex-wrap:wrap; gap:4px; margin-top:8px; border-top:1px solid rgba(255,255,255,0.06); padding-top:6px; min-height:22px;"></div>
@@ -4847,10 +4847,52 @@
 
       // Atualiza contadores das sub-abas de perfis
       updateProfileCounts();
+
+      // ===============================================
+      // CÁLCULO PRECISO DE BMS ATIVAS vs CAÍDAS
+      // ===============================================
+      // Agrupa itens por BM para calcular o estado real de cada BM
+      const bmGroupsCalc = new Map();
+      bmsData.forEach(item => {
+        const bmName = (item.bm || '').trim();
+        if (!bmName) return;
+        if (!bmGroupsCalc.has(bmName)) {
+          bmGroupsCalc.set(bmName, []);
+        }
+        bmGroupsCalc.get(bmName).push(item);
+      });
+
+      let totalBMsCount = bmGroupsCalc.size;
+      let activeBMsCount = 0;
+      let downBMsCount = 0;
+
+      bmGroupsCalc.forEach((items, bmName) => {
+        const override = getBmOverride(bmName);
+        const validCas = items.filter(i => i.ca && i.ca.trim() !== 'Apenas BM (Sem CA)');
+        const isBmEmpty = validCas.length === 0;
+        const allDown = validCas.length > 0 && validCas.every(i => getStatusCategory(i.status) === 'CAIU');
+        const isExplicitDisabled = override.status === 'DESATIVADA';
+        const isExplicitActive = override.status === 'ATIVA';
+
+        const isFallenOrDisabled = isExplicitDisabled || (!isExplicitActive && allDown);
+
+        if (isFallenOrDisabled) {
+          downBMsCount++;
+        } else {
+          activeBMsCount++;
+        }
+      });
+
       const bmsActiveEl = document.getElementById('kpiBMsActiveCount');
-      if (bmsActiveEl) bmsActiveEl.textContent = uniqueBMs.size;
+      if (bmsActiveEl) bmsActiveEl.textContent = activeBMsCount;
+      const bmsRegEl = document.getElementById('kpiBMsRegisteredCount');
+      if (bmsRegEl) bmsRegEl.textContent = `${totalBMsCount} BMs`;
+      const bmsDownSubtextEl = document.getElementById('kpiBMsDownSubtext');
+      if (bmsDownSubtextEl) {
+        bmsDownSubtextEl.textContent = downBMsCount > 0 ? `(${downBMsCount} caídas)` : `(0 caídas)`;
+      }
       const bmsTotalEl = document.getElementById('kpiBMsTotal');
-      if (bmsTotalEl) bmsTotalEl.textContent = `${uniqueBMs.size} BMs`;
+      if (bmsTotalEl) bmsTotalEl.textContent = `${totalBMsCount} BMs`;
       const vendorsEl = document.getElementById('kpiVendorsTotal');
       if (vendorsEl) vendorsEl.textContent = `${uniqueVendors.size} Fornecedores`;
 
@@ -5494,17 +5536,40 @@
       });
       const downAccounts = bmsData.filter(i => getStatusCategory(i.status) === 'CAIU');
 
-      // Unique active BM names
-      const uniqueBmNames = Array.from(new Set(bmsData.map(i => i.bm).filter(Boolean)));
+      // BMs para o preview do KPI (prioriza BMs ativas)
+      const bmGroupsPreview = new Map();
+      bmsData.forEach(item => {
+        const bmName = (item.bm || '').trim();
+        if (!bmName) return;
+        if (!bmGroupsPreview.has(bmName)) bmGroupsPreview.set(bmName, []);
+        bmGroupsPreview.get(bmName).push(item);
+      });
+
+      const activeBmNames = [];
+      const downBmNames = [];
+      bmGroupsPreview.forEach((items, bmName) => {
+        const override = getBmOverride(bmName);
+        const validCas = items.filter(i => i.ca && i.ca.trim() !== 'Apenas BM (Sem CA)');
+        const allDown = validCas.length > 0 && validCas.every(i => getStatusCategory(i.status) === 'CAIU');
+        const isDown = override.status === 'DESATIVADA' || (override.status !== 'ATIVA' && allDown);
+        if (isDown) downBmNames.push(bmName);
+        else activeBmNames.push(bmName);
+      });
+
+      const sortedBmNames = [...activeBmNames, ...downBmNames];
 
       if (bmsEl) {
-        if (uniqueBmNames.length === 0) {
+        if (sortedBmNames.length === 0) {
           bmsEl.innerHTML = `<span style="font-size:0.7rem; color:var(--text-dim);">Nenhuma BM cadastrada</span>`;
         } else {
-          bmsEl.innerHTML = uniqueBmNames.slice(0, 3).map(bm => {
+          bmsEl.innerHTML = sortedBmNames.slice(0, 3).map(bm => {
+            const isDown = downBmNames.includes(bm);
             const name = escapeHtml(bm);
-            return `<span class="kpi-preview-pill" style="border-color:rgba(56,189,248,0.3); color:#7dd3fc;"><i data-lucide="layers" style="width:9px;height:9px;color:#38bdf8;"></i>${name}</span>`;
-          }).join('') + (uniqueBmNames.length > 3 ? `<span style="font-size:0.68rem; color:var(--text-dim); align-self:center;">+${uniqueBmNames.length - 3} mais</span>` : '');
+            const color = isDown ? '#fda4af' : '#7dd3fc';
+            const border = isDown ? 'rgba(244,63,94,0.3)' : 'rgba(56,189,248,0.3)';
+            const iconColor = isDown ? '#fb7185' : '#38bdf8';
+            return `<span class="kpi-preview-pill" style="border-color:${border}; color:${color};"><i data-lucide="layers" style="width:9px;height:9px;color:${iconColor};"></i>${name}</span>`;
+          }).join('') + (sortedBmNames.length > 3 ? `<span style="font-size:0.68rem; color:var(--text-dim); align-self:center;">+${sortedBmNames.length - 3} mais</span>` : '');
         }
       }
 
