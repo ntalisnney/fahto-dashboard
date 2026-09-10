@@ -635,6 +635,151 @@
       color: #ffffff;
     }
 
+    /* COCKPIT OPERACIONAL DE ATIVOS */
+    .ops-tab-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .ops-tab-btn:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(255, 255, 255, 0.18);
+      transform: translateY(-1px);
+    }
+    .ops-tab-btn.active-running {
+      color: #34d399 !important;
+      background: rgba(16, 185, 129, 0.15) !important;
+      border-color: rgba(16, 185, 129, 0.45) !important;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.25) !important;
+    }
+    .ops-tab-btn.active-warming {
+      color: #38bdf8 !important;
+      background: rgba(0, 82, 255, 0.18) !important;
+      border-color: rgba(56, 189, 248, 0.45) !important;
+      box-shadow: 0 0 20px rgba(0, 82, 255, 0.25) !important;
+    }
+    .ops-tab-btn.active-ready {
+      color: #c084fc !important;
+      background: rgba(168, 85, 247, 0.18) !important;
+      border-color: rgba(168, 85, 247, 0.45) !important;
+      box-shadow: 0 0 20px rgba(168, 85, 247, 0.25) !important;
+    }
+    .ops-tab-btn.active-towarm {
+      color: #fb923c !important;
+      background: rgba(249, 115, 22, 0.18) !important;
+      border-color: rgba(249, 115, 22, 0.45) !important;
+      box-shadow: 0 0 20px rgba(249, 115, 22, 0.25) !important;
+    }
+    .ops-tab-btn .ops-badge {
+      font-size: 0.72rem;
+      padding: 2px 7px;
+      border-radius: var(--radius-full);
+      background: rgba(255, 255, 255, 0.1);
+      color: inherit;
+      font-weight: 800;
+    }
+    .ops-tab-btn.active-running .ops-badge {
+      background: rgba(16, 185, 129, 0.3);
+      color: #6ee7b7;
+    }
+    .ops-tab-btn.active-warming .ops-badge {
+      background: rgba(56, 189, 248, 0.3);
+      color: #bae6fd;
+    }
+    .ops-tab-btn.active-ready .ops-badge {
+      background: rgba(168, 85, 247, 0.3);
+      color: #f3e8ff;
+    }
+    .ops-tab-btn.active-towarm .ops-badge {
+      background: rgba(249, 115, 22, 0.3);
+      color: #ffedd5;
+    }
+
+    .ops-account-card {
+      background: linear-gradient(145deg, rgba(17, 24, 39, 0.95), rgba(11, 17, 33, 0.98));
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.6);
+    }
+    .ops-account-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2.5px;
+      opacity: 0.8;
+      transition: all 0.3s ease;
+    }
+    .ops-account-card.running-card::before {
+      background: linear-gradient(90deg, #10b981, #059669);
+    }
+    .ops-account-card.warming-card::before {
+      background: linear-gradient(90deg, #0ea5e9, #0052ff);
+    }
+    .ops-account-card.towarm-card::before {
+      background: linear-gradient(90deg, #f97316, #ea580c);
+    }
+    .ops-account-card.ready-card::before {
+      background: linear-gradient(90deg, #a855f7, #7e22ce);
+    }
+    .ops-account-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 82, 255, 0.15);
+    }
+    .ops-account-card.running-card:hover {
+      border-color: rgba(16, 185, 129, 0.45);
+      box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.8), 0 0 25px rgba(16, 185, 129, 0.2);
+    }
+    .ops-account-card.warming-card:hover {
+      border-color: rgba(56, 189, 248, 0.45);
+      box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.8), 0 0 25px rgba(56, 189, 248, 0.2);
+    }
+    .ops-account-card.ready-card:hover {
+      border-color: rgba(168, 85, 247, 0.45);
+      box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.8), 0 0 25px rgba(168, 85, 247, 0.2);
+    }
+    .ops-account-card.towarm-card:hover {
+      border-color: rgba(249, 115, 22, 0.45);
+      box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.8), 0 0 25px rgba(249, 115, 22, 0.2);
+    }
+
+    .kpi-preview-pill {
+      font-size: 0.68rem;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s ease;
+    }
+    .kpi-preview-pill:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
     .kpi-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -1611,7 +1756,7 @@
           <div class="kpi-click-hint"><i data-lucide="arrow-right" style="width:10px;height:10px;"></i> ver todas</div>
         </div>
 
-        <div class="kpi-card clickable" onclick="goToStatusFilter('RODANDO')" title="Ver contas rodando">
+        <div class="kpi-card clickable" onclick="switchOpsTab('RODANDO')" title="Ver contas rodando">
           <div class="kpi-top">
             <span class="kpi-title">Rodando / Ativas</span>
             <div class="kpi-icon" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">
@@ -1623,10 +1768,11 @@
             <i data-lucide="check" style="width:14px; height:14px; color:#34d399;"></i>
             <span>Tráfego Ativo</span>
           </div>
-          <div class="kpi-click-hint"><i data-lucide="arrow-right" style="width:10px;height:10px;"></i> ver contas</div>
+          <div id="kpiRunningPreview" style="display:flex; flex-wrap:wrap; gap:4px; margin-top:8px; border-top:1px solid rgba(255,255,255,0.06); padding-top:6px; min-height:22px;"></div>
+          <div class="kpi-click-hint"><i data-lucide="arrow-right" style="width:10px;height:10px;"></i> ver cockpit</div>
         </div>
 
-        <div class="kpi-card clickable" onclick="goToStatusFilter('AQUECENDO')" title="Ver contas aquecendo agora">
+        <div class="kpi-card clickable" onclick="switchOpsTab('AQUECENDO')" title="Ver contas aquecendo agora">
           <div class="kpi-top">
             <span class="kpi-title">Aquecendo Agora</span>
             <div class="kpi-icon" style="background: rgba(0, 82, 255, 0.15); color: #38bdf8;">
@@ -1638,10 +1784,11 @@
             <i data-lucide="activity" style="width:14px; height:14px; color:#38bdf8;"></i>
             <span id="kpiWarmingActiveDetails">Em processo ativo</span>
           </div>
-          <div class="kpi-click-hint"><i data-lucide="arrow-right" style="width:10px;height:10px;"></i> ver contas</div>
+          <div id="kpiWarmingPreview" style="display:flex; flex-wrap:wrap; gap:4px; margin-top:8px; border-top:1px solid rgba(255,255,255,0.06); padding-top:6px; min-height:22px;"></div>
+          <div class="kpi-click-hint"><i data-lucide="arrow-right" style="width:10px;height:10px;"></i> ver cockpit</div>
         </div>
 
-        <div class="kpi-card clickable" onclick="goToStatusFilter('AQUECER')" title="Ver contas para aquecimento">
+        <div class="kpi-card clickable" onclick="switchOpsTab('AQUECER')" title="Ver contas para aquecimento">
           <div class="kpi-top">
             <span class="kpi-title">Para Aquecimento</span>
             <div class="kpi-icon" style="background: rgba(249, 115, 22, 0.15); color: #fb923c;">
@@ -1653,10 +1800,11 @@
             <i data-lucide="hourglass" style="width:14px; height:14px; color:#fb923c;"></i>
             <span id="kpiToWarmDetails">Aguardando início / Fila</span>
           </div>
-          <div class="kpi-click-hint"><i data-lucide="arrow-right" style="width:10px;height:10px;"></i> ver contas</div>
+          <div id="kpiToWarmPreview" style="display:flex; flex-wrap:wrap; gap:4px; margin-top:8px; border-top:1px solid rgba(255,255,255,0.06); padding-top:6px; min-height:22px;"></div>
+          <div class="kpi-click-hint"><i data-lucide="arrow-right" style="width:10px;height:10px;"></i> ver cockpit</div>
         </div>
 
-        <div class="kpi-card clickable" onclick="goToStatusFilter('AQUECIDA')" title="Ver contas aquecidas e livres para subir projetos" style="border-color: rgba(168, 85, 247, 0.4); background: linear-gradient(135deg, rgba(168, 85, 247, 0.12) 0%, var(--bg-surface-elevated) 100%);">
+        <div class="kpi-card clickable" onclick="switchOpsTab('AQUECIDA')" title="Ver contas aquecidas e livres para subir projetos" style="border-color: rgba(168, 85, 247, 0.4); background: linear-gradient(135deg, rgba(168, 85, 247, 0.12) 0%, var(--bg-surface-elevated) 100%);">
           <div class="kpi-top">
             <span class="kpi-title" style="color: #c084fc; font-weight:700;">Contas Aquecidas & Livres</span>
             <div class="kpi-icon" style="background: rgba(168, 85, 247, 0.2); color: #c084fc;">
@@ -1668,6 +1816,7 @@
             <i data-lucide="rocket" style="width:14px; height:14px; color:#c084fc;"></i>
             <span id="kpiWarmedReadyDetails">Prontas p/ Subir Projetos</span>
           </div>
+          <div id="kpiReadyPreview" style="display:flex; flex-wrap:wrap; gap:4px; margin-top:8px; border-top:1px solid rgba(255,255,255,0.06); padding-top:6px; min-height:22px;"></div>
           <div class="kpi-click-hint"><i data-lucide="arrow-right" style="width:10px;height:10px;"></i> ver estoque livre</div>
         </div>
 
@@ -1782,40 +1931,64 @@
         </div>
       </div>
 
-      <!-- ESPAÇO DE CONTAS AQUECIDAS & LIVRES (ESTOQUE PRONTO PARA SUBIR PROJETOS) -->
-      <div class="card" style="margin-top: 24px; position: relative; overflow: hidden; border: 1px solid rgba(168, 85, 247, 0.35); background: linear-gradient(180deg, rgba(168, 85, 247, 0.05) 0%, var(--bg-surface) 100%);">
-        <div class="card-header" style="border-bottom: 1px solid rgba(168, 85, 247, 0.2); padding-bottom: 16px; margin-bottom: 16px;">
-          <div style="display:flex; align-items:center; justify-content:space-between; width:100%; flex-wrap:wrap; gap:12px;">
+      <!-- COCKPIT OPERACIONAL DE ATIVOS (RODANDO NO TRÁFEGO • EM AQUECIMENTO • ESTOQUE LIVRE • FILA) -->
+      <div class="card" id="opsCockpitSection" style="margin-top: 24px; position: relative; overflow: hidden; border: 1px solid rgba(56, 189, 248, 0.35); background: linear-gradient(180deg, rgba(15, 23, 42, 0.9) 0%, var(--bg-surface) 100%);">
+        <div class="card-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 16px; margin-bottom: 18px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; width:100%; flex-wrap:wrap; gap:14px;">
             <div>
-              <div class="card-title" style="font-size: 1.15rem; display: flex; align-items: center; gap: 10px; color: #ffffff;">
-                <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(168, 85, 247, 0.2); display:flex; align-items:center; justify-content:center; color:#c084fc;">
-                  <i data-lucide="zap" style="width: 20px; height: 20px;"></i>
+              <div class="card-title" style="font-size: 1.18rem; display: flex; align-items: center; gap: 10px; color: #ffffff;">
+                <div id="opsHeaderIcon" style="width: 36px; height: 36px; border-radius: 10px; background: rgba(16, 185, 129, 0.2); display:flex; align-items:center; justify-content:center; color:#34d399; box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);">
+                  <i data-lucide="activity" style="width: 20px; height: 20px;"></i>
                 </div>
-                <span>Espaço de Contas Aquecidas & Livres</span>
-                <span id="warmedReadyBadge" class="badge" style="background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); font-size: 0.78rem; padding: 4px 12px; font-weight:700;">
-                  0 Contas Prontas p/ Projetos
+                <span>Cockpit Operacional de Contas</span>
+                <span id="opsCurrentViewBadge" class="badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); font-size: 0.78rem; padding: 4px 12px; font-weight:800;">
+                  0 Contas Rodando
                 </span>
               </div>
-              <div class="card-subtitle" style="margin-top: 6px; color: var(--text-dim);">
-                Estoque de contas com aquecimento concluído, cartão cadastrado e prontas para receber tráfego imediatamente.
+              <div class="card-subtitle" id="opsSubtitle" style="margin-top: 6px; color: var(--text-dim);">
+                Acompanhamento em tempo real das contas ativas no tráfego, projetos em execução e contas em aquecimento ativo.
               </div>
             </div>
 
-            <div style="display:flex; align-items:center; gap:10px;">
-              <button type="button" class="btn btn-secondary" onclick="openAddBmModalWithStatus('⚡ Aquecida & Livre (Pronta)')" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; border-color: rgba(168, 85, 247, 0.4); font-weight: 700; font-size: 0.8rem; gap: 6px;">
+            <!-- SUB-TABS DO COCKPIT -->
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <div class="sub-tabs" style="border:none; margin:0; padding:0; gap:8px;">
+                <button type="button" class="ops-tab-btn active-running" id="tabBtnOpsRunning" onclick="switchOpsTab('RODANDO')">
+                  <i data-lucide="play" style="width:14px; height:14px;"></i>
+                  <span>Rodando no Tráfego</span>
+                  <span class="ops-badge" id="opsBadgeRunning">0</span>
+                </button>
+                <button type="button" class="ops-tab-btn" id="tabBtnOpsWarming" onclick="switchOpsTab('AQUECENDO')">
+                  <i data-lucide="flame" style="width:14px; height:14px;"></i>
+                  <span>Em Aquecimento</span>
+                  <span class="ops-badge" id="opsBadgeWarming">0</span>
+                </button>
+                <button type="button" class="ops-tab-btn" id="tabBtnOpsReady" onclick="switchOpsTab('AQUECIDA')">
+                  <i data-lucide="zap" style="width:14px; height:14px;"></i>
+                  <span>Estoque Livre (Prontas)</span>
+                  <span class="ops-badge" id="opsBadgeReady">0</span>
+                </button>
+                <button type="button" class="ops-tab-btn" id="tabBtnOpsToWarm" onclick="switchOpsTab('AQUECER')">
+                  <i data-lucide="clock" style="width:14px; height:14px;"></i>
+                  <span>Fila p/ Aquecer</span>
+                  <span class="ops-badge" id="opsBadgeToWarm">0</span>
+                </button>
+              </div>
+
+              <button type="button" class="btn btn-secondary" onclick="openAddBmModalWithStatus(currentOpsTabStatus())" style="height:36px; padding:0 12px; font-size:0.8rem; font-weight:700; gap:6px;">
                 <i data-lucide="plus" style="width:14px; height:14px;"></i>
-                <span>+ Adicionar Conta Aquecida</span>
+                <span id="opsAddBtnText">+ Adicionar Conta</span>
               </button>
-              <button type="button" class="btn btn-primary" onclick="goToStatusFilter('AQUECIDA')" style="background: linear-gradient(135deg, #a855f7, #7e22ce); border: none; font-weight: 700; font-size: 0.8rem; gap: 6px;">
+              <button type="button" class="btn btn-primary" onclick="goToStatusFilter(currentOpsCategory)" style="height:36px; padding:0 12px; font-size:0.8rem; font-weight:700; gap:6px;">
                 <i data-lucide="list" style="width:14px; height:14px;"></i>
-                <span>Gerenciar no Tabular</span>
+                <span>Ver no Tabular</span>
               </button>
             </div>
           </div>
         </div>
 
-        <!-- LISTA / GRID DE CONTAS AQUECIDAS -->
-        <div id="warmedReadyContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; min-height: 100px;">
+        <!-- LISTA / GRID DE CARDS DO COCKPIT OPERACIONAL -->
+        <div id="opsAccountsContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 16px; min-height: 120px;">
           <!-- Populated dynamically via JS -->
         </div>
       </div>
@@ -3185,7 +3358,6 @@
       initTheme();
       initAlertBannerToggle();
       initActionButtons();
-
       startLiveSyncEngine();
 
       // Inicia sincronização em tempo real via Nuvem Supabase
@@ -4354,7 +4526,11 @@
       const downRate = total > 0 ? ((down / total) * 100).toFixed(1) : 0;
       document.getElementById('kpiDownRate').textContent = `${downRate}% taxa de perda`;
 
-      renderWarmedReadySpace();
+      // Preenche mini previews dinâmicos nos KPI cards
+      renderKPIPreviews();
+
+      // Renderiza o Cockpit Operacional de Contas
+      renderOperationsCockpit();
     }
 
     function renderCharts() {
@@ -4856,52 +5032,305 @@
     }
 
     // ==========================================
-    // ESPAÇO DE CONTAS AQUECIDAS & LIVRES ENGINE
+    // COCKPIT OPERACIONAL DE ATIVOS ENGINE
     // ==========================================
-    function openAddBmModalWithStatus(defaultStatus) {
-      openAccountModal(null, defaultStatus);
+    let currentOpsCategory = 'RODANDO';
+
+    function currentOpsTabStatus() {
+      if (currentOpsCategory === 'RODANDO') return 'Rodando [REP TCHECA]';
+      if (currentOpsCategory === 'AQUECENDO') return 'Aquecendo [ACM]';
+      if (currentOpsCategory === 'AQUECER') return 'Aquecer[ACM]';
+      if (currentOpsCategory === 'AQUECIDA') return '⚡ Aquecida & Livre (Pronta)';
+      return 'Rodando [REP TCHECA]';
     }
 
-    function renderWarmedReadySpace() {
-      const container = document.getElementById('warmedReadyContainer');
-      const badge = document.getElementById('warmedReadyBadge');
-      if (!container) return;
+    function switchOpsTab(cat) {
+      currentOpsCategory = cat;
 
-      const readyAccounts = bmsData.filter(i => getStatusCategory(i.status) === "AQUECIDA");
+      // Atualiza botões
+      const tabs = [
+        { id: 'tabBtnOpsRunning', cat: 'RODANDO', cls: 'active-running' },
+        { id: 'tabBtnOpsWarming', cat: 'AQUECENDO', cls: 'active-warming' },
+        { id: 'tabBtnOpsReady', cat: 'AQUECIDA', cls: 'active-ready' },
+        { id: 'tabBtnOpsToWarm', cat: 'AQUECER', cls: 'active-towarm' }
+      ];
 
-      if (badge) {
-        badge.textContent = `${readyAccounts.length} ${readyAccounts.length === 1 ? 'Conta Pronta' : 'Contas Prontas'} p/ Projetos`;
+      tabs.forEach(t => {
+        const btn = document.getElementById(t.id);
+        if (btn) {
+          btn.classList.remove('active-running', 'active-warming', 'active-ready', 'active-towarm');
+          if (t.cat === cat) {
+            btn.classList.add(t.cls);
+          }
+        }
+      });
+
+      renderOperationsCockpit();
+
+      // Rola suavemente até o cockpit
+      const sec = document.getElementById('opsCockpitSection');
+      if (sec) {
+        sec.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+
+    function renderKPIPreviews() {
+      const runningEl = document.getElementById('kpiRunningPreview');
+      const warmingEl = document.getElementById('kpiWarmingPreview');
+      const toWarmEl = document.getElementById('kpiToWarmPreview');
+      const readyEl = document.getElementById('kpiReadyPreview');
+
+      const runningAccounts = bmsData.filter(i => getStatusCategory(i.status) === 'RODANDO');
+      const warmingAccounts = bmsData.filter(i => getStatusCategory(i.status) === 'AQUECENDO');
+      const toWarmAccounts = bmsData.filter(i => getStatusCategory(i.status) === 'AQUECER');
+      const readyAccounts = bmsData.filter(i => getStatusCategory(i.status) === 'AQUECIDA');
+
+      if (runningEl) {
+        if (runningAccounts.length === 0) {
+          runningEl.innerHTML = `<span style="font-size:0.7rem; color:var(--text-dim);">Nenhuma conta rodando</span>`;
+        } else {
+          runningEl.innerHTML = runningAccounts.slice(0, 3).map(acc => {
+            const name = escapeHtml(acc.ca || acc.bm || 'Conta');
+            return `<span class="kpi-preview-pill" style="border-color:rgba(16,185,129,0.3); color:#6ee7b7;"><i data-lucide="play" style="width:9px;height:9px;color:#34d399;"></i>${name}</span>`;
+          }).join('') + (runningAccounts.length > 3 ? `<span style="font-size:0.68rem; color:var(--text-dim); align-self:center;">+${runningAccounts.length - 3} mais</span>` : '');
+        }
       }
 
-      if (readyAccounts.length === 0) {
+      if (warmingEl) {
+        if (warmingAccounts.length === 0) {
+          warmingEl.innerHTML = `<span style="font-size:0.7rem; color:var(--text-dim);">Nenhuma em aquecimento</span>`;
+        } else {
+          warmingEl.innerHTML = warmingAccounts.slice(0, 3).map(acc => {
+            const name = escapeHtml(acc.ca || acc.bm || 'Conta');
+            return `<span class="kpi-preview-pill" style="border-color:rgba(56,189,248,0.3); color:#7dd3fc;"><i data-lucide="flame" style="width:9px;height:9px;color:#38bdf8;"></i>${name}</span>`;
+          }).join('') + (warmingAccounts.length > 3 ? `<span style="font-size:0.68rem; color:var(--text-dim); align-self:center;">+${warmingAccounts.length - 3} mais</span>` : '');
+        }
+      }
+
+      if (toWarmEl) {
+        if (toWarmAccounts.length === 0) {
+          toWarmEl.innerHTML = `<span style="font-size:0.7rem; color:var(--text-dim);">Fila vazia</span>`;
+        } else {
+          toWarmEl.innerHTML = toWarmAccounts.slice(0, 3).map(acc => {
+            const name = escapeHtml(acc.ca || acc.bm || 'Conta');
+            return `<span class="kpi-preview-pill" style="border-color:rgba(249,115,22,0.3); color:#fdba74;"><i data-lucide="clock" style="width:9px;height:9px;color:#fb923c;"></i>${name}</span>`;
+          }).join('') + (toWarmAccounts.length > 3 ? `<span style="font-size:0.68rem; color:var(--text-dim); align-self:center;">+${toWarmAccounts.length - 3} mais</span>` : '');
+        }
+      }
+
+      if (readyEl) {
+        if (readyAccounts.length === 0) {
+          readyEl.innerHTML = `<span style="font-size:0.7rem; color:var(--text-dim);">Nenhuma pronta</span>`;
+        } else {
+          readyEl.innerHTML = readyAccounts.slice(0, 3).map(acc => {
+            const name = escapeHtml(acc.ca || acc.bm || 'Conta');
+            return `<span class="kpi-preview-pill" style="border-color:rgba(168,85,247,0.3); color:#d8b4fe;"><i data-lucide="zap" style="width:9px;height:9px;color:#c084fc;"></i>${name}</span>`;
+          }).join('') + (readyAccounts.length > 3 ? `<span style="font-size:0.68rem; color:var(--text-dim); align-self:center;">+${readyAccounts.length - 3} mais</span>` : '');
+        }
+      }
+
+      lucide.createIcons();
+    }
+
+    function renderOperationsCockpit() {
+      const container = document.getElementById('opsAccountsContainer');
+      const badge = document.getElementById('opsCurrentViewBadge');
+      const headerIcon = document.getElementById('opsHeaderIcon');
+      const subtitle = document.getElementById('opsSubtitle');
+      const addBtnText = document.getElementById('opsAddBtnText');
+
+      // Atualiza badges contadores das abas
+      const runningCount = bmsData.filter(i => getStatusCategory(i.status) === 'RODANDO').length;
+      const warmingCount = bmsData.filter(i => getStatusCategory(i.status) === 'AQUECENDO').length;
+      const readyCount = bmsData.filter(i => getStatusCategory(i.status) === 'AQUECIDA').length;
+      const toWarmCount = bmsData.filter(i => getStatusCategory(i.status) === 'AQUECER').length;
+
+      const badgeRunning = document.getElementById('opsBadgeRunning');
+      const badgeWarming = document.getElementById('opsBadgeWarming');
+      const badgeReady = document.getElementById('opsBadgeReady');
+      const badgeToWarm = document.getElementById('opsBadgeToWarm');
+
+      if (badgeRunning) badgeRunning.textContent = runningCount;
+      if (badgeWarming) badgeWarming.textContent = warmingCount;
+      if (badgeReady) badgeReady.textContent = readyCount;
+      if (badgeToWarm) badgeToWarm.textContent = toWarmCount;
+
+      if (!container) return;
+
+      const filteredAccounts = bmsData.filter(i => getStatusCategory(i.status) === currentOpsCategory);
+
+      // Metadados visuais por aba
+      let themeColor = '#10b981';
+      let themeBadgeBg = 'rgba(16, 185, 129, 0.2)';
+      let themeBadgeBorder = 'rgba(16, 185, 129, 0.4)';
+      let themeCardClass = 'running-card';
+      let iconName = 'play-circle';
+      let tabLabel = 'Contas Rodando';
+      let subtitleText = 'Contas ativas com campanhas no ar, ofertas em veiculação e tráfego rodando.';
+      let emptyMsg = 'Nenhuma conta rodando tráfego no momento.';
+      let emptyTip = 'Ative uma conta livre ou edite o status de uma conta para "Rodando [...]".';
+
+      if (currentOpsCategory === 'RODANDO') {
+        themeColor = '#34d399';
+        themeBadgeBg = 'rgba(16, 185, 129, 0.2)';
+        themeBadgeBorder = 'rgba(16, 185, 129, 0.4)';
+        themeCardClass = 'running-card';
+        iconName = 'activity';
+        tabLabel = 'Contas Rodando no Tráfego';
+        subtitleText = 'Contas ativas com campanhas no ar, projetos vinculados e tráfego contínuo.';
+        emptyMsg = 'Nenhuma conta rodando tráfego no momento.';
+        emptyTip = 'Clique em "+ Adicionar Conta" ou ative uma conta pronta na aba "Estoque Livre".';
+        if (addBtnText) addBtnText.textContent = '+ Nova Conta Rodando';
+      } else if (currentOpsCategory === 'AQUECENDO') {
+        themeColor = '#38bdf8';
+        themeBadgeBg = 'rgba(0, 82, 255, 0.2)';
+        themeBadgeBorder = 'rgba(56, 189, 248, 0.4)';
+        themeCardClass = 'warming-card';
+        iconName = 'flame';
+        tabLabel = 'Contas em Aquecimento Ativo';
+        subtitleText = 'Contas em processo diário de aquecimento de pixel, página e engajamento pré-oferta.';
+        emptyMsg = 'Nenhuma conta em aquecimento ativo no momento.';
+        emptyTip = 'Coloque contas da fila em aquecimento para maturação do perfil.';
+        if (addBtnText) addBtnText.textContent = '+ Nova Conta Aquecendo';
+      } else if (currentOpsCategory === 'AQUECIDA') {
+        themeColor = '#c084fc';
+        themeBadgeBg = 'rgba(168, 85, 247, 0.2)';
+        themeBadgeBorder = 'rgba(168, 85, 247, 0.4)';
+        themeCardClass = 'ready-card';
+        iconName = 'zap';
+        tabLabel = 'Contas Aquecidas & Livres (Estoque Pronto)';
+        subtitleText = 'Estoque de contas com aquecimento concluído e cartão cadastrado, 100% prontas para subir ofertas.';
+        emptyMsg = 'Nenhuma conta marcada como Aquecida & Livre no momento.';
+        emptyTip = 'Altere o status de uma conta após finalizar o aquecimento para deixá-la no estoque.';
+        if (addBtnText) addBtnText.textContent = '+ Adicionar Conta Aquecida';
+      } else if (currentOpsCategory === 'AQUECER') {
+        themeColor = '#fb923c';
+        themeBadgeBg = 'rgba(249, 115, 22, 0.2)';
+        themeBadgeBorder = 'rgba(249, 115, 22, 0.4)';
+        themeCardClass = 'towarm-card';
+        iconName = 'clock';
+        tabLabel = 'Fila de Espera para Aquecimento';
+        subtitleText = 'Contas recebidas de fornecedores aguardando liberação de cartão, perfil ou início de esteira.';
+        emptyMsg = 'A fila de espera para aquecimento está vazia.';
+        emptyTip = 'Cadastre novos ativos recebidos de fornecedores para organizar a esteira de aquecimento.';
+        if (addBtnText) addBtnText.textContent = '+ Adicionar à Fila';
+      }
+
+      if (badge) {
+        badge.style.background = themeBadgeBg;
+        badge.style.color = themeColor;
+        badge.style.borderColor = themeBadgeBorder;
+        badge.textContent = `${filteredAccounts.length} ${filteredAccounts.length === 1 ? 'Conta' : 'Contas'} • ${tabLabel}`;
+      }
+
+      if (headerIcon) {
+        headerIcon.style.background = themeBadgeBg;
+        headerIcon.style.color = themeColor;
+        headerIcon.style.boxShadow = `0 0 15px ${themeBadgeBg}`;
+        headerIcon.innerHTML = `<i data-lucide="${iconName}" style="width: 20px; height: 20px;"></i>`;
+      }
+
+      if (subtitle) {
+        subtitle.textContent = subtitleText;
+      }
+
+      if (filteredAccounts.length === 0) {
         container.innerHTML = `
-          <div style="grid-column: 1 / -1; text-align:center; padding:32px 16px; background:rgba(255,255,255,0.02); border-radius:var(--radius-md); border:1px dashed rgba(168, 85, 247, 0.3); color:var(--text-dim); font-size:0.88rem;">
-            <i data-lucide="zap-off" style="width:28px; height:28px; color:#c084fc; margin-bottom:8px; display:block; margin-left:auto; margin-right:auto; opacity:0.6;"></i>
-            Nenhuma conta marcada como <strong>Aquecida & Livre</strong> no momento.<br/>
-            <span style="font-size:0.78rem; opacity:0.8; margin-top:4px; display:inline-block;">Altere o status de uma conta para "⚡ Aquecida & Livre (Pronta)" para disponibilizá-la neste espaço de estoque.</span>
+          <div style="grid-column: 1 / -1; text-align:center; padding:36px 16px; background:rgba(255,255,255,0.02); border-radius:var(--radius-md); border:1px dashed ${themeBadgeBorder}; color:var(--text-dim); font-size:0.88rem;">
+            <i data-lucide="${iconName}" style="width:32px; height:32px; color:${themeColor}; margin-bottom:10px; display:block; margin-left:auto; margin-right:auto; opacity:0.65;"></i>
+            <strong>${emptyMsg}</strong><br/>
+            <span style="font-size:0.78rem; opacity:0.85; margin-top:4px; display:inline-block;">${emptyTip}</span>
           </div>
         `;
         lucide.createIcons();
         return;
       }
 
-      container.innerHTML = readyAccounts.map(acc => {
+      container.innerHTML = filteredAccounts.map(acc => {
         const cardTitle = escapeHtml(acc.ca || acc.bm || 'Conta sem nome');
         const bmName = escapeHtml(acc.bm || '—');
         const vendor = escapeHtml(acc.fornecedor || '—');
         const cardInfo = escapeHtml(acc.cartao || 'Sem cartão');
         const structure = escapeHtml(acc.estrutura || '—');
-        const obsText = escapeHtml(acc.obs || 'Pronta para receber projeto.');
+        const rawStatus = acc.status || '';
+        const obsText = escapeHtml(acc.obs || '');
+
+        // Extrai o que está rodando ou detalhes do status [PROJETO / OFERTA]
+        const bracketMatch = rawStatus.match(/\[(.*?)\]/);
+        const runningProject = bracketMatch ? bracketMatch[1] : null;
+
+        // Formatação do badge de status
+        let statusBadgeHtml = '';
+        if (currentOpsCategory === 'RODANDO') {
+          statusBadgeHtml = `
+            <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.45); font-size: 0.72rem; font-weight: 800; padding: 3px 10px; display:inline-flex; align-items:center; gap:5px;">
+              <span style="width:6px; height:6px; border-radius:50%; background:#34d399; box-shadow:0 0 8px #34d399;"></span>
+              RODANDO ${runningProject ? `• <strong>${escapeHtml(runningProject)}</strong>` : ''}
+            </span>
+          `;
+        } else if (currentOpsCategory === 'AQUECENDO') {
+          statusBadgeHtml = `
+            <span class="badge" style="background: rgba(0, 82, 255, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.45); font-size: 0.72rem; font-weight: 800; padding: 3px 10px; display:inline-flex; align-items:center; gap:5px;">
+              <i data-lucide="flame" style="width:11px; height:11px; color:#38bdf8;"></i>
+              AQUECENDO ${runningProject ? `[${escapeHtml(runningProject)}]` : ''}
+            </span>
+          `;
+        } else if (currentOpsCategory === 'AQUECIDA') {
+          statusBadgeHtml = `
+            <span class="badge" style="background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.45); font-size: 0.72rem; font-weight: 800; padding: 3px 10px; display:inline-flex; align-items:center; gap:5px;">
+              <i data-lucide="zap" style="width:11px; height:11px; color:#c084fc;"></i>
+              ⚡ AQUECIDA & LIVRE
+            </span>
+          `;
+        } else {
+          statusBadgeHtml = `
+            <span class="badge" style="background: rgba(249, 115, 22, 0.2); color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.45); font-size: 0.72rem; font-weight: 800; padding: 3px 10px; display:inline-flex; align-items:center; gap:5px;">
+              <i data-lucide="clock" style="width:11px; height:11px; color:#fb923c;"></i>
+              P/ AQUECIMENTO ${runningProject ? `[${escapeHtml(runningProject)}]` : ''}
+            </span>
+          `;
+        }
+
+        // Botão principal de ação do card
+        let actionButtonHtml = '';
+        if (currentOpsCategory === 'AQUECIDA') {
+          actionButtonHtml = `
+            <button type="button" class="btn btn-primary" onclick="launchProjectOnAccount(${acc.id})" style="flex:1; height: 32px; font-size: 0.76rem; background: linear-gradient(135deg, #10b981, #059669); border:none; font-weight:700;" title="Mudar status para Rodando e vincular projeto">
+              <i data-lucide="rocket" style="width: 13px; height: 13px;"></i>
+              <span>Subir Oferta / Ativar</span>
+            </button>
+          `;
+        } else if (currentOpsCategory === 'AQUECER') {
+          actionButtonHtml = `
+            <button type="button" class="btn btn-primary" onclick="startWarmingOnAccount(${acc.id})" style="flex:1; height: 32px; font-size: 0.76rem; background: linear-gradient(135deg, #0ea5e9, #0284c7); border:none; font-weight:700;" title="Iniciar aquecimento ativo nesta conta">
+              <i data-lucide="flame" style="width: 13px; height: 13px;"></i>
+              <span>Iniciar Aquecimento</span>
+            </button>
+          `;
+        } else if (currentOpsCategory === 'AQUECENDO') {
+          actionButtonHtml = `
+            <button type="button" class="btn btn-primary" onclick="markAccountAsWarmed(${acc.id})" style="flex:1; height: 32px; font-size: 0.76rem; background: linear-gradient(135deg, #a855f7, #7e22ce); border:none; font-weight:700;" title="Finalizar aquecimento e mover para estoque livre">
+              <i data-lucide="check-circle" style="width: 13px; height: 13px;"></i>
+              <span>Concluir Aquecimento</span>
+            </button>
+          `;
+        } else {
+          // RODANDO
+          actionButtonHtml = `
+            <button type="button" class="btn btn-secondary" onclick="changeAccountOffer(${acc.id})" style="flex:1; height: 32px; font-size: 0.76rem; border-color:rgba(16,185,129,0.4); color:#34d399; font-weight:700;" title="Trocar oferta ou projeto rodando">
+              <i data-lucide="refresh-cw" style="width: 12px; height: 12px;"></i>
+              <span>Trocar Oferta / Projeto</span>
+            </button>
+          `;
+        }
 
         return `
-          <div style="background: var(--bg-surface-elevated); border: 1px solid rgba(168, 85, 247, 0.35); border-radius: var(--radius-md); padding: 14px; display: flex; flex-direction: column; justify-content: space-between; gap: 12px; position: relative; transition: all 0.2s;" class="hover-elevate">
+          <div class="ops-account-card ${themeCardClass}">
             <div>
-              <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 8px;">
+              <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 10px;">
                 <div>
-                  <span class="badge" style="background: rgba(168, 85, 247, 0.18); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); font-size: 0.7rem; font-weight: 800; padding: 2px 8px;">
-                    ⚡ AQUECIDA & LIVRE
-                  </span>
-                  <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-main); margin-top: 6px; word-break: break-word;">
+                  ${statusBadgeHtml}
+                  <h4 style="font-size: 0.98rem; font-weight: 700; color: #ffffff; margin-top: 8px; word-break: break-word;">
                     ${cardTitle}
                   </h4>
                 </div>
@@ -4910,20 +5339,43 @@
                 </button>
               </div>
 
-              <div style="display: flex; flex-direction: column; gap: 4px; font-size: 0.78rem; color: var(--text-muted); margin-bottom: 8px;">
-                <div><strong>Fornecedor:</strong> ${vendor}</div>
-                <div><strong>BM:</strong> ${bmName}</div>
-                <div><strong>Estrutura:</strong> <span style="color:#38bdf8; font-weight:600;">${structure}</span></div>
-                <div><strong>Cartão:</strong> <span style="font-family:monospace; color:#34d399;">${cardInfo}</span></div>
-                ${acc.obs ? `<div style="margin-top:4px; font-size:0.75rem; color:#fbbf24; background:rgba(251,191,36,0.1); padding:4px 8px; border-radius:4px;">💡 ${obsText}</div>` : ''}
+              <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <span>Fornecedor:</span>
+                  <strong style="color:#e2e8f0;">${vendor}</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <span>Business Manager (BM):</span>
+                  <span style="color:#38bdf8; font-weight:600;">${bmName}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <span>Estrutura:</span>
+                  <span style="color:#f59e0b; font-weight:600; font-size:0.76rem;">${structure}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <span>Cartão:</span>
+                  <span style="font-family:monospace; color:#34d399; font-weight:600; font-size:0.76rem;">${cardInfo}</span>
+                </div>
+
+                ${runningProject ? `
+                  <div style="margin-top:4px; padding:6px 10px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); border-radius:6px; display:flex; align-items:center; gap:8px;">
+                    <i data-lucide="target" style="width:14px; height:14px; color:#34d399; flex-shrink:0;"></i>
+                    <div style="font-size:0.76rem; color:#a7f3d0;">
+                      Rodando Oferta: <strong style="color:#ffffff;">${escapeHtml(runningProject)}</strong>
+                    </div>
+                  </div>
+                ` : ''}
+
+                ${obsText ? `
+                  <div style="margin-top:4px; font-size:0.75rem; color:#fbbf24; background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.25); padding:6px 10px; border-radius:6px; line-height:1.35;">
+                    💡 ${obsText}
+                  </div>
+                ` : ''}
               </div>
             </div>
 
-            <div style="display: flex; gap: 8px; pt: 8px; border-top: 1px solid var(--border-subtle);">
-              <button type="button" class="btn btn-primary" onclick="launchProjectOnAccount(${acc.id})" style="flex:1; height: 32px; font-size: 0.76rem; background: linear-gradient(135deg, #10b981, #059669); border:none; font-weight:700;" title="Mudar status para Rodando e vincular projeto">
-                <i data-lucide="rocket" style="width: 13px; height: 13px;"></i>
-                <span>Subir Oferta / Ativar</span>
-              </button>
+            <div style="display: flex; gap: 8px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08);">
+              ${actionButtonHtml}
               <button type="button" class="btn btn-secondary" onclick="openAccountModal(${acc.id})" style="height: 32px; padding: 0 10px; font-size: 0.76rem;" title="Editar Conta">
                 <i data-lucide="edit-2" style="width: 13px; height: 13px;"></i>
               </button>
@@ -4935,17 +5387,78 @@
       lucide.createIcons();
     }
 
+    // Ações rápidas do Cockpit
+    function startWarmingOnAccount(id) {
+      const acc = bmsData.find(i => i.id === id);
+      if (!acc) return;
+
+      const warmType = prompt(`Iniciar aquecimento na conta "${acc.ca || acc.bm}":\nDigite a tag de aquecimento (ex: ACM):`, "ACM");
+      if (warmType === null) return;
+
+      acc.status = `Aquecendo [${warmType.trim() || 'ACM'}]`;
+      const timestamp = new Date().toLocaleDateString('pt-BR');
+      acc.obs = acc.obs ? `${acc.obs} | Iniciou aquecimento em ${timestamp}` : `Iniciou aquecimento em ${timestamp}`;
+
+      saveLocalData(LOCAL_STORAGE_KEY_BMS, bmsData);
+      renderKPIs();
+      renderCharts();
+      renderBMsTable();
+      showToast(`🔥 Conta em aquecimento ativo!`);
+    }
+
+    function markAccountAsWarmed(id) {
+      const acc = bmsData.find(i => i.id === id);
+      if (!acc) return;
+
+      if (!confirm(`Finalizar aquecimento da conta "${acc.ca || acc.bm}" e movê-la para Contas Aquecidas & Livres?`)) return;
+
+      acc.status = `⚡ Aquecida & Livre (Pronta)`;
+      const timestamp = new Date().toLocaleDateString('pt-BR');
+      acc.obs = acc.obs ? `${acc.obs} | Aquecimento concluído em ${timestamp}` : `Aquecimento concluído em ${timestamp}`;
+
+      saveLocalData(LOCAL_STORAGE_KEY_BMS, bmsData);
+      renderKPIs();
+      renderCharts();
+      renderBMsTable();
+      showToast(`⚡ Conta concluída e adicionada ao estoque livre!`);
+    }
+
+    function changeAccountOffer(id) {
+      const acc = bmsData.find(i => i.id === id);
+      if (!acc) return;
+
+      const currentMatch = (acc.status || '').match(/\[(.*?)\]/);
+      const curOffer = currentMatch ? currentMatch[1] : 'REP TCHECA';
+
+      const newOffer = prompt(`Trocar oferta da conta "${acc.ca || acc.bm}":\nOferta atual: ${curOffer}\nDigite a nova oferta ou projeto:`, curOffer);
+      if (newOffer === null) return;
+
+      acc.status = `Rodando [${newOffer.trim() || curOffer}]`;
+      const timestamp = new Date().toLocaleDateString('pt-BR');
+      acc.obs = acc.obs ? `${acc.obs} | Alterou oferta para ${newOffer.trim()} em ${timestamp}` : `Alterou oferta para ${newOffer.trim()} em ${timestamp}`;
+
+      saveLocalData(LOCAL_STORAGE_KEY_BMS, bmsData);
+      renderKPIs();
+      renderCharts();
+      renderBMsTable();
+      showToast(`🚀 Oferta atualizada para "${acc.status}"!`);
+    }
+
+    function openAddBmModalWithStatus(defaultStatus) {
+      openAccountModal(null, defaultStatus);
+    }
+
     function copyAccountInfo(id) {
       const acc = bmsData.find(i => i.id === id);
       if (!acc) return;
 
-      const formatted = `🚀 CONTA AQUECIDA & LIVRE
+      const formatted = `🚀 DETALHES DO ATIVO FAHTO
 • Fornecedor: ${acc.fornecedor || '—'}
 • BM: ${acc.bm || '—'}
 • CA: ${acc.ca || '—'}
 • Estrutura: ${acc.estrutura || '—'}
 • Cartão: ${acc.cartao || '—'}
-• Status: ${acc.status || '⚡ Aquecida & Livre'}
+• Status: ${acc.status || '—'}
 • Obs: ${acc.obs || '—'}`;
 
       navigator.clipboard.writeText(formatted).then(() => {
