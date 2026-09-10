@@ -1533,6 +1533,11 @@
       </div>
 
       <div class="header-actions">
+        <button class="btn btn-secondary" onclick="openSyncModal()" title="Sincronizar e Fazer Backup dos Dados (Local ↔ Vercel)" style="background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); color: #38bdf8;">
+          <i data-lucide="cloud-lightning" style="width:16px; height:16px;"></i>
+          <span>Backup & Sync</span>
+        </button>
+
         <button class="btn btn-primary" id="btnOpenNewAccountModal">
           <i data-lucide="plus-circle" style="width:16px; height:16px;"></i>
           <span>Incluir novo ativo</span>
@@ -2040,6 +2045,55 @@
         <span>Última sincronização com Google Sheets: às <span id="lastUpdatedTime">--:--:--</span> • Planilha Conectada</span>
       </div>
     </footer>
+  </div>
+
+  <!-- MODAL: BACKUP & SYNCHRONIZATION -->
+  <div class="modal-backdrop" id="modalSyncBackdrop">
+    <div class="modal-window" style="max-width: 580px;">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i data-lucide="cloud-lightning" style="color:#38bdf8; width:20px; height:20px;"></i>
+          <span>Sincronização & Backup do Dashboard</span>
+        </div>
+        <button class="action-btn" onclick="closeSyncModal()"><i data-lucide="x" style="width:16px; height:16px;"></i></button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:16px; line-height:1.45;">
+          Sincronize instantaneamente todos os dados do seu Dashboard local (Contas, Perfis, Status, Senhas 2FA e Anotações) com o seu domínio hospedado na Vercel (<code>https://dashboard-blush-three-19.vercel.app</code>) ou faça um backup completo em arquivo JSON.
+        </p>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px;">
+          <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); padding:16px; border-radius:var(--radius-md); text-align:center;">
+            <i data-lucide="download" style="width:24px; height:24px; color:#10b981; margin-bottom:8px; display:block; margin-left:auto; margin-right:auto;"></i>
+            <strong style="display:block; font-size:0.9rem; color:var(--text-main); margin-bottom:4px;">1. Exportar Dados</strong>
+            <span style="font-size:0.75rem; color:var(--text-dim); display:block; margin-bottom:12px;">Gere o arquivo de backup ou copie o código de sincronização.</span>
+            <button class="btn btn-secondary" onclick="exportFullDashboardBackup()" style="width:100%; justify-content:center; background:rgba(16, 185, 129, 0.15); color:#10b981; border-color:rgba(16, 185, 129, 0.3); margin-bottom:6px;">
+              <i data-lucide="file-json" style="width:14px; height:14px;"></i> Baixar Backup JSON
+            </button>
+            <button class="btn btn-secondary" onclick="copySyncCodeToClipboard()" style="width:100%; justify-content:center; font-size:0.78rem;">
+              <i data-lucide="copy" style="width:13px; height:13px;"></i> Copiar Código Sync
+            </button>
+          </div>
+
+          <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); padding:16px; border-radius:var(--radius-md); text-align:center;">
+            <i data-lucide="upload" style="width:24px; height:24px; color:#38bdf8; margin-bottom:8px; display:block; margin-left:auto; margin-right:auto;"></i>
+            <strong style="display:block; font-size:0.9rem; color:var(--text-main); margin-bottom:4px;">2. Importar / Restaurar</strong>
+            <span style="font-size:0.75rem; color:var(--text-dim); display:block; margin-bottom:12px;">Restaure os dados no site da Vercel em 1 segundo.</span>
+            <label class="btn btn-primary" style="width:100%; justify-content:center; cursor:pointer; margin-bottom:6px; background:#0284c7; border:none;">
+              <i data-lucide="upload-cloud" style="width:14px; height:14px;"></i> Carregar Arquivo JSON
+              <input type="file" id="importJsonFileInput" accept=".json" style="display:none;" onchange="handleImportJsonFile(event)" />
+            </label>
+            <button class="btn btn-secondary" onclick="pasteSyncCodeFromClipboard()" style="width:100%; justify-content:center; font-size:0.78rem;">
+              <i data-lucide="clipboard-check" style="width:13px; height:13px;"></i> Colar Código Sync
+            </button>
+          </div>
+        </div>
+
+        <div style="background:rgba(56, 189, 248, 0.08); border:1px solid rgba(56, 189, 248, 0.2); padding:12px; border-radius:var(--radius-sm); font-size:0.78rem; color:#93c5fd;">
+          💡 <strong>Dica Pro:</strong> Copie o Código Sync aqui no seu Dashboard Local e clique em <strong>"Colar Código Sync"</strong> quando abrir o link da Vercel. Todos os seus dados ficarão 100% idênticos!
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- MODAL: ADD / EDIT ACCOUNT (BM / CA) -->
@@ -5691,6 +5745,146 @@
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
+    }
+
+    // ==========================================
+    // BACKUP & SYNC ENGINE (LOCAL ↔ VERCEL)
+    // ==========================================
+    function openSyncModal() {
+      const modal = document.getElementById('modalSyncBackdrop');
+      if (modal) {
+        modal.classList.add('active');
+        safeCreateIcons();
+      }
+    }
+
+    function closeSyncModal() {
+      const modal = document.getElementById('modalSyncBackdrop');
+      if (modal) modal.classList.remove('active');
+    }
+
+    function getFullDashboardPayload() {
+      return {
+        timestamp: new Date().toISOString(),
+        version: "3.0",
+        bmsData: bmsData || [],
+        profilesData: profilesData || [],
+        accessData: accessData || [],
+        statusesData: statusesData || [],
+        userNotesData: userNotesData || [],
+        alertNotesData: alertNotesData || {}
+      };
+    }
+
+    function exportFullDashboardBackup() {
+      const payload = getFullDashboardPayload();
+      const jsonStr = JSON.stringify(payload, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `fahto_dashboard_backup_${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      showToast("📤 Backup completo do Dashboard exportado em formato JSON!");
+    }
+
+    function copySyncCodeToClipboard() {
+      const payload = getFullDashboardPayload();
+      const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+      navigator.clipboard.writeText(b64).then(() => {
+        showToast("📋 Código de Sincronização copiado! Abra o link da Vercel e clique em 'Colar Código Sync'.");
+      }).catch(() => {
+        showToast("Erro ao copiar para a área de transferência.");
+      });
+    }
+
+    function applyFullDashboardPayload(payload) {
+      if (!payload || typeof payload !== 'object') {
+        showToast("⚠️ Arquivo de dados inválido!");
+        return false;
+      }
+
+      if (Array.isArray(payload.bmsData)) {
+        bmsData = payload.bmsData;
+        saveLocalData(LOCAL_STORAGE_KEY_BMS, bmsData);
+      }
+
+      if (Array.isArray(payload.profilesData)) {
+        profilesData = payload.profilesData;
+        saveLocalData(LOCAL_STORAGE_KEY_PROFILES, profilesData);
+      }
+
+      if (Array.isArray(payload.accessData)) {
+        accessData = payload.accessData;
+        saveLocalData(LOCAL_STORAGE_KEY_ACCESS, accessData);
+      }
+
+      if (Array.isArray(payload.statusesData)) {
+        statusesData = payload.statusesData;
+        saveLocalData(LOCAL_STORAGE_KEY_STATUSES, statusesData);
+      }
+
+      if (Array.isArray(payload.userNotesData)) {
+        userNotesData = payload.userNotesData;
+        saveLocalData(LOCAL_STORAGE_KEY_USER_NOTES, userNotesData);
+      }
+
+      if (payload.alertNotesData && typeof payload.alertNotesData === 'object') {
+        alertNotesData = payload.alertNotesData;
+        saveLocalData(LOCAL_STORAGE_KEY_ALERT_NOTES, alertNotesData);
+      }
+
+      // Re-render UI
+      syncStatusesFromAccounts();
+      populateFilters();
+      renderKPIs();
+      renderCharts();
+      renderAlertsBanner();
+      renderBMsTable();
+      renderProfiles();
+      renderAccess();
+      renderUserNotes();
+      closeSyncModal();
+      showToast("✅ Dados restaurados e sincronizados com sucesso!");
+      return true;
+    }
+
+    function handleImportJsonFile(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const payload = JSON.parse(e.target.result);
+          applyFullDashboardPayload(payload);
+        } catch(err) {
+          showToast("⚠️ Erro ao ler o arquivo JSON de backup.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function pasteSyncCodeFromClipboard() {
+      navigator.clipboard.readText().then(text => {
+        if (!text || text.trim() === '') {
+          showToast("⚠️ Área de transferência vazia.");
+          return;
+        }
+        try {
+          let jsonStr = '';
+          try {
+            jsonStr = decodeURIComponent(escape(atob(text.trim())));
+          } catch(e) {
+            jsonStr = text.trim();
+          }
+          const payload = JSON.parse(jsonStr);
+          applyFullDashboardPayload(payload);
+        } catch(err) {
+          showToast("⚠️ Código de Sincronização inválido.");
+        }
+      }).catch(() => {
+        showToast("⚠️ Não foi possível ler a área de transferência. Use 'Carregar Arquivo JSON'.");
+      });
     }
   </script>
 </body>
