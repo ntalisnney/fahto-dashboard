@@ -11,6 +11,8 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Supabase Cloud Sync JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- FAHTO Official Favicon v3.2 -->
   <link rel="icon" type="image/svg+xml" href="fahto_logo.svg">
 
@@ -2481,6 +2483,23 @@
     const LOCAL_STORAGE_KEY_ACCESS = 'fahto_ops_access_v3';
     const LOCAL_STORAGE_KEY_STATUSES = 'fahto_ops_statuses_v3';
 
+    // ==========================================
+    // SUPABASE REAL-TIME CLOUD SYNC ENGINE
+    // ==========================================
+    const SUPABASE_URL = 'https://wnzgugpmdlknogixdrrz.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_N3WFfwtyZjxWQZjw345hLg_TgpH3cDs';
+    let supabaseClient = null;
+    let isCloudSyncing = false;
+    let cloudDebounceTimer = null;
+
+    if (typeof window !== 'undefined' && window.supabase && typeof window.supabase.createClient === 'function') {
+      try {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      } catch(e) {
+        console.warn("Supabase init error:", e);
+      }
+    }
+
     // Core Helpers (Definidos primeiro para evitar erro de inicialização)
     function safeCreateIcons() {
       if (typeof lucide !== 'undefined' && lucide && typeof lucide.createIcons === 'function') {
@@ -2494,6 +2513,8 @@
       } catch(e) {
         console.error("Error saving to localStorage", e);
       }
+      // Sempre que salvar dados locais, envia automaticamente para a Nuvem Supabase
+      triggerCloudSyncDebounced();
     }
 
     function loadLocalData(key) {
@@ -2502,6 +2523,146 @@
         return stored ? JSON.parse(stored) : null;
       } catch(e) {
         return null;
+      }
+    }
+
+    // Sincroniza estado completo com o Supabase
+    async function syncPushToCloud() {
+      if (!supabaseClient) return;
+      try {
+        const payload = {
+          bmsData: bmsData || [],
+          profilesData: profilesData || [],
+          accessData: accessData || [],
+          statusesData: statusesData || [],
+          userNotesData: typeof userNotesData !== 'undefined' ? userNotesData : [],
+          updatedAt: new Date().toISOString()
+        };
+
+        const { error } = await supabaseClient
+          .from('fahto_state')
+          .upsert({ id: 'primary_dashboard_state', data: payload, updated_at: new Date().toISOString() });
+
+        if (!error) {
+          updateCloudStatusIndicator(true);
+        } else {
+          console.warn("Cloud sync push error:", error);
+          updateCloudStatusIndicator(false);
+        }
+      } catch(err) {
+        console.warn("Cloud sync error:", err);
+        updateCloudStatusIndicator(false);
+      }
+    }
+
+    function triggerCloudSyncDebounced() {
+      if (cloudDebounceTimer) clearTimeout(cloudDebounceTimer);
+      cloudDebounceTimer = setTimeout(() => {
+        syncPushToCloud();
+      }, 1000);
+    }
+
+    // Puxa o estado mais recente da Nuvem Supabase
+    async function syncPullFromCloud(silent = false) {
+      if (!supabaseClient) return;
+      try {
+        const { data, error } = await supabaseClient
+          .from('fahto_state')
+          .select('data, updated_at')
+          .eq('id', 'primary_dashboard_state')
+          .maybeSingle();
+
+        if (error) {
+          console.warn("Cloud pull error:", error);
+          updateCloudStatusIndicator(false);
+          return;
+        }
+
+        if (data && data.data) {
+          const remote = data.data;
+          let changed = false;
+
+          if (Array.isArray(remote.bmsData) && remote.bmsData.length > 0) {
+            bmsData = remote.bmsData;
+            localStorage.setItem(LOCAL_STORAGE_KEY_BMS, JSON.stringify(bmsData));
+            changed = true;
+          }
+          if (Array.isArray(remote.profilesData) && remote.profilesData.length > 0) {
+            profilesData = remote.profilesData;
+            localStorage.setItem(LOCAL_STORAGE_KEY_PROFILES, JSON.stringify(profilesData));
+            changed = true;
+          }
+          if (Array.isArray(remote.accessData) && remote.accessData.length > 0) {
+            accessData = remote.accessData;
+            localStorage.setItem(LOCAL_STORAGE_KEY_ACCESS, JSON.stringify(accessData));
+            changed = true;
+          }
+          if (Array.isArray(remote.statusesData) && remote.statusesData.length > 0) {
+            statusesData = remote.statusesData;
+            localStorage.setItem(LOCAL_STORAGE_KEY_STATUSES, JSON.stringify(statusesData));
+            changed = true;
+          }
+          if (Array.isArray(remote.userNotesData) && typeof userNotesData !== 'undefined') {
+            userNotesData = remote.userNotesData;
+            localStorage.setItem(LOCAL_STORAGE_KEY_USER_NOTES, JSON.stringify(userNotesData));
+            changed = true;
+          }
+
+          if (changed) {
+            updateClock();
+            populateDatalists();
+            populateFilters();
+            renderKPIs();
+            renderCharts();
+            renderBMsTable();
+            renderProfiles();
+            renderAccess();
+            if (typeof renderUserNotes === 'function') renderUserNotes();
+            if (!silent && typeof showToast === 'function') {
+              showToast("☁️ Dados sincronizados em tempo real via Nuvem!");
+            }
+          }
+          updateCloudStatusIndicator(true);
+        } else {
+          // Primeira vez conectando: banco vazio, envia os dados locais iniciais
+          syncPushToCloud();
+        }
+      } catch(e) {
+        console.warn("Cloud pull error:", e);
+        updateCloudStatusIndicator(false);
+      }
+    }
+
+    // Ouvinte em tempo real via WebSockets do Supabase
+    function initSupabaseRealtimeListener() {
+      if (!supabaseClient) return;
+      try {
+        supabaseClient
+          .channel('public:fahto_state')
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'fahto_state' }, payload => {
+            if (payload && payload.new && payload.new.data) {
+              syncPullFromCloud(false);
+            }
+          })
+          .subscribe();
+      } catch(e) {
+        console.warn("Supabase realtime subscription error:", e);
+      }
+    }
+
+    function updateCloudStatusIndicator(isOnline) {
+      const pill = document.getElementById('liveStatusPill');
+      const text = document.getElementById('liveStatusText');
+      const dot = document.getElementById('livePulseDot');
+      if (pill && text && dot) {
+        if (isOnline) {
+          pill.style.borderColor = 'rgba(56, 189, 248, 0.4)';
+          pill.style.background = 'rgba(56, 189, 248, 0.12)';
+          pill.style.color = '#38bdf8';
+          text.textContent = '☁️ NUVEM ATIVA • Tempo Real';
+          dot.style.backgroundColor = '#38bdf8';
+          dot.style.boxShadow = '0 0 8px #38bdf8';
+        }
       }
     }
 
@@ -3005,6 +3166,10 @@
       initActionButtons();
 
       startLiveSyncEngine();
+
+      // Inicia sincronização em tempo real via Nuvem Supabase
+      syncPullFromCloud(true);
+      initSupabaseRealtimeListener();
     });
 
     // ==========================================
