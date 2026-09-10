@@ -680,6 +680,12 @@
       border-color: rgba(249, 115, 22, 0.45) !important;
       box-shadow: 0 0 20px rgba(249, 115, 22, 0.25) !important;
     }
+    .ops-tab-btn.active-bms {
+      color: #38bdf8 !important;
+      background: rgba(0, 82, 255, 0.2) !important;
+      border-color: rgba(56, 189, 248, 0.5) !important;
+      box-shadow: 0 0 20px rgba(0, 82, 255, 0.3) !important;
+    }
     .ops-tab-btn .ops-badge {
       font-size: 0.72rem;
       padding: 2px 7px;
@@ -703,6 +709,10 @@
     .ops-tab-btn.active-towarm .ops-badge {
       background: rgba(249, 115, 22, 0.3);
       color: #ffedd5;
+    }
+    .ops-tab-btn.active-bms .ops-badge {
+      background: rgba(0, 82, 255, 0.4);
+      color: #e0f2fe;
     }
 
     .ops-account-card {
@@ -738,6 +748,9 @@
     }
     .ops-account-card.ready-card::before {
       background: linear-gradient(90deg, #a855f7, #7e22ce);
+    }
+    .ops-account-card.bms-card::before {
+      background: linear-gradient(90deg, #38bdf8, #0052ff);
     }
     .ops-account-card:hover {
       transform: translateY(-4px);
@@ -1733,7 +1746,7 @@
     <div class="tab-pane active" id="tab-overview">
       <!-- KPI METRICS -->
       <div class="kpi-grid">
-        <div class="kpi-card clickable" onclick="goToStatusFilter('ALL')" title="Clique para ver todo o inventário de BMs e Contas de Anúncios">
+        <div class="kpi-card clickable" onclick="switchOpsTab('EMPTY_BMS')" title="Ver e gerenciar Business Managers e suas contas de anúncios">
           <div class="kpi-top">
             <span class="kpi-title" style="color:#38bdf8;">BMs Operacionais</span>
             <div class="kpi-icon" style="background: rgba(0, 82, 255, 0.2); color: #38bdf8; box-shadow: 0 0 15px rgba(0, 82, 255, 0.35);">
@@ -1754,7 +1767,7 @@
             </div>
           </div>
           <div id="kpiBmsPreview" style="display:flex; flex-wrap:wrap; gap:4px; margin-top:8px; border-top:1px solid rgba(255,255,255,0.06); padding-top:6px; min-height:22px;"></div>
-          <div class="kpi-click-hint"><i data-lucide="arrow-right" style="width:10px;height:10px;"></i> ver todas</div>
+          <div class="kpi-click-hint"><i data-lucide="arrow-right" style="width:10px;height:10px;"></i> gerenciar bms</div>
         </div>
 
         <div class="kpi-card clickable" onclick="switchOpsTab('RODANDO')" title="Ver contas rodando">
@@ -1976,6 +1989,11 @@
                   <i data-lucide="clock" style="width:14px; height:14px;"></i>
                   <span>Fila p/ Aquecer</span>
                   <span class="ops-badge" id="opsBadgeToWarm">0</span>
+                </button>
+                <button type="button" class="ops-tab-btn" id="tabBtnOpsEmptyBMs" onclick="switchOpsTab('EMPTY_BMS')">
+                  <i data-lucide="folder-plus" style="width:14px; height:14px;"></i>
+                  <span>BMs (Gerenciar CAs)</span>
+                  <span class="ops-badge" id="opsBadgeEmptyBMs">0</span>
                 </button>
               </div>
 
@@ -2663,6 +2681,68 @@
             <span>Salvar Anotação</span>
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: DETALHES DA BM & GERENCIAMENTO DE CAS -->
+  <div class="modal-backdrop" id="modalBmDetailBackdrop">
+    <div class="modal-window" style="max-width: 680px;">
+      <div class="modal-header">
+        <div class="modal-title">
+          <div style="width:32px; height:32px; border-radius:8px; background:rgba(0,82,255,0.2); display:flex; align-items:center; justify-content:center; color:#38bdf8;">
+            <i data-lucide="layers" style="width:18px; height:18px;"></i>
+          </div>
+          <div>
+            <span id="modalBmDetailTitle">Detalhes da BM</span>
+            <div id="modalBmDetailSubtitle" style="font-size:0.75rem; color:var(--text-dim); font-weight:normal; margin-top:2px;">Contas de anúncios vinculadas e gerenciamento</div>
+          </div>
+        </div>
+        <button class="action-btn" onclick="closeBmDetailModal()"><i data-lucide="x" style="width:16px; height:16px;"></i></button>
+      </div>
+
+      <div class="modal-body" style="display:flex; flex-direction:column; gap:16px;">
+        <!-- INFO GERAL DA BM -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px; background:rgba(255,255,255,0.02); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:12px;">
+          <div>
+            <div style="font-size:0.72rem; color:var(--text-dim);">Fornecedor:</div>
+            <div id="modalBmDetailVendor" style="font-size:0.88rem; font-weight:700; color:#e2e8f0; margin-top:2px;">--</div>
+          </div>
+          <div>
+            <div style="font-size:0.72rem; color:var(--text-dim);">Total de CAs Criadas:</div>
+            <div id="modalBmDetailCount" style="font-size:0.88rem; font-weight:700; color:#38bdf8; margin-top:2px;">--</div>
+          </div>
+          <div>
+            <div style="font-size:0.72rem; color:var(--text-dim);">Status do Ativo BM:</div>
+            <div id="modalBmDetailStatusBadge" style="margin-top:2px;">--</div>
+          </div>
+        </div>
+
+        <!-- LISTA DE CONTAS DE ANÚNCIOS NESSA BM -->
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <span style="font-size:0.84rem; font-weight:700; color:var(--text-main); display:flex; align-items:center; gap:6px;">
+              <i data-lucide="list" style="width:14px; height:14px; color:#38bdf8;"></i>
+              Contas de Anúncios Criadas nesta BM
+            </span>
+            <button type="button" class="btn btn-primary" id="btnModalAddCaToBm" style="height:28px; padding:0 10px; font-size:0.75rem; gap:4px; font-weight:700;">
+              <i data-lucide="plus" style="width:12px; height:12px;"></i>
+              <span>+ Criar / Adicionar CA</span>
+            </button>
+          </div>
+
+          <div id="modalBmCasList" style="display:flex; flex-direction:column; gap:8px; max-height:280px; overflow-y:auto; padding-right:4px;">
+            <!-- Populated dynamically via JS -->
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="justify-content:space-between;">
+        <button type="button" class="btn btn-secondary" onclick="closeBmDetailModal()">Fechar</button>
+        <button type="button" class="btn btn-primary" id="btnModalGoTabularBm" style="gap:6px; font-weight:700;">
+          <i data-lucide="external-link" style="width:14px; height:14px;"></i>
+          <span>Filtrar no Tabular</span>
+        </button>
       </div>
     </div>
   </div>
@@ -5045,6 +5125,7 @@
       if (currentOpsCategory === 'AQUECENDO') return 'Aquecendo [ACM]';
       if (currentOpsCategory === 'AQUECER') return 'Aquecer[ACM]';
       if (currentOpsCategory === 'AQUECIDA') return '⚡ Aquecida & Livre (Pronta)';
+      if (currentOpsCategory === 'EMPTY_BMS') return 'Aquecer[ACM]';
       return 'Rodando [REP TCHECA]';
     }
 
@@ -5056,13 +5137,14 @@
         { id: 'tabBtnOpsRunning', cat: 'RODANDO', cls: 'active-running' },
         { id: 'tabBtnOpsWarming', cat: 'AQUECENDO', cls: 'active-warming' },
         { id: 'tabBtnOpsReady', cat: 'AQUECIDA', cls: 'active-ready' },
-        { id: 'tabBtnOpsToWarm', cat: 'AQUECER', cls: 'active-towarm' }
+        { id: 'tabBtnOpsToWarm', cat: 'AQUECER', cls: 'active-towarm' },
+        { id: 'tabBtnOpsEmptyBMs', cat: 'EMPTY_BMS', cls: 'active-bms' }
       ];
 
       tabs.forEach(t => {
         const btn = document.getElementById(t.id);
         if (btn) {
-          btn.classList.remove('active-running', 'active-warming', 'active-ready', 'active-towarm');
+          btn.classList.remove('active-running', 'active-warming', 'active-ready', 'active-towarm', 'active-bms');
           if (t.cat === cat) {
             btn.classList.add(t.cls);
           }
@@ -5203,22 +5285,194 @@
       const addBtnText = document.getElementById('opsAddBtnText');
 
       // Atualiza badges contadores das abas
-      const runningCount = bmsData.filter(i => getStatusCategory(i.status) === 'RODANDO').length;
-      const warmingCount = bmsData.filter(i => getStatusCategory(i.status) === 'AQUECENDO').length;
-      const readyCount = bmsData.filter(i => getStatusCategory(i.status) === 'AQUECIDA').length;
-      const toWarmCount = bmsData.filter(i => getStatusCategory(i.status) === 'AQUECER').length;
+      // Agrupamento de BMs para contagem de BMs com e sem CA
+      const bmGroupsMap = new Map();
+      bmsData.forEach(item => {
+        const bmName = (item.bm || '').trim();
+        if (!bmName) return;
+        if (!bmGroupsMap.has(bmName)) {
+          bmGroupsMap.set(bmName, {
+            bm: bmName,
+            fornecedor: item.fornecedor || '—',
+            items: []
+          });
+        }
+        bmGroupsMap.get(bmName).items.push(item);
+      });
+
+      // BMs vazias (que só têm 'Apenas BM (Sem CA)' ou 0 CAs)
+      const bmsListAll = Array.from(bmGroupsMap.values());
+      const emptyBmsList = bmsListAll.filter(group => {
+        return group.items.every(i => !i.ca || i.ca.trim() === 'Apenas BM (Sem CA)');
+      });
 
       const badgeRunning = document.getElementById('opsBadgeRunning');
       const badgeWarming = document.getElementById('opsBadgeWarming');
       const badgeReady = document.getElementById('opsBadgeReady');
       const badgeToWarm = document.getElementById('opsBadgeToWarm');
+      const badgeEmptyBMs = document.getElementById('opsBadgeEmptyBMs');
 
       if (badgeRunning) badgeRunning.textContent = runningCount;
       if (badgeWarming) badgeWarming.textContent = warmingCount;
       if (badgeReady) badgeReady.textContent = readyCount;
       if (badgeToWarm) badgeToWarm.textContent = toWarmCount;
+      if (badgeEmptyBMs) badgeEmptyBMs.textContent = `${emptyBmsList.length} vazias`;
 
       if (!container) return;
+
+      // ===============================================
+      // VISÃO ESPECIAL: BMs & GERENCIADOR DE CAs
+      // ===============================================
+      if (currentOpsCategory === 'EMPTY_BMS') {
+        const themeColor = '#38bdf8';
+        const themeBadgeBg = 'rgba(0, 82, 255, 0.2)';
+        const themeBadgeBorder = 'rgba(56, 189, 248, 0.4)';
+
+        if (badge) {
+          badge.style.background = themeBadgeBg;
+          badge.style.color = themeColor;
+          badge.style.borderColor = themeBadgeBorder;
+          badge.textContent = `${bmsListAll.length} BMs Cadastradas • ${emptyBmsList.length} Sem CAs Criadas`;
+        }
+
+        if (headerIcon) {
+          headerIcon.style.background = themeBadgeBg;
+          headerIcon.style.color = themeColor;
+          headerIcon.style.boxShadow = `0 0 15px ${themeBadgeBg}`;
+          headerIcon.innerHTML = `<i data-lucide="layers" style="width: 20px; height: 20px;"></i>`;
+        }
+
+        if (subtitle) {
+          subtitle.textContent = 'Gerenciamento de Business Managers. Clique em uma BM para ver suas contas criadas ou adicionar novas CAs sob demanda.';
+        }
+
+        if (addBtnText) addBtnText.textContent = '+ Cadastrar Nova BM';
+
+        if (bmsListAll.length === 0) {
+          container.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align:center; padding:36px 16px; background:rgba(255,255,255,0.02); border-radius:var(--radius-md); border:1px dashed ${themeBadgeBorder}; color:var(--text-dim); font-size:0.88rem;">
+              <i data-lucide="layers" style="width:32px; height:32px; color:${themeColor}; margin-bottom:10px; display:block; margin-left:auto; margin-right:auto; opacity:0.65;"></i>
+              <strong>Nenhuma Business Manager cadastrada no sistema.</strong><br/>
+              <span style="font-size:0.78rem; opacity:0.85; margin-top:4px; display:inline-block;">Clique em "+ Cadastrar Nova BM" para adicionar sua primeira BM.</span>
+            </div>
+          `;
+          lucide.createIcons();
+          return;
+        }
+
+        // Ordena colocando BMs sem CA primeiro para fácil visualização
+        const sortedBmGroups = [...bmsListAll].sort((a, b) => {
+          const aEmpty = a.items.every(i => !i.ca || i.ca.trim() === 'Apenas BM (Sem CA)');
+          const bEmpty = b.items.every(i => !i.ca || i.ca.trim() === 'Apenas BM (Sem CA)');
+          if (aEmpty && !bEmpty) return -1;
+          if (!aEmpty && bEmpty) return 1;
+          return a.bm.localeCompare(b.bm);
+        });
+
+        container.innerHTML = sortedBmGroups.map(group => {
+          const bmNameEsc = escapeHtml(group.bm);
+          const vendorEsc = escapeHtml(group.fornecedor);
+          const validCas = group.items.filter(i => i.ca && i.ca.trim() !== 'Apenas BM (Sem CA)');
+          const isBmEmpty = validCas.length === 0;
+
+          // Status geral da BM
+          const hasRunning = group.items.some(i => getStatusCategory(i.status) === 'RODANDO');
+          const hasWarming = group.items.some(i => getStatusCategory(i.status) === 'AQUECENDO' || getStatusCategory(i.status) === 'AQUECER');
+          const hasReady = group.items.some(i => getStatusCategory(i.status) === 'AQUECIDA');
+
+          let bmStatusTag = '';
+          if (isBmEmpty) {
+            bmStatusTag = `
+              <span class="badge" style="background:rgba(245,158,11,0.18); color:#fbbf24; border:1px solid rgba(245,158,11,0.4); font-size:0.7rem; font-weight:800; padding:2px 8px;">
+                ⚠️ BM VAZIA (0 CAs CRIADAS)
+              </span>
+            `;
+          } else if (hasRunning) {
+            bmStatusTag = `
+              <span class="badge" style="background:rgba(16,185,129,0.18); color:#34d399; border:1px solid rgba(16,185,129,0.4); font-size:0.7rem; font-weight:800; padding:2px 8px;">
+                ● ${validCas.length} CAs • TRÁFEGO ATIVO
+              </span>
+            `;
+          } else if (hasReady) {
+            bmStatusTag = `
+              <span class="badge" style="background:rgba(168,85,247,0.18); color:#c084fc; border:1px solid rgba(168,85,247,0.4); font-size:0.7rem; font-weight:800; padding:2px 8px;">
+                ⚡ ${validCas.length} CAs • ESTOQUE PRONTO
+              </span>
+            `;
+          } else {
+            bmStatusTag = `
+              <span class="badge" style="background:rgba(0,82,255,0.18); color:#38bdf8; border:1px solid rgba(56,189,248,0.4); font-size:0.7rem; font-weight:800; padding:2px 8px;">
+                ● ${validCas.length} CAs VINCULADAS
+              </span>
+            `;
+          }
+
+          // Pills das CAs existentes
+          const casListHtml = isBmEmpty ? `
+            <div style="font-size:0.76rem; color:#fbbf24; background:rgba(245,158,11,0.08); border:1px dashed rgba(245,158,11,0.3); border-radius:6px; padding:8px 10px; margin-top:6px; display:flex; align-items:center; gap:6px;">
+              <i data-lucide="alert-circle" style="width:14px; height:14px; flex-shrink:0;"></i>
+              <span>Ainda sem contas de anúncios criadas nesta BM.</span>
+            </div>
+          ` : `
+            <div style="display:flex; flex-wrap:wrap; gap:4px; margin-top:6px; max-height:58px; overflow:hidden;">
+              ${validCas.slice(0, 3).map(caItem => {
+                const caName = escapeHtml(caItem.ca);
+                const caCat = getStatusCategory(caItem.status);
+                let caColor = '#94a3b8';
+                if (caCat === 'RODANDO') caColor = '#34d399';
+                else if (caCat === 'AQUECENDO' || caCat === 'AQUECER') caColor = '#38bdf8';
+                else if (caCat === 'AQUECIDA') caColor = '#c084fc';
+                else if (caCat === 'CAIU') caColor = '#fb7185';
+                return `<span class="kpi-preview-pill" style="color:${caColor};">${caName}</span>`;
+              }).join('')}
+              ${validCas.length > 3 ? `<span style="font-size:0.68rem; color:var(--text-dim); align-self:center;">+${validCas.length - 3} CAs</span>` : ''}
+            </div>
+          `;
+
+          return `
+            <div class="ops-account-card bms-card" style="cursor:pointer;" onclick="openBmDetailModal('${escapeHtml(group.bm.replace(/'/g, "\\'"))}')">
+              <div>
+                <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 8px;">
+                  <div>
+                    ${bmStatusTag}
+                    <h4 style="font-size: 1.05rem; font-weight: 700; color: #ffffff; margin-top: 8px; word-break: break-word;">
+                      ${bmNameEsc}
+                    </h4>
+                  </div>
+                  <button type="button" class="btn btn-secondary" style="padding: 4px 8px; height: 26px; font-size: 0.72rem;" onclick="event.stopPropagation(); openBmDetailModal('${escapeHtml(group.bm.replace(/'/g, "\\'"))}')" title="Abrir detalhes da BM e gerenciar CAs">
+                    <i data-lucide="eye" style="width: 12px; height: 12px;"></i>
+                  </button>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 4px; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">
+                  <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span>Fornecedor:</span>
+                    <strong style="color:#e2e8f0;">${vendorEsc}</strong>
+                  </div>
+                  <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span>Contas criadas:</span>
+                    <strong style="color:${isBmEmpty ? '#fbbf24' : '#38bdf8'};">${validCas.length} CAs</strong>
+                  </div>
+                  ${casListHtml}
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 8px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08);" onclick="event.stopPropagation();">
+                <button type="button" class="btn btn-primary" onclick="openAccountModal(null, 'Aquecer[ACM]', '${escapeHtml(group.bm.replace(/'/g, "\\'"))}', '${escapeHtml((group.fornecedor || '').replace(/'/g, "\\'"))}')" style="flex:1; height: 32px; font-size: 0.76rem; background: linear-gradient(135deg, #0ea5e9, #0284c7); border:none; font-weight:700;" title="Adicionar / Criar nova conta de anúncios nesta BM">
+                  <i data-lucide="plus" style="width: 13px; height: 13px;"></i>
+                  <span>+ Criar CA nesta BM</span>
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="openBmDetailModal('${escapeHtml(group.bm.replace(/'/g, "\\'"))}')" style="height: 32px; padding: 0 10px; font-size: 0.76rem;" title="Ver todas as CAs desta BM">
+                  <i data-lucide="layers" style="width: 13px; height: 13px;"></i>
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        lucide.createIcons();
+        return;
+      }
 
       const filteredAccounts = bmsData.filter(i => getStatusCategory(i.status) === currentOpsCategory);
 
@@ -5448,6 +5702,126 @@
       }).join('');
 
       lucide.createIcons();
+    }
+
+    // ==========================================
+    // MODAL DE DETALHES DA BM & GERENCIADOR DE CAS
+    // ==========================================
+    let currentSelectedBmName = null;
+
+    function openBmDetailModal(bmName) {
+      currentSelectedBmName = bmName;
+      const backdrop = document.getElementById('modalBmDetailBackdrop');
+      if (!backdrop) return;
+
+      const titleEl = document.getElementById('modalBmDetailTitle');
+      const vendorEl = document.getElementById('modalBmDetailVendor');
+      const countEl = document.getElementById('modalBmDetailCount');
+      const badgeEl = document.getElementById('modalBmDetailStatusBadge');
+      const listEl = document.getElementById('modalBmCasList');
+      const addBtn = document.getElementById('btnModalAddCaToBm');
+      const goTabularBtn = document.getElementById('btnModalGoTabularBm');
+
+      // Itens dessa BM
+      const bmItems = bmsData.filter(i => (i.bm || '').trim().toLowerCase() === (bmName || '').trim().toLowerCase());
+      const vendorName = bmItems.length > 0 ? (bmItems[0].fornecedor || '—') : '—';
+      const validCas = bmItems.filter(i => i.ca && i.ca.trim() !== 'Apenas BM (Sem CA)');
+
+      if (titleEl) titleEl.textContent = `BM: ${bmName}`;
+      if (vendorEl) vendorEl.textContent = vendorName;
+      if (countEl) countEl.textContent = `${validCas.length} ${validCas.length === 1 ? 'Conta Criada' : 'Contas Criadas'}`;
+
+      if (badgeEl) {
+        if (validCas.length === 0) {
+          badgeEl.innerHTML = `<span class="badge" style="background:rgba(245,158,11,0.2); color:#fbbf24; border:1px solid rgba(245,158,11,0.4); font-size:0.75rem; font-weight:800; padding:3px 10px;">⚠️ BM Vazia (Sem CAs)</span>`;
+        } else {
+          badgeEl.innerHTML = `<span class="badge" style="background:rgba(16,185,129,0.2); color:#34d399; border:1px solid rgba(16,185,129,0.4); font-size:0.75rem; font-weight:800; padding:3px 10px;">● Ativa com ${validCas.length} CAs</span>`;
+        }
+      }
+
+      if (addBtn) {
+        addBtn.onclick = () => {
+          closeBmDetailModal();
+          openAccountModal(null, 'Aquecer[ACM]', bmName, vendorName);
+        };
+      }
+
+      if (goTabularBtn) {
+        goTabularBtn.onclick = () => {
+          closeBmDetailModal();
+          switchTab('tab-bms');
+          const searchInput = document.getElementById('bmSearchInput');
+          if (searchInput) {
+            searchInput.value = bmName;
+            renderBMsTable();
+          }
+        };
+      }
+
+      if (listEl) {
+        if (validCas.length === 0) {
+          listEl.innerHTML = `
+            <div style="text-align:center; padding:24px 16px; background:rgba(255,255,255,0.02); border:1px dashed rgba(245,158,11,0.3); border-radius:8px; color:var(--text-muted); font-size:0.85rem;">
+              <i data-lucide="layers" style="width:28px; height:28px; color:#fbbf24; margin-bottom:8px; display:block; margin-left:auto; margin-right:auto; opacity:0.6;"></i>
+              <strong>Nenhuma Conta de Anúncios criada nesta BM ainda.</strong><br/>
+              <span style="font-size:0.78rem; opacity:0.85; margin-top:4px; display:inline-block;">À medida que for criando no gerenciador, clique no botão acima para cadastrar a CA.</span>
+            </div>
+          `;
+        } else {
+          listEl.innerHTML = validCas.map(caItem => {
+            const caNameEsc = escapeHtml(caItem.ca);
+            const statusEsc = escapeHtml(caItem.status || 'Sem status');
+            const cartaoEsc = escapeHtml(caItem.cartao || 'Sem cartão');
+            const estruturaEsc = escapeHtml(caItem.estrutura || '—');
+            const cat = getStatusCategory(caItem.status);
+
+            let catBadge = '';
+            if (cat === 'RODANDO') {
+              catBadge = `<span class="badge" style="background:rgba(16,185,129,0.2); color:#34d399; font-size:0.7rem; font-weight:800;">${statusEsc}</span>`;
+            } else if (cat === 'AQUECENDO' || cat === 'AQUECER') {
+              catBadge = `<span class="badge" style="background:rgba(0,82,255,0.2); color:#38bdf8; font-size:0.7rem; font-weight:800;">${statusEsc}</span>`;
+            } else if (cat === 'AQUECIDA') {
+              catBadge = `<span class="badge" style="background:rgba(168,85,247,0.2); color:#c084fc; font-size:0.7rem; font-weight:800;">${statusEsc}</span>`;
+            } else if (cat === 'CAIU') {
+              catBadge = `<span class="badge" style="background:rgba(244,63,94,0.2); color:#fb7185; font-size:0.7rem; font-weight:800;">${statusEsc}</span>`;
+            } else {
+              catBadge = `<span class="badge" style="font-size:0.7rem;">${statusEsc}</span>`;
+            }
+
+            return `
+              <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:8px; padding:10px 14px; display:flex; align-items:center; justify-content:space-between; gap:10px;" class="hover-elevate">
+                <div style="display:flex; flex-direction:column; gap:3px;">
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <strong style="color:#ffffff; font-size:0.88rem;">${caNameEsc}</strong>
+                    ${catBadge}
+                  </div>
+                  <div style="font-size:0.76rem; color:var(--text-dim); display:flex; gap:12px; flex-wrap:wrap;">
+                    <span>Estrutura: <strong style="color:#38bdf8;">${estruturaEsc}</strong></span>
+                    <span>Cartão: <strong style="color:#34d399; font-family:monospace;">${cartaoEsc}</strong></span>
+                  </div>
+                </div>
+
+                <div style="display:flex; gap:6px;">
+                  <button type="button" class="btn btn-secondary" style="padding:4px 8px; height:28px; font-size:0.72rem;" onclick="copyAccountInfo(${caItem.id})" title="Copiar dados desta conta">
+                    <i data-lucide="copy" style="width:12px; height:12px;"></i>
+                  </button>
+                  <button type="button" class="btn btn-secondary" style="padding:4px 8px; height:28px; font-size:0.72rem;" onclick="closeBmDetailModal(); openAccountModal(${caItem.id})" title="Editar conta">
+                    <i data-lucide="edit-2" style="width:12px; height:12px;"></i>
+                  </button>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+
+      backdrop.classList.add('active');
+      lucide.createIcons();
+    }
+
+    function closeBmDetailModal() {
+      const backdrop = document.getElementById('modalBmDetailBackdrop');
+      if (backdrop) backdrop.classList.remove('active');
     }
 
     // Ações rápidas do Cockpit
