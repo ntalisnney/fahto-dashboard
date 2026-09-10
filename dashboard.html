@@ -1871,16 +1871,16 @@
             </div>
           </div>
           <div style="display:flex; align-items:baseline; gap:8px; margin-bottom:4px;">
-            <span class="kpi-value" id="kpiBMsActiveCount" style="color:#ffffff; margin-bottom:0;">18</span>
+            <span class="kpi-value" id="kpiBMsActiveCount" style="color:#ffffff; margin-bottom:0;">0</span>
             <span style="font-size:1.1rem; font-weight:700; color:#38bdf8;">BMs</span>
             <span style="color:var(--text-dim); font-size:0.9rem;">•</span>
-            <span id="kpiVendorsTotal" style="font-size:0.95rem; font-weight:600; color:#94a3b8;">7 Fornecedores</span>
+            <span id="kpiVendorsTotal" style="font-size:0.95rem; font-weight:600; color:#94a3b8;">0 Fornecedores</span>
           </div>
           <div class="kpi-meta" style="display:flex; align-items:center; justify-content:space-between; width:100%; border-top:1px solid rgba(255,255,255,0.06); padding-top:6px; margin-top:4px;">
             <div style="font-size: 0.72rem; color: var(--text-muted); display:flex; align-items:center; gap:5px;">
-              <span>Histórico geral:</span>
-              <strong id="kpiTotalCAs" style="color:#e2e8f0; font-weight:700;">47</strong>
-              <span style="font-size:0.68rem; color:var(--text-dim);">(ativas + caídas)</span>
+              <span>BMs cadastradas:</span>
+              <strong id="kpiBMsRegisteredCount" style="color:#38bdf8; font-weight:700;">0</strong>
+              <span style="font-size:0.68rem; color:var(--text-dim);">(ativas no dash)</span>
             </div>
           </div>
           <div id="kpiBmsPreview" style="display:flex; flex-wrap:wrap; gap:4px; margin-top:8px; border-top:1px solid rgba(255,255,255,0.06); padding-top:6px; min-height:22px;"></div>
@@ -4815,7 +4815,10 @@
         else if (cat === "PARADA" || cat === "STANDBY") stopped++;
       });
 
-      document.getElementById('kpiTotalCAs').textContent = total;
+      const totalCAsEl = document.getElementById('kpiTotalCAs');
+      if (totalCAsEl) totalCAsEl.textContent = total;
+      const bmsRegEl = document.getElementById('kpiBMsRegisteredCount');
+      if (bmsRegEl) bmsRegEl.textContent = uniqueBMs.size;
       document.getElementById('kpiRunningCAs').textContent = running;
       if (document.getElementById('kpiWarmingActiveCAs')) {
         document.getElementById('kpiWarmingActiveCAs').textContent = warmingActive;
@@ -5364,9 +5367,15 @@
     // ==========================================
     let currentOpsCategory = 'RODANDO';
     let currentBmOpsFilter = 'ALL'; // 'ALL', 'EMPTY', 'RUNNING', 'READY', 'DOWN', 'HIDDEN'
+    let currentOfferOpsFilter = 'ALL'; // 'ALL' or specific offer name like 'REP TCHECA', 'ED ROM'
 
     function setBmOpsFilter(filter) {
       currentBmOpsFilter = filter;
+      renderOperationsCockpit();
+    }
+
+    function setOfferOpsFilter(offer) {
+      currentOfferOpsFilter = offer;
       renderOperationsCockpit();
     }
 
@@ -5381,6 +5390,7 @@
 
     function switchOpsTab(cat) {
       currentOpsCategory = cat;
+      currentOfferOpsFilter = 'ALL';
 
       // Atualiza botões
       const tabs = [
@@ -5985,7 +5995,86 @@
         return;
       }
 
-      container.innerHTML = filteredAccounts.map(acc => {
+      // ===============================================
+      // FILTRO POR OFERTA / PROJETO (RODANDO E OUTRAS ABAS)
+      // ===============================================
+      // Extrai ofertas disponíveis nas contas desta categoria
+      const allOffersInTab = [];
+      const offerCountsMap = {};
+
+      filteredAccounts.forEach(acc => {
+        const rawStatus = acc.status || '';
+        const m = rawStatus.match(/\[(.*?)\]/);
+        const offer = m && m[1].trim() ? m[1].trim() : 'Sem Oferta Definida';
+        if (!offerCountsMap[offer]) {
+          offerCountsMap[offer] = 0;
+          allOffersInTab.push(offer);
+        }
+        offerCountsMap[offer]++;
+      });
+
+      // Se a oferta selecionada não existir mais, volta para ALL
+      if (currentOfferOpsFilter !== 'ALL' && !offerCountsMap[currentOfferOpsFilter]) {
+        currentOfferOpsFilter = 'ALL';
+      }
+
+      // Aplica o filtro de oferta
+      const accountsToDisplay = currentOfferOpsFilter === 'ALL'
+        ? filteredAccounts
+        : filteredAccounts.filter(acc => {
+            const rawStatus = acc.status || '';
+            const m = rawStatus.match(/\[(.*?)\]/);
+            const offer = m && m[1].trim() ? m[1].trim() : 'Sem Oferta Definida';
+            return offer === currentOfferOpsFilter;
+          });
+
+      // Barra de Filtro de Ofertas (exibida principalmente em RODANDO ou quando há ofertas na aba)
+      let offerFilterBarHtml = '';
+      if (allOffersInTab.length > 0) {
+        offerFilterBarHtml = `
+          <div style="grid-column: 1 / -1; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:10px; padding-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.08);">
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <span style="font-size:0.75rem; color:var(--text-dim); font-weight:700; text-transform:uppercase; letter-spacing:0.5px; display:flex; align-items:center; gap:5px;">
+                <i data-lucide="target" style="width:13px; height:13px; color:#34d399;"></i> Filtrar Oferta:
+              </span>
+              <button type="button" class="bm-filter-btn ${currentOfferOpsFilter === 'ALL' ? 'active-running' : ''}" onclick="setOfferOpsFilter('ALL')">
+                <i data-lucide="layers" style="width:12px; height:12px;"></i>
+                <span>Todas as Ofertas</span>
+                <span class="bm-filter-badge">${filteredAccounts.length}</span>
+              </button>
+              ${allOffersInTab.map(offer => {
+                const isSelected = currentOfferOpsFilter === offer;
+                return `
+                  <button type="button" class="bm-filter-btn ${isSelected ? 'active-running' : ''}" onclick="setOfferOpsFilter('${escapeHtml(offer.replace(/'/g, "\\'"))}')">
+                    <span style="width:6px; height:6px; border-radius:50%; background:#34d399; display:inline-block;"></span>
+                    <span>${escapeHtml(offer)}</span>
+                    <span class="bm-filter-badge">${offerCountsMap[offer]}</span>
+                  </button>
+                `;
+              }).join('')}
+            </div>
+
+            <div style="font-size:0.75rem; color:var(--text-dim);">
+              Exibindo <strong>${accountsToDisplay.length}</strong> de <strong>${filteredAccounts.length}</strong> contas
+            </div>
+          </div>
+        `;
+      }
+
+      if (accountsToDisplay.length === 0) {
+        container.innerHTML = `
+          ${offerFilterBarHtml}
+          <div style="grid-column: 1 / -1; text-align:center; padding:32px 16px; background:rgba(255,255,255,0.02); border-radius:var(--radius-md); border:1px dashed ${themeBadgeBorder}; color:var(--text-dim); font-size:0.86rem;">
+            <i data-lucide="info" style="width:28px; height:28px; color:${themeColor}; margin-bottom:8px; display:block; margin-left:auto; margin-right:auto; opacity:0.65;"></i>
+            <strong>Nenhuma conta encontrada com a oferta "${escapeHtml(currentOfferOpsFilter)}".</strong><br/>
+            <span style="font-size:0.76rem; opacity:0.85; margin-top:4px; display:inline-block;">Clique em "Todas as Ofertas" para ver todas as contas ativas.</span>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      const cardsHtml = accountsToDisplay.map(acc => {
         const cardTitle = escapeHtml(acc.ca || acc.bm || 'Conta sem nome');
         const bmName = escapeHtml(acc.bm || '—');
         const vendor = escapeHtml(acc.fornecedor || '—');
@@ -6181,6 +6270,8 @@
           </div>
         `;
       }).join('');
+
+      container.innerHTML = offerFilterBarHtml + cardsHtml;
 
       lucide.createIcons();
     }
