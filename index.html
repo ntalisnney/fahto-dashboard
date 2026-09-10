@@ -752,9 +752,20 @@
     .ops-account-card.bms-card::before {
       background: linear-gradient(90deg, #38bdf8, #0052ff);
     }
+    .ops-account-card.down-card::before {
+      background: linear-gradient(90deg, #f43f5e, #e11d48) !important;
+    }
+    .ops-account-card.down-card {
+      border: 1px solid rgba(244, 63, 94, 0.45) !important;
+      background: linear-gradient(145deg, rgba(35, 15, 23, 0.95), rgba(20, 10, 16, 0.98)) !important;
+    }
     .ops-account-card:hover {
       transform: translateY(-4px);
       box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 82, 255, 0.15);
+    }
+    .ops-account-card.down-card:hover {
+      border-color: rgba(244, 63, 94, 0.75) !important;
+      box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.8), 0 0 25px rgba(244, 63, 94, 0.3) !important;
     }
     .ops-account-card.running-card:hover {
       border-color: rgba(16, 185, 129, 0.45);
@@ -772,6 +783,59 @@
       border-color: rgba(249, 115, 22, 0.45);
       box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.8), 0 0 25px rgba(249, 115, 22, 0.2);
     }
+
+    /* BM COCKPIT QUICK FILTER PILLS */
+    .bm-filter-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 13px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .bm-filter-btn:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.22);
+    }
+    .bm-filter-btn.active {
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.16);
+      border-color: rgba(56, 189, 248, 0.5);
+      box-shadow: 0 0 14px rgba(56, 189, 248, 0.2);
+    }
+    .bm-filter-btn.active-down {
+      color: #fb7185;
+      background: rgba(244, 63, 94, 0.16);
+      border-color: rgba(244, 63, 94, 0.5);
+      box-shadow: 0 0 14px rgba(244, 63, 94, 0.2);
+    }
+    .bm-filter-btn.active-running {
+      color: #34d399;
+      background: rgba(16, 185, 129, 0.16);
+      border-color: rgba(16, 185, 129, 0.5);
+      box-shadow: 0 0 14px rgba(16, 185, 129, 0.2);
+    }
+    .bm-filter-btn.active-empty {
+      color: #fbbf24;
+      background: rgba(245, 158, 11, 0.16);
+      border-color: rgba(245, 158, 11, 0.5);
+      box-shadow: 0 0 14px rgba(245, 158, 11, 0.2);
+    }
+    .bm-filter-btn .bm-filter-badge {
+      font-size: 0.68rem;
+      padding: 1px 6px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.12);
+      font-weight: 800;
+    }
+
 
     /* MATURATION 24H REST TIMER & GLOWS */
     .rest-timer-box {
@@ -2799,8 +2863,22 @@
             <div id="modalBmDetailCount" style="font-size:0.88rem; font-weight:700; color:#38bdf8; margin-top:2px;">--</div>
           </div>
           <div>
-            <div style="font-size:0.72rem; color:var(--text-dim);">Status do Ativo BM:</div>
+            <div style="font-size:0.72rem; color:var(--text-dim);">Status da Business Manager:</div>
             <div id="modalBmDetailStatusBadge" style="margin-top:2px;">--</div>
+          </div>
+          <div>
+            <div style="font-size:0.72rem; color:var(--text-dim);">Alterar Status da BM:</div>
+            <div style="display:flex; gap:6px; margin-top:4px;">
+              <select id="modalBmStatusSelect" class="form-select" style="height:28px; font-size:0.75rem; padding:0 8px; flex:1;" onchange="handleModalBmStatusChange(this.value)">
+                <option value="AUTO">Automático (pelas CAs)</option>
+                <option value="ATIVA">🟢 Ativa / Operacional</option>
+                <option value="DESATIVADA">🔴 Desativada / Caída</option>
+              </select>
+              <button type="button" class="btn btn-secondary" id="modalBmToggleHideBtn" style="height:28px; font-size:0.72rem; padding:0 8px; white-space:nowrap;" onclick="handleModalBmToggleHide()" title="Ocultar ou exibir BM no Cockpit">
+                <i data-lucide="eye-off" style="width:12px; height:12px;"></i>
+                <span id="modalBmToggleHideText">Ocultar</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -2846,6 +2924,7 @@
     const LOCAL_STORAGE_KEY_PROFILES = 'fahto_ops_profiles_v3';
     const LOCAL_STORAGE_KEY_ACCESS = 'fahto_ops_access_v3';
     const LOCAL_STORAGE_KEY_STATUSES = 'fahto_ops_statuses_v3';
+    const LOCAL_STORAGE_KEY_BM_OVERRIDES = 'fahto_bm_overrides_v1';
 
     // ==========================================
     // SUPABASE REAL-TIME CLOUD SYNC ENGINE
@@ -2900,6 +2979,7 @@
           accessData: accessData || [],
           statusesData: statusesData || [],
           userNotesData: typeof userNotesData !== 'undefined' ? userNotesData : [],
+          bmOverrides: typeof bmOverrides !== 'undefined' ? bmOverrides : {},
           updatedAt: new Date().toISOString()
         };
 
@@ -2969,6 +3049,11 @@
           if (Array.isArray(remote.userNotesData) && typeof userNotesData !== 'undefined') {
             userNotesData = remote.userNotesData;
             localStorage.setItem(LOCAL_STORAGE_KEY_USER_NOTES, JSON.stringify(userNotesData));
+            changed = true;
+          }
+          if (remote.bmOverrides && typeof remote.bmOverrides === 'object') {
+            bmOverrides = remote.bmOverrides;
+            localStorage.setItem(LOCAL_STORAGE_KEY_BM_OVERRIDES, JSON.stringify(bmOverrides));
             changed = true;
           }
 
@@ -3154,6 +3239,38 @@
       });
     }
     let accessData = loadLocalData(LOCAL_STORAGE_KEY_ACCESS) || [...INITIAL_ACCESS];
+    let bmOverrides = loadLocalData(LOCAL_STORAGE_KEY_BM_OVERRIDES) || {};
+
+    function getBmOverride(bmName) {
+      if (!bmName || typeof bmName !== 'string') return {};
+      return bmOverrides[bmName.trim()] || {};
+    }
+
+    function setBmStatusOverride(bmName, status) {
+      if (!bmName) return;
+      const key = bmName.trim();
+      if (!bmOverrides[key]) bmOverrides[key] = {};
+      if (status === 'AUTO') {
+        delete bmOverrides[key].status;
+        if (Object.keys(bmOverrides[key]).length === 0) delete bmOverrides[key];
+      } else {
+        bmOverrides[key].status = status;
+      }
+      saveLocalData(LOCAL_STORAGE_KEY_BM_OVERRIDES, bmOverrides);
+      renderKPIs();
+      renderOperationsCockpit();
+      showToast(`Status da BM "${key}" atualizado para: ${status === 'AUTO' ? 'Automático' : status}`);
+    }
+
+    function toggleHideBmFromCockpit(bmName) {
+      if (!bmName) return;
+      const key = bmName.trim();
+      if (!bmOverrides[key]) bmOverrides[key] = {};
+      bmOverrides[key].hiddenFromCockpit = !bmOverrides[key].hiddenFromCockpit;
+      saveLocalData(LOCAL_STORAGE_KEY_BM_OVERRIDES, bmOverrides);
+      renderOperationsCockpit();
+      showToast(bmOverrides[key].hiddenFromCockpit ? `BM "${key}" ocultada do Cockpit` : `BM "${key}" restaurada no Cockpit`);
+    }
 
 
 
@@ -5246,6 +5363,12 @@
     // COCKPIT OPERACIONAL DE ATIVOS ENGINE
     // ==========================================
     let currentOpsCategory = 'RODANDO';
+    let currentBmOpsFilter = 'ALL'; // 'ALL', 'EMPTY', 'RUNNING', 'READY', 'DOWN', 'HIDDEN'
+
+    function setBmOpsFilter(filter) {
+      currentBmOpsFilter = filter;
+      renderOperationsCockpit();
+    }
 
     function currentOpsTabStatus() {
       if (currentOpsCategory === 'RODANDO') return 'Rodando [REP TCHECA]';
@@ -5468,13 +5591,6 @@
         const themeBadgeBg = 'rgba(0, 82, 255, 0.2)';
         const themeBadgeBorder = 'rgba(56, 189, 248, 0.4)';
 
-        if (badge) {
-          badge.style.background = themeBadgeBg;
-          badge.style.color = themeColor;
-          badge.style.borderColor = themeBadgeBorder;
-          badge.textContent = `${bmsListAll.length} BMs Cadastradas • ${emptyBmsList.length} Sem CAs Criadas`;
-        }
-
         if (headerIcon) {
           headerIcon.style.background = themeBadgeBg;
           headerIcon.style.color = themeColor;
@@ -5483,12 +5599,18 @@
         }
 
         if (subtitle) {
-          subtitle.textContent = 'Gerenciamento de Business Managers. Clique em uma BM para ver suas contas criadas ou adicionar novas CAs sob demanda.';
+          subtitle.textContent = 'Gerenciamento de Business Managers. Filtre por BMs vazias, rodando, estoque ou caídas, e configure o status ou visibilidade.';
         }
 
         if (addBtnText) addBtnText.textContent = '+ Cadastrar Nova BM';
 
         if (bmsListAll.length === 0) {
+          if (badge) {
+            badge.style.background = themeBadgeBg;
+            badge.style.color = themeColor;
+            badge.style.borderColor = themeBadgeBorder;
+            badge.textContent = `0 BMs Cadastradas`;
+          }
           container.innerHTML = `
             <div style="grid-column: 1 / -1; text-align:center; padding:36px 16px; background:rgba(255,255,255,0.02); border-radius:var(--radius-md); border:1px dashed ${themeBadgeBorder}; color:var(--text-dim); font-size:0.88rem;">
               <i data-lucide="layers" style="width:32px; height:32px; color:${themeColor}; margin-bottom:10px; display:block; margin-left:auto; margin-right:auto; opacity:0.65;"></i>
@@ -5500,40 +5622,184 @@
           return;
         }
 
-        // Ordena colocando BMs sem CA primeiro para fácil visualização
-        const sortedBmGroups = [...bmsListAll].sort((a, b) => {
-          const aEmpty = a.items.every(i => !i.ca || i.ca.trim() === 'Apenas BM (Sem CA)');
-          const bEmpty = b.items.every(i => !i.ca || i.ca.trim() === 'Apenas BM (Sem CA)');
-          if (aEmpty && !bEmpty) return -1;
-          if (!aEmpty && bEmpty) return 1;
-          return a.bm.localeCompare(b.bm);
-        });
-
-        container.innerHTML = sortedBmGroups.map(group => {
-          const bmNameEsc = escapeHtml(group.bm);
-          const vendorEsc = escapeHtml(group.fornecedor);
+        // Processa estado e flags de cada BM
+        const enrichedBms = bmsListAll.map(group => {
+          const override = getBmOverride(group.bm);
           const validCas = group.items.filter(i => i.ca && i.ca.trim() !== 'Apenas BM (Sem CA)');
           const isBmEmpty = validCas.length === 0;
 
-          // Status geral da BM
           const hasRunning = group.items.some(i => getStatusCategory(i.status) === 'RODANDO');
           const hasWarming = group.items.some(i => getStatusCategory(i.status) === 'AQUECENDO' || getStatusCategory(i.status) === 'AQUECER');
           const hasReady = group.items.some(i => getStatusCategory(i.status) === 'AQUECIDA');
+          const hasDown = group.items.some(i => getStatusCategory(i.status) === 'CAIU');
+          const allDown = validCas.length > 0 && validCas.every(i => getStatusCategory(i.status) === 'CAIU');
+
+          // Verifica se está desativada por override ou se todas as CAs caíram
+          const isExplicitDisabled = override.status === 'DESATIVADA';
+          const isExplicitActive = override.status === 'ATIVA';
+          const isHidden = !!override.hiddenFromCockpit;
+
+          const isFallenOrDisabled = isExplicitDisabled || (!isExplicitActive && (allDown || (isBmEmpty && false)));
+
+          let computedState = 'READY';
+          if (isFallenOrDisabled) {
+            computedState = 'DOWN';
+          } else if (isBmEmpty) {
+            computedState = 'EMPTY';
+          } else if (hasRunning) {
+            computedState = 'RUNNING';
+          } else if (hasReady) {
+            computedState = 'READY';
+          } else if (hasWarming) {
+            computedState = 'WARMING';
+          }
+
+          return {
+            ...group,
+            validCas,
+            isBmEmpty,
+            hasRunning,
+            hasWarming,
+            hasReady,
+            hasDown,
+            allDown,
+            isFallenOrDisabled,
+            isExplicitDisabled,
+            isExplicitActive,
+            isHidden,
+            computedState,
+            overrideStatus: override.status || 'AUTO'
+          };
+        });
+
+        // Contadores para os filtros de BMs
+        const countAll = enrichedBms.filter(b => !b.isHidden).length;
+        const countEmpty = enrichedBms.filter(b => !b.isHidden && b.isBmEmpty).length;
+        const countRunning = enrichedBms.filter(b => !b.isHidden && !b.isFallenOrDisabled && b.hasRunning).length;
+        const countReady = enrichedBms.filter(b => !b.isHidden && !b.isFallenOrDisabled && b.hasReady).length;
+        const countDown = enrichedBms.filter(b => !b.isHidden && b.isFallenOrDisabled).length;
+        const countHidden = enrichedBms.filter(b => b.isHidden).length;
+
+        if (badge) {
+          badge.style.background = themeBadgeBg;
+          badge.style.color = themeColor;
+          badge.style.borderColor = themeBadgeBorder;
+          badge.textContent = `${countAll} BMs Visíveis • ${countDown} Caídas/Desativadas • ${countEmpty} Vazias`;
+        }
+
+        // Filtra de acordo com currentBmOpsFilter
+        let filteredBms = enrichedBms;
+        if (currentBmOpsFilter === 'EMPTY') {
+          filteredBms = enrichedBms.filter(b => !b.isHidden && b.isBmEmpty);
+        } else if (currentBmOpsFilter === 'RUNNING') {
+          filteredBms = enrichedBms.filter(b => !b.isHidden && !b.isFallenOrDisabled && b.hasRunning);
+        } else if (currentBmOpsFilter === 'READY') {
+          filteredBms = enrichedBms.filter(b => !b.isHidden && !b.isFallenOrDisabled && b.hasReady);
+        } else if (currentBmOpsFilter === 'DOWN') {
+          filteredBms = enrichedBms.filter(b => !b.isHidden && b.isFallenOrDisabled);
+        } else if (currentBmOpsFilter === 'HIDDEN') {
+          filteredBms = enrichedBms.filter(b => b.isHidden);
+        } else {
+          // 'ALL'
+          filteredBms = enrichedBms.filter(b => !b.isHidden);
+        }
+
+        // Ordena: BMs caídas primeiro se filtro for DOWN, senão vazias primeiro e alfabético
+        filteredBms.sort((a, b) => {
+          if (a.isFallenOrDisabled && !b.isFallenOrDisabled) return -1;
+          if (!a.isFallenOrDisabled && b.isFallenOrDisabled) return 1;
+          if (a.isBmEmpty && !b.isBmEmpty) return -1;
+          if (!a.isBmEmpty && b.isBmEmpty) return 1;
+          return a.bm.localeCompare(b.bm);
+        });
+
+        // Barra de Filtros de BM
+        const filterBarHtml = `
+          <div style="grid-column: 1 / -1; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:8px; padding-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.08);">
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <span style="font-size:0.75rem; color:var(--text-dim); font-weight:700; text-transform:uppercase; letter-spacing:0.5px; display:flex; align-items:center; gap:4px;">
+                <i data-lucide="filter" style="width:13px; height:13px;"></i> Filtrar BMs:
+              </span>
+              <button type="button" class="bm-filter-btn ${currentBmOpsFilter === 'ALL' ? 'active' : ''}" onclick="setBmOpsFilter('ALL')">
+                <i data-lucide="layers" style="width:13px; height:13px;"></i>
+                <span>Todas as BMs</span>
+                <span class="bm-filter-badge">${countAll}</span>
+              </button>
+              <button type="button" class="bm-filter-btn ${currentBmOpsFilter === 'EMPTY' ? 'active-empty' : ''}" onclick="setBmOpsFilter('EMPTY')">
+                <i data-lucide="folder" style="width:13px; height:13px;"></i>
+                <span>⚠️ Apenas Vazias</span>
+                <span class="bm-filter-badge">${countEmpty}</span>
+              </button>
+              <button type="button" class="bm-filter-btn ${currentBmOpsFilter === 'RUNNING' ? 'active-running' : ''}" onclick="setBmOpsFilter('RUNNING')">
+                <i data-lucide="play" style="width:13px; height:13px;"></i>
+                <span>🟢 Rodando Tráfego</span>
+                <span class="bm-filter-badge">${countRunning}</span>
+              </button>
+              <button type="button" class="bm-filter-btn ${currentBmOpsFilter === 'READY' ? 'active' : ''}" onclick="setBmOpsFilter('READY')">
+                <i data-lucide="zap" style="width:13px; height:13px;"></i>
+                <span>⚡ Prontas / Estoque</span>
+                <span class="bm-filter-badge">${countReady}</span>
+              </button>
+              <button type="button" class="bm-filter-btn ${currentBmOpsFilter === 'DOWN' ? 'active-down' : ''}" onclick="setBmOpsFilter('DOWN')">
+                <i data-lucide="shield-alert" style="width:13px; height:13px;"></i>
+                <span>🔴 Caídas / Desativadas</span>
+                <span class="bm-filter-badge">${countDown}</span>
+              </button>
+              ${countHidden > 0 ? `
+                <button type="button" class="bm-filter-btn ${currentBmOpsFilter === 'HIDDEN' ? 'active' : ''}" onclick="setBmOpsFilter('HIDDEN')">
+                  <i data-lucide="eye-off" style="width:13px; height:13px;"></i>
+                  <span>Ocultas do Cockpit</span>
+                  <span class="bm-filter-badge">${countHidden}</span>
+                </button>
+              ` : ''}
+            </div>
+
+            <div style="font-size:0.75rem; color:var(--text-dim);">
+              Exibindo <strong>${filteredBms.length}</strong> de <strong>${bmsListAll.length}</strong> BMs
+            </div>
+          </div>
+        `;
+
+        if (filteredBms.length === 0) {
+          container.innerHTML = `
+            ${filterBarHtml}
+            <div style="grid-column: 1 / -1; text-align:center; padding:32px 16px; background:rgba(255,255,255,0.02); border-radius:var(--radius-md); border:1px dashed rgba(255,255,255,0.1); color:var(--text-dim); font-size:0.86rem;">
+              <i data-lucide="info" style="width:28px; height:28px; margin-bottom:8px; display:block; margin-left:auto; margin-right:auto; opacity:0.6;"></i>
+              <strong>Nenhuma Business Manager encontrada neste filtro.</strong><br/>
+              <span style="font-size:0.76rem; opacity:0.85; margin-top:4px; display:inline-block;">Clique em "Todas as BMs" para visualizar todas as opções cadastradas.</span>
+            </div>
+          `;
+          lucide.createIcons();
+          return;
+        }
+
+        const cardsHtml = filteredBms.map(group => {
+          const bmNameEsc = escapeHtml(group.bm);
+          const vendorEsc = escapeHtml(group.fornecedor);
+          const validCas = group.validCas;
+          const isBmEmpty = group.isBmEmpty;
+          const isDown = group.isFallenOrDisabled;
 
           let bmStatusTag = '';
-          if (isBmEmpty) {
+          if (isDown) {
+            bmStatusTag = `
+              <span class="badge" style="background:rgba(244,63,94,0.22); color:#fb7185; border:1px solid rgba(244,63,94,0.5); font-size:0.7rem; font-weight:800; padding:2px 8px;">
+                🔴 BM CAÍDA / DESATIVADA
+              </span>
+            `;
+          } else if (isBmEmpty) {
             bmStatusTag = `
               <span class="badge" style="background:rgba(245,158,11,0.18); color:#fbbf24; border:1px solid rgba(245,158,11,0.4); font-size:0.7rem; font-weight:800; padding:2px 8px;">
                 ⚠️ BM VAZIA (0 CAs CRIADAS)
               </span>
             `;
-          } else if (hasRunning) {
+          } else if (group.hasRunning) {
             bmStatusTag = `
               <span class="badge" style="background:rgba(16,185,129,0.18); color:#34d399; border:1px solid rgba(16,185,129,0.4); font-size:0.7rem; font-weight:800; padding:2px 8px;">
                 ● ${validCas.length} CAs • TRÁFEGO ATIVO
               </span>
             `;
-          } else if (hasReady) {
+          } else if (group.hasReady) {
             bmStatusTag = `
               <span class="badge" style="background:rgba(168,85,247,0.18); color:#c084fc; border:1px solid rgba(168,85,247,0.4); font-size:0.7rem; font-weight:800; padding:2px 8px;">
                 ⚡ ${validCas.length} CAs • ESTOQUE PRONTO
@@ -5569,8 +5835,10 @@
             </div>
           `;
 
+          const cardClass = isDown ? 'ops-account-card down-card' : 'ops-account-card bms-card';
+
           return `
-            <div class="ops-account-card bms-card" style="cursor:pointer;" onclick="openBmDetailModal('${escapeHtml(group.bm.replace(/'/g, "\\'"))}')">
+            <div class="${cardClass}" style="cursor:pointer;" onclick="openBmDetailModal('${escapeHtml(group.bm.replace(/'/g, "\\'"))}')">
               <div>
                 <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 8px;">
                   <div>
@@ -5579,9 +5847,14 @@
                       ${bmNameEsc}
                     </h4>
                   </div>
-                  <button type="button" class="btn btn-secondary" style="padding: 4px 8px; height: 26px; font-size: 0.72rem;" onclick="event.stopPropagation(); openBmDetailModal('${escapeHtml(group.bm.replace(/'/g, "\\'"))}')" title="Abrir detalhes da BM e gerenciar CAs">
-                    <i data-lucide="eye" style="width: 12px; height: 12px;"></i>
-                  </button>
+                  <div style="display:flex; gap:4px; align-items:center;" onclick="event.stopPropagation();">
+                    <button type="button" class="btn btn-secondary" style="padding: 4px 8px; height: 26px; font-size: 0.72rem;" onclick="toggleHideBmFromCockpit('${escapeHtml(group.bm.replace(/'/g, "\\'"))}')" title="${group.isHidden ? 'Restaurar BM no Cockpit' : 'Remover/Ocultar BM do Cockpit'}">
+                      <i data-lucide="${group.isHidden ? 'eye' : 'eye-off'}" style="width: 12px; height: 12px; color: ${group.isHidden ? '#38bdf8' : 'var(--text-dim)'};"></i>
+                    </button>
+                    <button type="button" class="btn btn-secondary" style="padding: 4px 8px; height: 26px; font-size: 0.72rem;" onclick="openBmDetailModal('${escapeHtml(group.bm.replace(/'/g, "\\'"))}')" title="Abrir detalhes da BM e gerenciar CAs">
+                      <i data-lucide="eye" style="width: 12px; height: 12px;"></i>
+                    </button>
+                  </div>
                 </div>
 
                 <div style="display: flex; flex-direction: column; gap: 4px; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">
@@ -5591,14 +5864,22 @@
                   </div>
                   <div style="display:flex; justify-content:space-between; align-items:center;">
                     <span>Contas criadas:</span>
-                    <strong style="color:${isBmEmpty ? '#fbbf24' : '#38bdf8'};">${validCas.length} CAs</strong>
+                    <strong style="color:${isDown ? '#fb7185' : (isBmEmpty ? '#fbbf24' : '#38bdf8')};">${validCas.length} CAs</strong>
+                  </div>
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-top:2px;">
+                    <span>Status Operacional:</span>
+                    <select class="form-select" style="height:24px; font-size:0.72rem; padding:0 6px; width:auto; max-width:160px;" onclick="event.stopPropagation();" onchange="event.stopPropagation(); setBmStatusOverride('${escapeHtml(group.bm.replace(/'/g, "\\'"))}', this.value)">
+                      <option value="AUTO" ${group.overrideStatus === 'AUTO' ? 'selected' : ''}>Auto (pelas CAs)</option>
+                      <option value="ATIVA" ${group.overrideStatus === 'ATIVA' ? 'selected' : ''}>🟢 Ativa</option>
+                      <option value="DESATIVADA" ${group.overrideStatus === 'DESATIVADA' ? 'selected' : ''}>🔴 Desativada / Caída</option>
+                    </select>
                   </div>
                   ${casListHtml}
                 </div>
               </div>
 
               <div style="display: flex; gap: 8px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08);" onclick="event.stopPropagation();">
-                <button type="button" class="btn btn-primary" onclick="openAccountModal(null, 'Aquecer[ACM]', '${escapeHtml(group.bm.replace(/'/g, "\\'"))}', '${escapeHtml((group.fornecedor || '').replace(/'/g, "\\'"))}')" style="flex:1; height: 32px; font-size: 0.76rem; background: linear-gradient(135deg, #0ea5e9, #0284c7); border:none; font-weight:700;" title="Adicionar / Criar nova conta de anúncios nesta BM">
+                <button type="button" class="btn btn-primary" onclick="openAccountModal(null, 'Aquecer[ACM]', '${escapeHtml(group.bm.replace(/'/g, "\\'"))}', '${escapeHtml((group.fornecedor || '').replace(/'/g, "\\'"))}')" style="flex:1; height: 32px; font-size: 0.76rem; background: ${isDown ? 'linear-gradient(135deg, #e11d48, #be123c)' : 'linear-gradient(135deg, #0ea5e9, #0284c7)'}; border:none; font-weight:700;" title="Adicionar / Criar nova conta de anúncios nesta BM">
                   <i data-lucide="plus" style="width: 13px; height: 13px;"></i>
                   <span>+ Criar CA nesta BM</span>
                 </button>
@@ -5610,6 +5891,7 @@
           `;
         }).join('');
 
+        container.innerHTML = filterBarHtml + cardsHtml;
         lucide.createIcons();
         return;
       }
@@ -5930,12 +6212,34 @@
       if (vendorEl) vendorEl.textContent = vendorName;
       if (countEl) countEl.textContent = `${validCas.length} ${validCas.length === 1 ? 'Conta Criada' : 'Contas Criadas'}`;
 
+      const override = getBmOverride(bmName);
+      const isExplicitDisabled = override.status === 'DESATIVADA';
+      const isExplicitActive = override.status === 'ATIVA';
+      const allDown = validCas.length > 0 && validCas.every(i => getStatusCategory(i.status) === 'CAIU');
+      const isFallenOrDisabled = isExplicitDisabled || (!isExplicitActive && allDown);
+
       if (badgeEl) {
-        if (validCas.length === 0) {
+        if (isFallenOrDisabled) {
+          badgeEl.innerHTML = `<span class="badge" style="background:rgba(244,63,94,0.2); color:#fb7185; border:1px solid rgba(244,63,94,0.4); font-size:0.75rem; font-weight:800; padding:3px 10px;">🔴 BM Caída / Desativada</span>`;
+        } else if (validCas.length === 0) {
           badgeEl.innerHTML = `<span class="badge" style="background:rgba(245,158,11,0.2); color:#fbbf24; border:1px solid rgba(245,158,11,0.4); font-size:0.75rem; font-weight:800; padding:3px 10px;">⚠️ BM Vazia (Sem CAs)</span>`;
         } else {
           badgeEl.innerHTML = `<span class="badge" style="background:rgba(16,185,129,0.2); color:#34d399; border:1px solid rgba(16,185,129,0.4); font-size:0.75rem; font-weight:800; padding:3px 10px;">● Ativa com ${validCas.length} CAs</span>`;
         }
+      }
+
+      const modalStatusSelect = document.getElementById('modalBmStatusSelect');
+      if (modalStatusSelect) {
+        modalStatusSelect.value = override.status || 'AUTO';
+      }
+
+      const modalHideBtn = document.getElementById('modalBmToggleHideBtn');
+      const modalHideText = document.getElementById('modalBmToggleHideText');
+      if (modalHideBtn && modalHideText) {
+        const isHidden = !!override.hiddenFromCockpit;
+        modalHideText.textContent = isHidden ? 'Exibir no Cockpit' : 'Ocultar do Cockpit';
+        modalHideBtn.style.color = isHidden ? '#38bdf8' : 'var(--text-dim)';
+        modalHideBtn.title = isHidden ? 'Esta BM está oculta no Cockpit. Clique para exibir.' : 'Ocultar esta BM do Cockpit';
       }
 
       if (addBtn) {
@@ -6016,6 +6320,18 @@
 
       backdrop.classList.add('active');
       lucide.createIcons();
+    }
+
+    function handleModalBmStatusChange(status) {
+      if (!currentSelectedBmName) return;
+      setBmStatusOverride(currentSelectedBmName, status);
+      openBmDetailModal(currentSelectedBmName);
+    }
+
+    function handleModalBmToggleHide() {
+      if (!currentSelectedBmName) return;
+      toggleHideBmFromCockpit(currentSelectedBmName);
+      openBmDetailModal(currentSelectedBmName);
     }
 
     function closeBmDetailModal() {
@@ -7227,7 +7543,8 @@
         accessData: accessData || [],
         statusesData: statusesData || [],
         userNotesData: userNotesData || [],
-        alertNotesData: alertNotesData || {}
+        alertNotesData: alertNotesData || {},
+        bmOverrides: bmOverrides || {}
       };
     }
 
@@ -7287,6 +7604,11 @@
       if (payload.alertNotesData && typeof payload.alertNotesData === 'object') {
         alertNotesData = payload.alertNotesData;
         saveLocalData(LOCAL_STORAGE_KEY_ALERT_NOTES, alertNotesData);
+      }
+
+      if (payload.bmOverrides && typeof payload.bmOverrides === 'object') {
+        bmOverrides = payload.bmOverrides;
+        saveLocalData(LOCAL_STORAGE_KEY_BM_OVERRIDES, bmOverrides);
       }
 
       // Re-render UI
