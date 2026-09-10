@@ -637,21 +637,35 @@
 
     .kpi-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      grid-template-columns: repeat(4, 1fr);
       gap: 16px;
       margin-bottom: 28px;
+    }
+    @media (max-width: 1200px) {
+      .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 640px) {
+      .kpi-grid {
+        grid-template-columns: 1fr;
+      }
     }
 
     .kpi-card {
       background: linear-gradient(145deg, rgba(14, 20, 34, 0.92), rgba(8, 12, 22, 0.96));
       border: 1px solid rgba(255, 255, 255, 0.09);
       border-radius: var(--radius-md);
-      padding: 20px;
+      padding: 18px 20px;
       position: relative;
       overflow: hidden;
       box-shadow: 0 12px 35px -10px rgba(0, 0, 0, 0.85);
       backdrop-filter: blur(16px);
       transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 155px;
     }
     .kpi-card::before {
       content: '';
@@ -1570,15 +1584,15 @@
       <div class="kpi-grid">
         <div class="kpi-card clickable" onclick="goToStatusFilter('ALL')" title="Clique para ver todo o inventário de BMs e Contas de Anúncios">
           <div class="kpi-top">
-            <span class="kpi-title">Total de Contas & BMs (Histórico)</span>
+            <span class="kpi-title">Total Geral (Histórico)</span>
             <div class="kpi-icon" style="background: rgba(0, 82, 255, 0.15); color: #38bdf8;">
               <i data-lucide="layers" style="width:20px; height:20px;"></i>
             </div>
           </div>
           <div class="kpi-value" id="kpiTotalCAs">39</div>
-          <div class="kpi-meta">
-            <span id="kpiBMsTotal" style="color:var(--text-main); font-weight:600;">18 BMs</span> • <span id="kpiVendorsTotal">7 Fornecedores</span>
-            <div style="font-size: 0.7rem; color: var(--text-dim); margin-top: 3px;">Inclui contas e BMs ativas + caídas</div>
+          <div class="kpi-meta" style="display:flex; flex-direction:column; align-items:flex-start; gap:2px;">
+            <div><span id="kpiBMsTotal" style="color:var(--text-main); font-weight:600;">18 BMs</span> • <span id="kpiVendorsTotal">7 Fornecedores</span></div>
+            <div style="font-size: 0.68rem; color: var(--text-dim);">(Ativas + Caídas)</div>
           </div>
           <div class="kpi-click-hint"><i data-lucide="arrow-right" style="width:10px;height:10px;"></i> ver todas</div>
         </div>
@@ -1660,15 +1674,15 @@
 
         <div class="kpi-card clickable" onclick="goToStatusFilter('CAIU')" title="Ver contas e BMs caídas / bloqueadas">
           <div class="kpi-top">
-            <span class="kpi-title">Contas & BMs Caídas / Bloqueadas</span>
+            <span class="kpi-title">Caídas / Bloqueadas</span>
             <div class="kpi-icon" style="background: rgba(244, 63, 94, 0.15); color: #fb7185;">
               <i data-lucide="shield-x" style="width:20px; height:20px;"></i>
             </div>
           </div>
           <div class="kpi-value" style="color: #fb7185;" id="kpiDownCAs">10</div>
-          <div class="kpi-meta">
+          <div class="kpi-meta" style="display:flex; flex-direction:column; align-items:flex-start; gap:2px;">
             <span id="kpiDownRate">25.6% taxa de perda</span>
-            <div style="font-size: 0.7rem; color: #fb7185; margin-top: 3px;">Perdas contabilizadas no total geral</div>
+            <div style="font-size: 0.68rem; color: #fb7185;">(Contas & BMs Perdidas)</div>
           </div>
           <div class="kpi-click-hint"><i data-lucide="arrow-right" style="width:10px;height:10px;"></i> ver contas</div>
         </div>
