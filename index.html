@@ -2442,9 +2442,18 @@
           </div>
         </div>
 
-        <div class="form-group">
-          <label class="form-label">Link de Acesso PVA</label>
-          <input type="url" id="profileLink" class="form-input" value="https://accountspva.email/" />
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Link de Acesso PVA</label>
+            <input type="url" id="profileLink" class="form-input" value="https://accountspva.email/" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="display:flex; align-items:center; gap:5px;"><i data-lucide="shield-check" style="width:13px; height:13px; color:var(--primary);"></i> Chave Secreta 2FA</span>
+              <span style="font-size:0.72rem; color:var(--text-dim);">Fica oculta no card</span>
+            </label>
+            <input type="text" id="profileSecret2FA" class="form-input" placeholder="ex: JBSWY3DPEHPK3PXP..." autocomplete="off" />
+          </div>
         </div>
 
         <div class="form-group" style="margin-top: 14px; background: rgba(0,82,255,0.06); padding: 14px; border-radius: 12px; border: 1px solid rgba(0,82,255,0.25);">
@@ -2632,6 +2641,9 @@
             <!-- Populated via JS -->
           </div>
         </div>
+      </div>
+    </div>
+  </div>
 
   <!-- MODAL: ALERT NOTE (ANOTAÇÃO DO ALERTA) -->
   <div class="modal-backdrop" id="modalAlertNoteBackdrop">
@@ -4328,6 +4340,7 @@
         document.getElementById('profileStatus').value = p.status || 'OK [C/ PROXY]';
         document.getElementById('profileMultilogin').value = p.multilogin || 'Ads Power';
         document.getElementById('profileLink').value = p.link || 'https://accountspva.email/';
+        document.getElementById('profileSecret2FA').value = p.secret2fa || '';
         currentProfileSelectedBms = [...getProfileBms(p)];
       } else {
         title.innerHTML = `<i data-lucide="user-plus" style="color:#10b981; width:20px; height:20px;"></i> <span>Novo Perfil Multilogin</span>`;
@@ -4339,6 +4352,7 @@
         document.getElementById('profileStatus').value = 'OK [C/ PROXY]';
         document.getElementById('profileMultilogin').value = 'Ads Power';
         document.getElementById('profileLink').value = 'https://accountspva.email/';
+        document.getElementById('profileSecret2FA').value = '';
         currentProfileSelectedBms = [];
       }
 
@@ -4360,6 +4374,7 @@
       const status = document.getElementById('profileStatus').value.trim();
       const multilogin = document.getElementById('profileMultilogin').value.trim();
       const link = document.getElementById('profileLink').value.trim();
+      const secret2fa = document.getElementById('profileSecret2FA').value.trim();
 
       const bmsArray = [...currentProfileSelectedBms];
       const bm = bmsArray.join(', ');
@@ -4375,7 +4390,7 @@
         const id = parseInt(idVal, 10);
         const idx = profilesData.findIndex(i => i.id === id);
         if (idx !== -1) {
-          profilesData[idx] = { ...profilesData[idx], name, email, pass, gmailPass, status, multilogin, link, bm, bms: bmsArray };
+          profilesData[idx] = { ...profilesData[idx], name, email, pass, gmailPass, status, multilogin, link, secret2fa, bm, bms: bmsArray };
           showToast(`Perfil "${name || email}" atualizado!`);
         }
       } else {
@@ -4389,6 +4404,7 @@
           status,
           multilogin,
           link,
+          secret2fa,
           bm,
           bms: bmsArray
         });
@@ -5153,10 +5169,18 @@
 
       renderOperationsCockpit();
 
+      // Garante que a aba de Visão Geral & Cockpit esteja visível antes de rolar
+      const overviewPane = document.getElementById('tab-overview');
+      if (overviewPane && (!overviewPane.classList.contains('active') || overviewPane.style.display === 'none')) {
+        switchTab('tab-overview', false);
+      }
+
       // Rola suavemente até o cockpit
       const sec = document.getElementById('opsCockpitSection');
       if (sec) {
-        sec.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        setTimeout(() => {
+          sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 50);
       }
     }
 
@@ -6103,7 +6127,7 @@
     // ==========================================
     let currentProfileTool = 'Ads Power';
 
-    function switchTab(tabId) {
+    function switchTab(tabId, scrollToTop = true) {
       const tabBtns = document.querySelectorAll('.nav-tab-btn');
       tabBtns.forEach(b => b.classList.remove('active'));
       const targetBtn = document.querySelector(`.nav-tab-btn[data-tab="${tabId}"]`);
@@ -6118,7 +6142,9 @@
         targetPane.style.display = 'block';
         targetPane.classList.add('active');
       }
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (scrollToTop) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     }
 
     function setProfileToolFilter(tool) {
@@ -6252,6 +6278,16 @@
                 <span>${p.gmailPass}</span>
                 <button class="copy-btn" onclick="copyText('${p.gmailPass}')"><i data-lucide="copy" style="width:13px; height:13px;"></i></button>
                 <a href="${p.link}" target="_blank" class="copy-btn" title="Abrir PVA Mail" style="color:var(--primary);"><i data-lucide="external-link" style="width:13px; height:13px;"></i></a>
+              </div>
+            </div>
+
+            <div class="cred-row">
+              <span class="cred-label" style="display:flex; align-items:center; gap:4px;">
+                <i data-lucide="shield-check" style="width:12px; height:12px; color:var(--primary);"></i> Chave 2FA
+              </span>
+              <div class="cred-value">
+                <span>${p.secret2fa ? '<span style="letter-spacing:2px; font-family:monospace; color:var(--text-muted);">••••••••••••</span>' : '<span style="color:var(--text-dim); font-size:0.75rem; font-style:italic;">Não configurada</span>'}</span>
+                ${p.secret2fa ? `<button class="copy-btn" onclick="copyText('${p.secret2fa}')" title="Copiar Chave Secreta 2FA"><i data-lucide="copy" style="width:13px; height:13px;"></i></button>` : `<button class="copy-btn" onclick="openProfileModal(${p.id})" title="Configurar Chave 2FA" style="font-size:0.7rem; color:var(--primary); width:auto; padding:2px 6px; gap:3px;"><i data-lucide="plus" style="width:11px; height:11px;"></i> Adicionar</button>`}
               </div>
             </div>
           </div>
