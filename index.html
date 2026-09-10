@@ -1753,6 +1753,7 @@
               <span style="font-size:0.68rem; color:var(--text-dim);">(ativas + caídas)</span>
             </div>
           </div>
+          <div id="kpiBmsPreview" style="display:flex; flex-wrap:wrap; gap:4px; margin-top:8px; border-top:1px solid rgba(255,255,255,0.06); padding-top:6px; min-height:22px;"></div>
           <div class="kpi-click-hint"><i data-lucide="arrow-right" style="width:10px;height:10px;"></i> ver todas</div>
         </div>
 
@@ -1832,6 +1833,7 @@
             <i data-lucide="circle-slash" style="width:14px; height:14px; color:#22d3ee;"></i>
             <span id="kpiStoppedDetails">Contas em stand by</span>
           </div>
+          <div id="kpiStoppedPreview" style="display:flex; flex-wrap:wrap; gap:4px; margin-top:8px; border-top:1px solid rgba(255,255,255,0.06); padding-top:6px; min-height:22px;"></div>
           <div class="kpi-click-hint"><i data-lucide="arrow-right" style="width:10px;height:10px;"></i> ver contas</div>
         </div>
 
@@ -1847,6 +1849,7 @@
             <span id="kpiDownRate">25.6% taxa de perda</span>
             <div style="font-size: 0.68rem; color: #fb7185;">(Contas & BMs Perdidas)</div>
           </div>
+          <div id="kpiDownPreview" style="display:flex; flex-wrap:wrap; gap:4px; margin-top:8px; border-top:1px solid rgba(255,255,255,0.06); padding-top:6px; min-height:22px;"></div>
           <div class="kpi-click-hint"><i data-lucide="arrow-right" style="width:10px;height:10px;"></i> ver contas</div>
         </div>
 
@@ -1862,6 +1865,7 @@
             <i data-lucide="check-check" style="width:14px; height:14px; color:#34d399;"></i>
             <span>Ads Power • Dolphin Anty</span>
           </div>
+          <div id="kpiProfilesPreview" style="display:flex; flex-wrap:wrap; gap:4px; margin-top:8px; border-top:1px solid rgba(255,255,255,0.06); padding-top:6px; min-height:22px;"></div>
           <div class="kpi-click-hint"><i data-lucide="arrow-right" style="width:10px;height:10px;"></i> ver perfis</div>
         </div>
       </div>
@@ -5126,6 +5130,65 @@
             const name = escapeHtml(acc.ca || acc.bm || 'Conta');
             return `<span class="kpi-preview-pill" style="border-color:rgba(168,85,247,0.3); color:#d8b4fe;"><i data-lucide="zap" style="width:9px;height:9px;color:#c084fc;"></i>${name}</span>`;
           }).join('') + (readyAccounts.length > 3 ? `<span style="font-size:0.68rem; color:var(--text-dim); align-self:center;">+${readyAccounts.length - 3} mais</span>` : '');
+        }
+      }
+
+      const bmsEl = document.getElementById('kpiBmsPreview');
+      const stoppedEl = document.getElementById('kpiStoppedPreview');
+      const downEl = document.getElementById('kpiDownPreview');
+      const profilesEl = document.getElementById('kpiProfilesPreview');
+
+      const stoppedAccounts = bmsData.filter(i => {
+        const c = getStatusCategory(i.status);
+        return c === 'PARADA' || c === 'STANDBY';
+      });
+      const downAccounts = bmsData.filter(i => getStatusCategory(i.status) === 'CAIU');
+
+      // Unique active BM names
+      const uniqueBmNames = Array.from(new Set(bmsData.map(i => i.bm).filter(Boolean)));
+
+      if (bmsEl) {
+        if (uniqueBmNames.length === 0) {
+          bmsEl.innerHTML = `<span style="font-size:0.7rem; color:var(--text-dim);">Nenhuma BM cadastrada</span>`;
+        } else {
+          bmsEl.innerHTML = uniqueBmNames.slice(0, 3).map(bm => {
+            const name = escapeHtml(bm);
+            return `<span class="kpi-preview-pill" style="border-color:rgba(56,189,248,0.3); color:#7dd3fc;"><i data-lucide="layers" style="width:9px;height:9px;color:#38bdf8;"></i>${name}</span>`;
+          }).join('') + (uniqueBmNames.length > 3 ? `<span style="font-size:0.68rem; color:var(--text-dim); align-self:center;">+${uniqueBmNames.length - 3} mais</span>` : '');
+        }
+      }
+
+      if (stoppedEl) {
+        if (stoppedAccounts.length === 0) {
+          stoppedEl.innerHTML = `<span style="font-size:0.7rem; color:var(--text-dim);">Nenhuma conta parada</span>`;
+        } else {
+          stoppedEl.innerHTML = stoppedAccounts.slice(0, 3).map(acc => {
+            const name = escapeHtml(acc.ca || acc.bm || 'Conta');
+            return `<span class="kpi-preview-pill" style="border-color:rgba(6,182,212,0.3); color:#67e8f9;"><i data-lucide="pause-circle" style="width:9px;height:9px;color:#22d3ee;"></i>${name}</span>`;
+          }).join('') + (stoppedAccounts.length > 3 ? `<span style="font-size:0.68rem; color:var(--text-dim); align-self:center;">+${stoppedAccounts.length - 3} mais</span>` : '');
+        }
+      }
+
+      if (downEl) {
+        if (downAccounts.length === 0) {
+          downEl.innerHTML = `<span style="font-size:0.7rem; color:var(--text-dim);">Nenhuma conta caída</span>`;
+        } else {
+          downEl.innerHTML = downAccounts.slice(0, 3).map(acc => {
+            const name = escapeHtml(acc.ca || acc.bm || 'Conta');
+            return `<span class="kpi-preview-pill" style="border-color:rgba(244,63,94,0.3); color:#fda4af;"><i data-lucide="shield-x" style="width:9px;height:9px;color:#fb7185;"></i>${name}</span>`;
+          }).join('') + (downAccounts.length > 3 ? `<span style="font-size:0.68rem; color:var(--text-dim); align-self:center;">+${downAccounts.length - 3} mais</span>` : '');
+        }
+      }
+
+      if (profilesEl) {
+        if (!profilesData || profilesData.length === 0) {
+          profilesEl.innerHTML = `<span style="font-size:0.7rem; color:var(--text-dim);">Nenhum perfil cadastrado</span>`;
+        } else {
+          profilesEl.innerHTML = profilesData.slice(0, 3).map(p => {
+            const emailPrefix = (p.email || '').split('@')[0] || `Perfil #${p.id}`;
+            const multiloginName = p.multilogin ? `[${p.multilogin}]` : '';
+            return `<span class="kpi-preview-pill" style="border-color:rgba(56,189,248,0.3); color:#bae6fd;"><i data-lucide="user" style="width:9px;height:9px;color:#38bdf8;"></i>${escapeHtml(emailPrefix)}</span>`;
+          }).join('') + (profilesData.length > 3 ? `<span style="font-size:0.68rem; color:var(--text-dim); align-self:center;">+${profilesData.length - 3} mais</span>` : '');
         }
       }
 
