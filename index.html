@@ -1870,17 +1870,23 @@
               <i data-lucide="layers" style="width:20px; height:20px;"></i>
             </div>
           </div>
-          <div style="display:flex; align-items:baseline; gap:8px; margin-bottom:4px;">
-            <span class="kpi-value" id="kpiBMsActiveCount" style="color:#ffffff; margin-bottom:0;">0</span>
-            <span style="font-size:1.1rem; font-weight:700; color:#38bdf8;">BMs Ativas</span>
-            <span style="color:var(--text-dim); font-size:0.9rem;">•</span>
-            <span id="kpiVendorsTotal" style="font-size:0.95rem; font-weight:600; color:#94a3b8;">0 Fornecedores</span>
+          <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:4px; flex-wrap:wrap; gap:6px;">
+            <div style="display:flex; align-items:baseline; gap:8px;">
+              <span class="kpi-value" id="kpiBMsActiveCount" style="color:#ffffff; margin-bottom:0;">0</span>
+              <span style="font-size:1.05rem; font-weight:700; color:#38bdf8;">BMs Ativas</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span class="badge" id="kpiBMsDownBadge" style="background:rgba(244,63,94,0.18); color:#fb7185; border:1px solid rgba(244,63,94,0.4); font-size:0.75rem; font-weight:800; padding:2px 8px; border-radius:6px;">
+                0 Caídas
+              </span>
+            </div>
           </div>
           <div class="kpi-meta" style="display:flex; align-items:center; justify-content:space-between; width:100%; border-top:1px solid rgba(255,255,255,0.06); padding-top:6px; margin-top:4px;">
-            <div style="font-size: 0.72rem; color: var(--text-muted); display:flex; align-items:center; gap:5px;">
+            <div style="font-size: 0.73rem; color: var(--text-muted); display:flex; align-items:center; gap:6px;">
               <span>Total no dash:</span>
               <strong id="kpiBMsRegisteredCount" style="color:#e2e8f0; font-weight:700;">0 BMs</strong>
-              <span id="kpiBMsDownSubtext" style="font-size:0.68rem; color:#fb7185;">(0 caídas)</span>
+              <span style="color:var(--text-dim);">•</span>
+              <span id="kpiVendorsTotal" style="color:#94a3b8; font-weight:600;">0 Fornecedores</span>
             </div>
           </div>
           <div id="kpiBmsPreview" style="display:flex; flex-wrap:wrap; gap:4px; margin-top:8px; border-top:1px solid rgba(255,255,255,0.06); padding-top:6px; min-height:22px;"></div>
@@ -4887,6 +4893,20 @@
       if (bmsActiveEl) bmsActiveEl.textContent = activeBMsCount;
       const bmsRegEl = document.getElementById('kpiBMsRegisteredCount');
       if (bmsRegEl) bmsRegEl.textContent = `${totalBMsCount} BMs`;
+      const bmsDownBadgeEl = document.getElementById('kpiBMsDownBadge');
+      if (bmsDownBadgeEl) {
+        bmsDownBadgeEl.innerHTML = `<i data-lucide="shield-alert" style="width:11px; height:11px; display:inline-block; vertical-align:middle; margin-right:3px;"></i>${downBMsCount} ${downBMsCount === 1 ? 'BM Caída' : 'BMs Caídas'}`;
+        if (downBMsCount === 0) {
+          bmsDownBadgeEl.style.background = 'rgba(16, 185, 129, 0.15)';
+          bmsDownBadgeEl.style.color = '#34d399';
+          bmsDownBadgeEl.style.borderColor = 'rgba(16, 185, 129, 0.35)';
+          bmsDownBadgeEl.innerHTML = `<i data-lucide="check" style="width:11px; height:11px; display:inline-block; vertical-align:middle; margin-right:3px;"></i>0 Caídas`;
+        } else {
+          bmsDownBadgeEl.style.background = 'rgba(244, 63, 94, 0.18)';
+          bmsDownBadgeEl.style.color = '#fb7185';
+          bmsDownBadgeEl.style.borderColor = 'rgba(244, 63, 94, 0.4)';
+        }
+      }
       const bmsDownSubtextEl = document.getElementById('kpiBMsDownSubtext');
       if (bmsDownSubtextEl) {
         bmsDownSubtextEl.textContent = downBMsCount > 0 ? `(${downBMsCount} caídas)` : `(0 caídas)`;
