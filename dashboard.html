@@ -5309,6 +5309,11 @@
       const addBtnText = document.getElementById('opsAddBtnText');
 
       // Atualiza badges contadores das abas
+      const runningCount = bmsData.filter(i => getStatusCategory(i.status) === 'RODANDO').length;
+      const warmingCount = bmsData.filter(i => getStatusCategory(i.status) === 'AQUECENDO').length;
+      const readyCount = bmsData.filter(i => getStatusCategory(i.status) === 'AQUECIDA').length;
+      const toWarmCount = bmsData.filter(i => getStatusCategory(i.status) === 'AQUECER').length;
+
       // Agrupamento de BMs para contagem de BMs com e sem CA
       const bmGroupsMap = new Map();
       bmsData.forEach(item => {
