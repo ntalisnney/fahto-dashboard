@@ -1534,18 +1534,9 @@
       </div>
 
       <div class="header-actions">
-        <button class="btn btn-secondary" onclick="openSyncModal()" title="Sincronizar e Fazer Backup dos Dados (Local ↔ Vercel)" style="background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); color: #38bdf8;">
-          <i data-lucide="cloud-lightning" style="width:16px; height:16px;"></i>
-          <span>Backup & Sync</span>
-        </button>
-
         <button class="btn btn-primary" id="btnOpenNewAccountModal">
           <i data-lucide="plus-circle" style="width:16px; height:16px;"></i>
           <span>Incluir novo ativo</span>
-        </button>
-
-        <button class="btn-icon" id="themeToggle" title="Alternar Modo Escuro/Claro">
-          <i data-lucide="sun" style="width:18px; height:18px;"></i>
         </button>
       </div>
     </header>
@@ -5494,23 +5485,8 @@
     }
 
     function initTheme() {
-      const toggle = document.getElementById('themeToggle');
-      if (!toggle) return;
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      let currentTheme = localStorage.getItem('theme') || 'dark';
-
-      document.documentElement.setAttribute('data-theme', currentTheme);
-      toggle.innerHTML = currentTheme === 'dark' ? '<i data-lucide="sun" style="width:18px; height:18px;"></i>' : '<i data-lucide="moon" style="width:18px; height:18px;"></i>';
-      lucide.createIcons();
-
-      toggle.addEventListener('click', () => {
-        currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', currentTheme);
-        localStorage.setItem('theme', currentTheme);
-        toggle.innerHTML = currentTheme === 'dark' ? '<i data-lucide="sun" style="width:18px; height:18px;"></i>' : '<i data-lucide="moon" style="width:18px; height:18px;"></i>';
-        lucide.createIcons();
-        if (typeof renderCharts === 'function') renderCharts();
-      });
+      document.documentElement.setAttribute('data-theme', 'dark');
+      localStorage.setItem('theme', 'dark');
     }
 
     const LOCAL_STORAGE_KEY_RESOLVED_ALERTS = 'fahto_resolved_alerts_v1';
