@@ -773,6 +773,59 @@
       box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.8), 0 0 25px rgba(249, 115, 22, 0.2);
     }
 
+    /* MATURATION 24H REST TIMER & GLOWS */
+    .rest-timer-box {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(217, 119, 6, 0.05) 100%);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-top: 8px;
+      margin-bottom: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      position: relative;
+      overflow: hidden;
+    }
+    .rest-timer-box.resting {
+      border-color: rgba(245, 158, 11, 0.5);
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.12);
+    }
+    .rest-timer-box.matured {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(5, 150, 105, 0.05) 100%);
+      border-color: rgba(16, 185, 129, 0.45);
+      box-shadow: 0 0 18px rgba(16, 185, 129, 0.15);
+    }
+    .rest-progress-bar-bg {
+      width: 100%;
+      height: 6px;
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 2px;
+    }
+    .rest-progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #f59e0b, #fbbf24);
+      border-radius: 999px;
+      transition: width 0.5s ease;
+    }
+    .rest-progress-bar-fill.matured {
+      background: linear-gradient(90deg, #10b981, #34d399);
+    }
+    .timer-pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      animation: pulseGlow 1.8s infinite;
+    }
+    @keyframes pulseGlow {
+      0% { opacity: 0.4; transform: scale(0.9); }
+      50% { opacity: 1; transform: scale(1.15); box-shadow: 0 0 10px currentColor; }
+      100% { opacity: 0.4; transform: scale(0.9); }
+    }
+
     .kpi-preview-pill {
       font-size: 0.68rem;
       padding: 2px 7px;
@@ -2367,6 +2420,27 @@
           <div class="form-group">
             <label class="form-label">Cartão Vinculado</label>
             <input type="text" id="accountCartao" class="form-input" placeholder="ex: MASTER CARD 4396, VISA 1292..." />
+          </div>
+        </div>
+
+        <div class="form-group" style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 10px; padding: 12px 14px; margin-top: 4px;">
+          <label class="form-label" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <span style="color:#fbbf24; font-weight:700; display:flex; align-items:center; gap:6px;">
+              <i data-lucide="timer" style="width:14px; height:14px;"></i> Descanso 24h Pré-Ação (Maturação)
+            </span>
+            <span style="font-size:0.72rem; color:var(--text-dim);">Recomendado deixar 24h parada</span>
+          </label>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <input type="datetime-local" id="accountRestStartTime" class="form-input" style="flex:1; font-size:0.82rem;" />
+            <button type="button" class="btn btn-secondary" onclick="setRestTimeNow()" style="padding:0 10px; height:36px; font-size:0.75rem; white-space:nowrap; border-color:rgba(245,158,11,0.4); color:#fbbf24;" title="Definir início do descanso para agora">
+              <i data-lucide="clock" style="width:13px; height:13px;"></i> Iniciar 24h Agora
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="clearRestTime()" style="padding:0 8px; height:36px; font-size:0.75rem; color:var(--text-dim);" title="Remover timer">
+              <i data-lucide="x" style="width:13px; height:13px;"></i>
+            </button>
+          </div>
+          <div style="font-size:0.73rem; color:var(--text-dim); margin-top:6px;">
+            * Ao adicionar uma conta para aquecer, o sistema calcula a contagem regressiva de 24h de descanso antes de criar contas ou cadastrar cartões.
           </div>
         </div>
 
@@ -4075,6 +4149,16 @@
         document.getElementById('accountCartao').value = item.cartao || '';
         populateAccountStatusSelect(item.status || 'Rodando [REP TCHECA]');
         document.getElementById('accountObs').value = item.obs || '';
+        if (item.restStartTime) {
+          try {
+            const dt = new Date(item.restStartTime);
+            document.getElementById('accountRestStartTime').value = dt.toISOString().slice(0, 16);
+          } catch(e) {
+            document.getElementById('accountRestStartTime').value = '';
+          }
+        } else {
+          document.getElementById('accountRestStartTime').value = '';
+        }
       } else {
         title.innerHTML = `<i data-lucide="plus-circle" style="color:var(--primary); width:20px; height:20px;"></i> <span>${prefillBm ? `Adicionar Conta na BM "${escapeHtml(prefillBm)}"` : 'Incluir novo ativo (BM / Conta)'}</span>`;
         hiddenId.value = '';
@@ -4085,10 +4169,28 @@
         document.getElementById('accountCartao').value = '';
         populateAccountStatusSelect(defaultStatus || 'Aquecendo [ACM]');
         document.getElementById('accountObs').value = '';
+        // Se status padrão for Aquecer ou Aquecimento, inicia 24h automaticamente
+        const nowIso = new Date().toISOString();
+        if (defaultStatus && (defaultStatus.toLowerCase().includes('aquecer') || defaultStatus.toLowerCase().includes('acm'))) {
+          document.getElementById('accountRestStartTime').value = nowIso.slice(0, 16);
+        } else {
+          document.getElementById('accountRestStartTime').value = nowIso.slice(0, 16);
+        }
       }
 
       backdrop.classList.add('active');
       lucide.createIcons();
+    }
+
+    function setRestTimeNow() {
+      const nowIso = new Date().toISOString();
+      const el = document.getElementById('accountRestStartTime');
+      if (el) el.value = nowIso.slice(0, 16);
+    }
+
+    function clearRestTime() {
+      const el = document.getElementById('accountRestStartTime');
+      if (el) el.value = '';
     }
 
     function closeAccountModal() {
@@ -4104,6 +4206,14 @@
       const cartao = document.getElementById('accountCartao').value.trim();
       const status = document.getElementById('accountStatus').value.trim();
       const obs = document.getElementById('accountObs').value.trim();
+      const restVal = document.getElementById('accountRestStartTime').value;
+      let restStartTime = null;
+      if (restVal) {
+        restStartTime = new Date(restVal).toISOString();
+      } else if (status.toLowerCase().includes('aquecer')) {
+        // Se status for para aquecer e não preencheu timer, inicia 24h automaticamente
+        restStartTime = new Date().toISOString();
+      }
 
       if (!fornecedor || !bm) {
         alert("Por favor, preencha pelo menos o Fornecedor e o nome da BM.");
@@ -4126,7 +4236,7 @@
         const id = parseInt(idVal, 10);
         const idx = bmsData.findIndex(i => i.id === id);
         if (idx !== -1) {
-          bmsData[idx] = { ...bmsData[idx], fornecedor, bm, ca, estrutura, cartao, status, obs };
+          bmsData[idx] = { ...bmsData[idx], fornecedor, bm, ca, estrutura, cartao, status, obs, restStartTime };
           showToast(`Ativo "${ca}" atualizado com sucesso!`);
         }
       } else {
@@ -4139,7 +4249,8 @@
           estrutura,
           cartao,
           status,
-          obs
+          obs,
+          restStartTime
         });
         showToast(`Novo ativo adicionado com sucesso na BM "${bm}"!`);
       }
@@ -5712,6 +5823,65 @@
                   </div>
                 ` : ''}
 
+                ${(() => {
+                  const timing = getAccountRestTiming(acc);
+                  if (!timing && currentOpsCategory !== 'AQUECER') return '';
+
+                  const t = timing || {
+                    isMatured: false,
+                    formattedRemain: '24h 00m 00s',
+                    pct: 0
+                  };
+
+                  if (t.isMatured) {
+                    return `
+                      <div class="rest-timer-box matured" id="restBox_${acc.id}">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                          <span style="font-size:0.75rem; font-weight:800; color:#34d399; display:flex; align-items:center; gap:5px;">
+                            <span class="timer-pulse-dot" style="background:#10b981; color:#10b981;"></span>
+                            24h Concluídas (Pronta p/ Ação)
+                          </span>
+                          <span class="badge" style="background:rgba(16,185,129,0.25); color:#34d399; font-size:0.68rem; font-weight:800; border:1px solid rgba(16,185,129,0.4);">
+                            LIBERADA
+                          </span>
+                        </div>
+                        <div style="font-size:0.73rem; color:#a7f3d0; line-height:1.3;">
+                          ✅ Conta descansou mais de 24h. Agora você já pode criar contas de anúncios ou adicionar cartão com segurança.
+                        </div>
+                        <div class="rest-progress-bar-bg">
+                          <div class="rest-progress-bar-fill matured" id="restBarFill_${acc.id}" style="width:100%;"></div>
+                        </div>
+                      </div>
+                    `;
+                  }
+
+                  return `
+                    <div class="rest-timer-box resting" id="restBox_${acc.id}">
+                      <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:0.75rem; font-weight:700; color:#fbbf24; display:flex; align-items:center; gap:5px;">
+                          <span class="timer-pulse-dot" style="background:#f59e0b; color:#f59e0b;"></span>
+                          Descanso 24h (Conta Parada)
+                        </span>
+                        <span class="badge" style="background:rgba(245,158,11,0.2); color:#fbbf24; font-size:0.68rem; font-weight:800; border:1px solid rgba(245,158,11,0.4);" id="restCountdown_${acc.id}">
+                          ${t.formattedRemain} restantes
+                        </span>
+                      </div>
+                      <div style="font-size:0.72rem; color:#fef08a; opacity:0.9; line-height:1.3;">
+                        ⚠️ <strong>Aguarde 24h:</strong> Deixe a conta parada antes de criar novas CAs ou cadastrar cartões para evitar bloqueios imediatos.
+                      </div>
+                      <div class="rest-progress-bar-bg">
+                        <div class="rest-progress-bar-fill" id="restBarFill_${acc.id}" style="width:${t.pct}%;"></div>
+                      </div>
+                      <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.68rem; color:var(--text-dim); margin-top:2px;">
+                        <span>Maturação: ${t.pct}%</span>
+                        <button type="button" style="background:none; border:none; color:#fbbf24; cursor:pointer; text-decoration:underline; font-size:0.68rem;" onclick="reset24hRestOnAccount(${acc.id})" title="Reiniciar contagem de 24h">
+                          Reiniciar 24h
+                        </button>
+                      </div>
+                    </div>
+                  `;
+                })()}
+
                 ${obsText ? `
                   <div style="margin-top:4px; font-size:0.75rem; color:#fbbf24; background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.25); padding:6px 10px; border-radius:6px; line-height:1.35;">
                     💡 ${obsText}
@@ -5857,6 +6027,12 @@
     function startWarmingOnAccount(id) {
       const acc = bmsData.find(i => i.id === id);
       if (!acc) return;
+
+      const timing = getAccountRestTiming(acc);
+      if (timing && !timing.isMatured) {
+        const proceed = confirm(`⚠️ ATENÇÃO: PERÍODO DE 24H EM ANDAMENTO!\n\nEsta conta ainda tem ${timing.formattedRemain} de descanso recomendado antes de qualquer ação (criar CAs ou adicionar cartões) para blindagem de contingência.\n\nDeseja ignorar o descanso de 24h e iniciar o aquecimento mesmo assim?`);
+        if (!proceed) return;
+      }
 
       const warmType = prompt(`Iniciar aquecimento na conta "${acc.ca || acc.bm}":\nDigite a tag de aquecimento (ex: ACM):`, "ACM");
       if (warmType === null) return;
@@ -6050,6 +6226,14 @@
                 ${getStatusBadge(item.status, item.id)}
                 <i data-lucide="chevron-down" class="edit-pencil-icon" style="width:12px; height:12px; margin-left:3px;"></i>
               </div>
+              ${(() => {
+                const timing = getAccountRestTiming(item);
+                if (!timing) return '';
+                if (timing.isMatured) {
+                  return `<div style="margin-top:4px;"><span class="badge badge-running" style="font-size:0.68rem; padding:1px 6px; border:1px solid rgba(16,185,129,0.3);"><i data-lucide="check" style="width:10px;height:10px;"></i> 24h OK</span></div>`;
+                }
+                return `<div style="margin-top:4px;" title="Aguardar 24h parada antes de criar CA ou adicionar cartão"><span class="badge badge-towarm" style="font-size:0.68rem; padding:1px 6px; border:1px solid rgba(249,115,22,0.3);"><i data-lucide="clock" style="width:10px;height:10px;"></i> 24h: ${timing.hours}h ${timing.mins}m</span></div>`;
+              })()}
             </td>
 
             <td>
@@ -6465,7 +6649,115 @@
             if (dispEl) dispEl.textContent = `${code.slice(0,3)} ${code.slice(3)}`;
           }
         }
+
+        // Atualização em tempo real das contas em descanso 24h (se estiver na aba cockpit)
+        updateRestTimingLiveBadges();
       }, 1000);
+    }
+
+    // ==========================================
+    // MATURAÇÃO & DESCANSO 24H PRÉ-AÇÃO
+    // ==========================================
+    const REST_DURATION_MS = 24 * 60 * 60 * 1000; // 24 Horas
+
+    function getAccountRestTiming(item) {
+      if (!item) return null;
+      let startMs = null;
+      if (item.restStartTime) {
+        startMs = new Date(item.restStartTime).getTime();
+      } else {
+        // Se a conta está em status de Aquecer e não tinha data explícita, usa padrão baseado no status
+        const cat = getStatusCategory(item.status);
+        if (cat === 'AQUECER' || (item.status && item.status.toLowerCase().includes('aquecer'))) {
+          // Atribui início de descanso padrão para garantir acompanhamento
+          startMs = Date.now();
+          item.restStartTime = new Date(startMs).toISOString();
+        }
+      }
+
+      if (!startMs || isNaN(startMs)) return null;
+
+      const now = Date.now();
+      const elapsed = now - startMs;
+      const remainMs = Math.max(0, REST_DURATION_MS - elapsed);
+      const isMatured = remainMs === 0;
+      const pct = Math.min(100, Math.max(0, (elapsed / REST_DURATION_MS) * 100));
+
+      const totalSec = Math.ceil(remainMs / 1000);
+      const hours = Math.floor(totalSec / 3600);
+      const mins = Math.floor((totalSec % 3600) / 60);
+      const secs = totalSec % 60;
+
+      const formattedRemain = `${String(hours).padStart(2, '0')}h ${String(mins).padStart(2, '0')}m ${String(secs).padStart(2, '0')}s`;
+
+      return {
+        startMs,
+        remainMs,
+        isMatured,
+        pct: pct.toFixed(1),
+        hours,
+        mins,
+        secs,
+        formattedRemain
+      };
+    }
+
+    function updateRestTimingLiveBadges() {
+      // Atualiza badges dinâmicos de countdown na tela sem recriar os elementos DOM
+      bmsData.forEach(item => {
+        const info = getAccountRestTiming(item);
+        if (!info) return;
+
+        const countEl = document.getElementById(`restCountdown_${item.id}`);
+        const barFill = document.getElementById(`restBarFill_${item.id}`);
+        const boxEl = document.getElementById(`restBox_${item.id}`);
+
+        if (countEl) {
+          if (info.isMatured) {
+            countEl.innerHTML = `<span style="color:#10b981; font-weight:800; display:inline-flex; align-items:center; gap:4px;"><i data-lucide="check-circle" style="width:13px;height:13px;"></i> 24h CONCLUÍDAS • LIBERADA P/ AÇÃO!</span>`;
+            if (barFill) {
+              barFill.style.width = '100%';
+              barFill.className = 'rest-progress-bar-fill matured';
+            }
+            if (boxEl && !boxEl.classList.contains('matured')) {
+              boxEl.className = 'rest-timer-box matured';
+            }
+          } else {
+            countEl.textContent = `${info.formattedRemain} restantes`;
+            if (barFill) {
+              barFill.style.width = info.pct + '%';
+            }
+          }
+        }
+      });
+    }
+
+    function start24hRestOnAccount(id) {
+      const item = bmsData.find(i => i.id === id);
+      if (!item) return;
+
+      item.restStartTime = new Date().toISOString();
+      hasLocalEdits = true;
+      saveLocalData(LOCAL_STORAGE_KEY_BMS, bmsData);
+
+      renderOperationsCockpit();
+      renderBMsTable();
+      showToast(`⏱️ Cronômetro de 24h de descanso iniciado para "${item.ca || item.bm}"!`);
+    }
+
+    function reset24hRestOnAccount(id) {
+      const item = bmsData.find(i => i.id === id);
+      if (!item) return;
+
+      if (confirm(`Deseja reiniciar a contagem de 24h de descanso para esta conta?`)) {
+        item.restStartTime = new Date().toISOString();
+        hasLocalEdits = true;
+        saveLocalData(LOCAL_STORAGE_KEY_BMS, bmsData);
+
+        renderOperationsCockpit();
+        renderBMsTable();
+        showToast(`🔄 Cronômetro de 24h reiniciado!`);
+      }
     }
 
     // ==========================================
