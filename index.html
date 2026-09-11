@@ -3767,6 +3767,18 @@
   }
 ];
 
+    function getProfileBms(p) {
+      if (!p) return [];
+      if (Array.isArray(p.bms)) return p.bms.filter(Boolean);
+      if (p.bm) {
+        if (typeof p.bm === 'string' && p.bm.includes(',')) {
+          return p.bm.split(',').map(s => s.trim()).filter(Boolean);
+        }
+        return [p.bm.trim()].filter(Boolean);
+      }
+      return [];
+    }
+
     const INITIAL_PROFILES = [
   {
     "bm": "",
