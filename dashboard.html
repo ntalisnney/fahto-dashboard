@@ -1991,15 +1991,29 @@
 
         <div class="kpi-card clickable" onclick="switchTab('tab-perfis')" title="Clique para ver os perfis Ads Power e Dolphin Anty">
           <div class="kpi-top">
-            <span class="kpi-title">Perfis Ads Power & Dolphin Anty</span>
+            <span class="kpi-title" style="color:#38bdf8;">Perfis Ads Power & Dolphin</span>
             <div class="kpi-icon" style="background: rgba(0, 82, 255, 0.15); color: #38bdf8;">
               <i data-lucide="fingerprint" style="width:20px; height:20px;"></i>
             </div>
           </div>
-          <div class="kpi-value" style="color: #38bdf8;" id="kpiProfiles">12</div>
-          <div class="kpi-meta">
-            <i data-lucide="check-check" style="width:14px; height:14px; color:#34d399;"></i>
-            <span>Ads Power • Dolphin Anty</span>
+          <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:4px; flex-wrap:wrap; gap:6px;">
+            <div style="display:flex; align-items:baseline; gap:8px;">
+              <span class="kpi-value" id="kpiProfilesActiveCount" style="color:#ffffff; margin-bottom:0;">0</span>
+              <span style="font-size:1.05rem; font-weight:700; color:#34d399;">Ativos</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span class="badge" id="kpiProfilesBanBadge" style="background:rgba(244,63,94,0.18); color:#fb7185; border:1px solid rgba(244,63,94,0.4); font-size:0.75rem; font-weight:800; padding:2px 8px; border-radius:6px;">
+                0 com Ban
+              </span>
+            </div>
+          </div>
+          <div class="kpi-meta" style="display:flex; align-items:center; justify-content:space-between; width:100%; border-top:1px solid rgba(255,255,255,0.06); padding-top:6px; margin-top:4px;">
+            <div style="font-size: 0.73rem; color: var(--text-muted); display:flex; align-items:center; gap:6px;">
+              <span>Total:</span>
+              <strong id="kpiProfiles" style="color:#e2e8f0; font-weight:700;">0 Perfis</strong>
+              <span style="color:var(--text-dim);">•</span>
+              <span id="kpiProfilesToolsBreakdown" style="color:#94a3b8; font-weight:600;">0 Ads Power • 0 Dolphin</span>
+            </div>
           </div>
           <div id="kpiProfilesPreview" style="display:flex; flex-wrap:wrap; gap:4px; margin-top:8px; border-top:1px solid rgba(255,255,255,0.06); padding-top:6px; min-height:22px;"></div>
           <div class="kpi-click-hint"><i data-lucide="arrow-right" style="width:10px;height:10px;"></i> ver perfis</div>
@@ -2307,23 +2321,43 @@
         <span style="font-size:0.85rem; color:var(--text-muted); font-weight:600;">FAHTO MEDIA GROUP • Perfis & Multilogin</span>
       </div>
       
-      <!-- SUB-TABS: FERRAMENTAS MULTILOGIN -->
-      <div class="sub-tabs" id="profilesSubTabs">
-        <button class="sub-tab-btn active" data-tool="Ads Power" onclick="setProfileToolFilter('Ads Power')">
-          <i data-lucide="shield" style="width:16px; height:16px;"></i>
-          <span>Ads Power</span>
-          <span class="sub-badge" id="badgeAdsPowerCount">0</span>
-        </button>
-        <button class="sub-tab-btn" data-tool="Dolphin Anty" onclick="setProfileToolFilter('Dolphin Anty')">
-          <i data-lucide="globe" style="width:16px; height:16px;"></i>
-          <span>Dolphin Anty</span>
-          <span class="sub-badge" id="badgeDolphinCount">0</span>
-        </button>
-        <button class="sub-tab-btn" data-tool="TODOS" onclick="setProfileToolFilter('TODOS')">
-          <i data-lucide="users" style="width:16px; height:16px;"></i>
-          <span>Todos os Perfis</span>
-          <span class="sub-badge" id="badgeAllProfilesCount">0</span>
-        </button>
+      <!-- SUB-TABS: FERRAMENTAS MULTILOGIN E STATUS -->
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+        <div class="sub-tabs" id="profilesSubTabs" style="margin-bottom:0;">
+          <button class="sub-tab-btn active" data-tool="Ads Power" onclick="setProfileToolFilter('Ads Power')">
+            <i data-lucide="shield" style="width:16px; height:16px;"></i>
+            <span>Ads Power</span>
+            <span class="sub-badge" id="badgeAdsPowerCount">0</span>
+          </button>
+          <button class="sub-tab-btn" data-tool="Dolphin Anty" onclick="setProfileToolFilter('Dolphin Anty')">
+            <i data-lucide="globe" style="width:16px; height:16px;"></i>
+            <span>Dolphin Anty</span>
+            <span class="sub-badge" id="badgeDolphinCount">0</span>
+          </button>
+          <button class="sub-tab-btn" data-tool="TODOS" onclick="setProfileToolFilter('TODOS')">
+            <i data-lucide="users" style="width:16px; height:16px;"></i>
+            <span>Todos os Perfis</span>
+            <span class="sub-badge" id="badgeAllProfilesCount">0</span>
+          </button>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;" id="profilesStatusFilterGroup">
+          <span style="font-size:0.75rem; color:var(--text-dim); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Status:</span>
+          <button type="button" class="bm-filter-btn active" id="btnProfileStatusAll" onclick="setProfileStatusFilter('ALL')">
+            <span>Todos</span>
+            <span class="bm-filter-badge" id="badgeProfileFilterAll">0</span>
+          </button>
+          <button type="button" class="bm-filter-btn" id="btnProfileStatusActive" onclick="setProfileStatusFilter('ACTIVE')">
+            <span style="width:6px; height:6px; border-radius:50%; background:#10b981; display:inline-block;"></span>
+            <span>🟢 Ativos</span>
+            <span class="bm-filter-badge" id="badgeProfileFilterActive">0</span>
+          </button>
+          <button type="button" class="bm-filter-btn" id="btnProfileStatusBan" onclick="setProfileStatusFilter('BAN')">
+            <span style="width:6px; height:6px; border-radius:50%; background:#fb7185; display:inline-block;"></span>
+            <span>🔴 Com Ban</span>
+            <span class="bm-filter-badge" id="badgeProfileFilterBan">0</span>
+          </button>
+        </div>
       </div>
 
       <div class="filter-bar" style="justify-content:space-between;">
@@ -4855,14 +4889,54 @@
           if (stEl) stEl.textContent = stopped === 1 ? '1 conta em stand by' : `${stopped} contas em stand by`;
         }
 
+        // ===============================================
+        // CÁLCULO PRECISO DE PERFIS ATIVOS vs COM BAN
+        // ===============================================
+        const totalProfilesCount = profilesData.length;
+        let activeProfilesCount = 0;
+        let banProfilesCount = 0;
+        let adsPowerCount = 0;
+        let dolphinCount = 0;
+
+        profilesData.forEach(p => {
+          const tool = (p.multilogin || 'Ads Power').toLowerCase();
+          if (tool.includes('dolphin')) dolphinCount++;
+          else adsPowerCount++;
+
+          const isBan = (typeof isProfileBanned === 'function') ? isProfileBanned(p) : false;
+          if (isBan) banProfilesCount++;
+          else activeProfilesCount++;
+        });
+
+        const profilesActiveEl = document.getElementById('kpiProfilesActiveCount');
+        if (profilesActiveEl) profilesActiveEl.textContent = activeProfilesCount;
+
+        const profilesBanBadgeEl = document.getElementById('kpiProfilesBanBadge');
+        if (profilesBanBadgeEl) {
+          if (banProfilesCount === 0) {
+            profilesBanBadgeEl.style.background = 'rgba(16, 185, 129, 0.15)';
+            profilesBanBadgeEl.style.color = '#34d399';
+            profilesBanBadgeEl.style.borderColor = 'rgba(16, 185, 129, 0.35)';
+            profilesBanBadgeEl.innerHTML = `<i data-lucide="check" style="width:11px; height:11px; display:inline-block; vertical-align:middle; margin-right:3px;"></i>0 com Ban`;
+          } else {
+            profilesBanBadgeEl.style.background = 'rgba(244, 63, 94, 0.18)';
+            profilesBanBadgeEl.style.color = '#fb7185';
+            profilesBanBadgeEl.style.borderColor = 'rgba(244, 63, 94, 0.4)';
+            profilesBanBadgeEl.innerHTML = `<i data-lucide="shield-alert" style="width:11px; height:11px; display:inline-block; vertical-align:middle; margin-right:3px;"></i>${banProfilesCount} ${banProfilesCount === 1 ? 'com Ban' : 'com Ban'}`;
+          }
+        }
+
         const profilesEl = document.getElementById('kpiProfiles');
-        if (profilesEl) profilesEl.textContent = profilesData.length;
+        if (profilesEl) profilesEl.textContent = `${totalProfilesCount} Perfis`;
+
+        const profilesBreakdownEl = document.getElementById('kpiProfilesToolsBreakdown');
+        if (profilesBreakdownEl) profilesBreakdownEl.textContent = `${adsPowerCount} Ads Power • ${dolphinCount} Dolphin`;
 
         const badgeCAsEl = document.getElementById('badgeCAsCount');
         if (badgeCAsEl) badgeCAsEl.textContent = total;
 
         const badgePerfisEl = document.getElementById('badgePerfisCount');
-        if (badgePerfisEl) badgePerfisEl.textContent = profilesData.length;
+        if (badgePerfisEl) badgePerfisEl.textContent = totalProfilesCount;
 
         // Atualiza contadores das sub-abas de perfis
         try { updateProfileCounts(); } catch(e) { console.warn('Error in updateProfileCounts:', e); }
@@ -5645,10 +5719,21 @@
         if (!profilesData || profilesData.length === 0) {
           profilesEl.innerHTML = `<span style="font-size:0.7rem; color:var(--text-dim);">Nenhum perfil cadastrado</span>`;
         } else {
-          profilesEl.innerHTML = profilesData.slice(0, 3).map(p => {
+          // Ordena exibindo ativos primeiro, depois com ban
+          const sortedProfiles = [...profilesData].sort((a, b) => {
+            const aBan = (typeof isProfileBanned === 'function') ? isProfileBanned(a) : false;
+            const bBan = (typeof isProfileBanned === 'function') ? isProfileBanned(b) : false;
+            return aBan === bBan ? 0 : (aBan ? 1 : -1);
+          });
+
+          profilesEl.innerHTML = sortedProfiles.slice(0, 3).map(p => {
             const emailPrefix = (p.email || '').split('@')[0] || `Perfil #${p.id}`;
-            const multiloginName = p.multilogin ? `[${p.multilogin}]` : '';
-            return `<span class="kpi-preview-pill" style="border-color:rgba(56,189,248,0.3); color:#bae6fd;"><i data-lucide="user" style="width:9px;height:9px;color:#38bdf8;"></i>${escapeHtml(emailPrefix)}</span>`;
+            const isBan = (typeof isProfileBanned === 'function') ? isProfileBanned(p) : false;
+            const borderColor = isBan ? 'rgba(244,63,94,0.3)' : 'rgba(16,185,129,0.3)';
+            const textColor = isBan ? '#fda4af' : '#6ee7b7';
+            const iconColor = isBan ? '#fb7185' : '#34d399';
+            const iconName = isBan ? 'user-x' : 'user-check';
+            return `<span class="kpi-preview-pill" style="border-color:${borderColor}; color:${textColor};"><i data-lucide="${iconName}" style="width:9px;height:9px;color:${iconColor};"></i>${escapeHtml(emailPrefix)}${isBan ? ' (Ban)' : ''}</span>`;
           }).join('') + (profilesData.length > 3 ? `<span style="font-size:0.68rem; color:var(--text-dim); align-self:center;">+${profilesData.length - 3} mais</span>` : '');
         }
       }
@@ -6833,6 +6918,17 @@
     // PROFILES TAB RENDERING
     // ==========================================
     let currentProfileTool = 'Ads Power';
+    let currentProfileStatusFilter = 'ALL';
+
+    function isProfileBanned(p) {
+      if (!p) return false;
+      const s = (p.status || "").trim().toUpperCase();
+      if (s.includes("BAN") || s.includes("CAIU") || s.includes("BLOQUE") || s.includes("DESATIV") || s.includes("RESTRI")) {
+        return true;
+      }
+      const cat = getStatusCategory(p.status);
+      return cat === "CAIU";
+    }
 
     function switchTab(tabId, scrollToTop = true) {
       const tabBtns = document.querySelectorAll('.nav-tab-btn');
@@ -6867,7 +6963,30 @@
       renderProfiles();
     }
 
+    function setProfileStatusFilter(statusFilter) {
+      currentProfileStatusFilter = statusFilter;
+      const btnAll = document.getElementById('btnProfileStatusAll');
+      const btnActive = document.getElementById('btnProfileStatusActive');
+      const btnBan = document.getElementById('btnProfileStatusBan');
+      if (btnAll) btnAll.classList.toggle('active', statusFilter === 'ALL');
+      if (btnActive) btnActive.classList.toggle('active', statusFilter === 'ACTIVE');
+      if (btnBan) btnBan.classList.toggle('active-down', statusFilter === 'BAN');
+      renderProfiles();
+    }
+
     function updateProfileCounts() {
+      const totalProfiles = profilesData.length;
+      let activeCount = 0;
+      let banCount = 0;
+
+      profilesData.forEach(p => {
+        if (isProfileBanned(p)) {
+          banCount++;
+        } else {
+          activeCount++;
+        }
+      });
+
       const adsPowerCount = profilesData.filter(p => (p.multilogin || 'Ads Power').toLowerCase() === 'ads power').length;
       const dolphinCount = profilesData.filter(p => (p.multilogin || '').toLowerCase().includes('dolphin')).length;
 
@@ -6878,7 +6997,17 @@
       if (elDolphin) elDolphin.textContent = dolphinCount;
 
       const elAll = document.getElementById('badgeAllProfilesCount');
-      if (elAll) elAll.textContent = profilesData.length;
+      if (elAll) elAll.textContent = totalProfiles;
+
+      // Badges do filtro de status de perfis
+      const badgeFilterAll = document.getElementById('badgeProfileFilterAll');
+      if (badgeFilterAll) badgeFilterAll.textContent = totalProfiles;
+
+      const badgeFilterActive = document.getElementById('badgeProfileFilterActive');
+      if (badgeFilterActive) badgeFilterActive.textContent = activeCount;
+
+      const badgeFilterBan = document.getElementById('badgeProfileFilterBan');
+      if (badgeFilterBan) badgeFilterBan.textContent = banCount;
     }
 
     function renderProfiles() {
@@ -6907,14 +7036,26 @@
                               (p.multilogin || "").toLowerCase().includes(q) ||
                               matchesBmSearch;
 
-        return matchesTool && matchesSearch;
+        let matchesStatus = true;
+        if (currentProfileStatusFilter === 'ACTIVE') {
+          matchesStatus = !isProfileBanned(p);
+        } else if (currentProfileStatusFilter === 'BAN') {
+          matchesStatus = isProfileBanned(p);
+        }
+
+        return matchesTool && matchesSearch && matchesStatus;
       });
 
       if (filtered.length === 0) {
+        let emptyFilterMsg = `Nenhum perfil encontrado nesta categoria`;
+        if (currentProfileStatusFilter === 'BAN') emptyFilterMsg = `Nenhum perfil com ban encontrado nesta categoria.`;
+        else if (currentProfileStatusFilter === 'ACTIVE') emptyFilterMsg = `Nenhum perfil ativo encontrado nesta categoria.`;
+        else if (currentProfileTool !== 'TODOS') emptyFilterMsg = `Nenhum perfil cadastrado na categoria "${currentProfileTool}"`;
+
         container.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:48px 20px; background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:var(--radius-md); color:var(--text-dim);">
           <i data-lucide="users-round" style="width:36px; height:36px; margin-bottom:10px; color:var(--text-dim);"></i>
-          <div style="font-size:0.95rem; font-weight:600; color:var(--text-muted);">Nenhum perfil cadastrado na categoria "${currentProfileTool}"</div>
-          <div style="font-size:0.8rem; margin-top:4px;">Clique em "+ Novo Perfil" para cadastrar um perfil neste multilogin.</div>
+          <div style="font-size:0.95rem; font-weight:600; color:var(--text-muted);">${escapeHtml(emptyFilterMsg)}</div>
+          <div style="font-size:0.8rem; margin-top:4px;">Clique em "Todos" ou em "+ Novo Perfil" para visualizar ou cadastrar perfis.</div>
         </div>`;
         lucide.createIcons();
         return;
