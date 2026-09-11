@@ -3013,6 +3013,12 @@
     async function syncPushToCloud() {
       if (!supabaseClient) return;
       try {
+        // SEGURANÇA MÁXIMA: Nunca sobrescreve o banco da nuvem se os arrays locais estiverem vazios ou zerados por erro de cache
+        if (!Array.isArray(bmsData) || bmsData.length < 10 || !Array.isArray(profilesData) || profilesData.length < 5) {
+          console.warn("Segurança ativada: tentativa de push com dados insuficientes ou vazios ignorada para proteger o banco.", { bms: (bmsData || []).length, profiles: (profilesData || []).length });
+          return;
+        }
+
         const payload = {
           bmsData: bmsData || [],
           profilesData: profilesData || [],
@@ -3177,73 +3183,966 @@
       }
     }
 
-    // Base Initial Data
+    // Base Initial Data (Snapshot Real Atualizado)
     const INITIAL_BMS = [
-      { id: 1, fornecedor: "CONTIGENCIA SOCIAL", bm: "CLAUDIA MARTINS", ca: "CLAUDIA MARTINS - 01", estrutura: "EST 2", cartao: "VISA 1292", status: "Caiu", obs: "" },
-      { id: 2, fornecedor: "CONTIGENCIA SOCIAL", bm: "RAISSA LIMA", ca: "RAISSA LIMA - 01", estrutura: "EST 5", cartao: "VISA 5960", status: "Caiu", obs: "" },
-      { id: 3, fornecedor: "CONTIGENCIA SOCIAL", bm: "PRISCILA SOUZA", ca: "PRISCILA LIMA - 01", estrutura: "EST 7", cartao: "VISA 4084", status: "Caiu", obs: "" },
-      { id: 4, fornecedor: "Alex", bm: "HT 9761", ca: "HT 918383", estrutura: "EST 4", cartao: "VISA 7514", status: "Rodando [REP TCHECA]", obs: "" },
-      { id: 5, fornecedor: "Alex", bm: "HT 9761", ca: "HT 278746", estrutura: "EST 4", cartao: "VISA 7514 / MASTER CARD 1126", status: "Rodando [REP TCHECA]", obs: "" },
-      { id: 6, fornecedor: "Alex", bm: "HT 9761", ca: "HT 955154", estrutura: "EST 4", cartao: "MASTER CARD 3344", status: "Rodou [ED POL]", obs: "" },
-      { id: 7, fornecedor: "Alex", bm: "HT 9761", ca: "HT 965450", estrutura: "EST 4", cartao: "VISA 7514", status: "Rodando [REP TCHECA]", obs: "" },
-      { id: 8, fornecedor: "Não sei [BM COMPRADA ANTES DE EU ENTRAR NA FATHO]", bm: "pawffy.com", ca: "NEW AD ACCOUNT", estrutura: "EST 1", cartao: "VISA 3607 / MASTER CARD 7371", status: "Rodando [REP TCHECA]", obs: "Iniciou 04/08/26(Sexta)" },
-      { id: 9, fornecedor: "Não sei [BM COMPRADA ANTES DE EU ENTRAR NA FATHO]", bm: "pawffy.com", ca: "3", estrutura: "EST 1", cartao: "VISA 4379", status: "Caiu", obs: "" },
-      { id: 10, fornecedor: "CONTIGENCIA SOCIAL", bm: "Adriana Costa", ca: "Adriana Costa - 01", estrutura: "EST 7", cartao: "VISA 7446", status: "Rodando [REP TCHECA]", obs: "Iniciou 04/08/26(Sexta)" },
-      { id: 11, fornecedor: "CONTIGENCIA SOCIAL", bm: "Elisa Pereira", ca: "Elisa Pereira - 01", estrutura: "EST 5", cartao: "VISA 9234", status: "Caiu", obs: "" },
-      { id: 12, fornecedor: "CONTIGENCIA SOCIAL", bm: "CLAUDIA MARTINS", ca: "CLAUDIA MARTINS - 02", estrutura: "EST 2", cartao: "MASTER CARD 9527", status: "Caiu", obs: "" },
-      { id: 13, fornecedor: "CONTIGENCIA SOCIAL", bm: "CLAUDIA MARTINS", ca: "CLAUDIA MARTINS - 03", estrutura: "EST 2", cartao: "MASTER CARD 2987", status: "Rodando [ED ROM]", obs: "" },
-      { id: 14, fornecedor: "CONTIGENCIA SOCIAL", bm: "Adriana Costa", ca: "Adriana Costa - 02", estrutura: "EST 7", cartao: "MASTER CARD 9714", status: "Caiu", obs: "" },
-      { id: 15, fornecedor: "CONTIGENCIA SOCIAL", bm: "Adriana Costa", ca: "Adriana Costa - 03", estrutura: "EST 7", cartao: "MASTER CARD 0967", status: "Caiu", obs: "Rodava [REP TCHECA] e caiu" },
-      { id: 16, fornecedor: "CONTIGENCIA SOCIAL", bm: "Elisa Pereira", ca: "Elisa Pereira - 02", estrutura: "EST 5", cartao: "MASTER CARD 7520", status: "Rodando [REP TCHECA]", obs: "" },
-      { id: 17, fornecedor: "CONTIGENCIA SOCIAL", bm: "Elisa Pereira", ca: "Elisa Pereira - 03", estrutura: "EST 5", cartao: "MASTER CARD 3239", status: "Caiu", obs: "" },
-      { id: 18, fornecedor: "CONTA ALUGADA - PROSCALE", bm: "FAHTO - Bare Pantry Business Manager", ca: "C01 - FAHTO - UCL Social Media", estrutura: "EST 4", cartao: "MASTER CARD 8310", status: "⚡ Aquecida & Livre (Pronta)", obs: "Aquecimento concluído e pronta para subir projeto" },
-      { id: 19, fornecedor: "CONTA ALUGADA - PROSCALE", bm: "FAHTO - Bare Pantry Business Manager", ca: "01 - FAHTO - Rose Dallas1", estrutura: "EST 4", cartao: "", status: "STAND BY", obs: "" },
-      { id: 20, fornecedor: "CONTA ALUGADA - PROSCALE", bm: "FAHTO - Bare Pantry Business Manager", ca: "C01 - FAHTO - Grupo Medina Leilões", estrutura: "EST 4", cartao: "", status: "STAND BY", obs: "FAZER VERIFICAÇÃO C/CAIO" },
-      { id: 21, fornecedor: "Não sei [BM COMPRADA ANTES DE EU ENTRAR NA FATHO]", bm: "BM 102", ca: "CA 09 BM102", estrutura: "EST 2 - AC", cartao: "MASTERCARD 4353", status: "Parada", obs: "Offer ED PL parou" },
-      { id: 22, fornecedor: "Não sei [BM COMPRADA ANTES DE EU ENTRAR NA FATHO]", bm: "BM 102", ca: "CA 10 BM102", estrutura: "EST 2 - AC", cartao: "MASTER CARD 9690", status: "Parada", obs: "Offer ED PL parou" },
-      { id: 23, fornecedor: "Rufino", bm: "Sicoob Buritis", ca: "SICOOB BURITIS - 01", estrutura: "EST 2 - AC", cartao: "MASTER CARD 3818", status: "Aquecendo [ACM]", obs: "Acompanhar aquecimento - ADICIONAR COMO PARCEIRO [COFRE]" },
-      { id: 24, fornecedor: "Rufino", bm: "Sicoob Buritis", ca: "SICOOB BURITIS - 02", estrutura: "EST 2 - AC", cartao: "", status: "Aquecer[ACM]", obs: "Setar cartão - ADICIONAR COMO PARCEIRO [COFRE]" },
-      { id: 25, fornecedor: "Rufino", bm: "Sicoob Buritis", ca: "SICOOB BURITIS - 03", estrutura: "EST 2 - AC", cartao: "", status: "Aquecer[ACM]", obs: "Setar cartão - ADICIONAR COMO PARCEIRO [COFRE]" },
-      { id: 26, fornecedor: "Rufino", bm: "Perfumaria Lupi LTDA", ca: "LUPI - 01", estrutura: "EST 7 - AC [P17] | EST 4 - BK [P25] | EST 7 - PG [P16]", cartao: "MASTER CARD 4396", status: "Rodando [REP TCHECA]", obs: "Iniciou 04/08/26(Sexta)" },
-      { id: 27, fornecedor: "Rufino", bm: "Perfumaria Lupi LTDA", ca: "LUPI - 02", estrutura: "EST 7 - AC [P17] | EST 4 - BK [P25] | EST 7 - PG [P16]", cartao: "MASTER CARD 1078 / MASTER CARD 8417", status: "Aquecendo [ACM]", obs: "Acompanhar - ADICIONADO COMO PARCEIRO [COFRE]" },
-      { id: 28, fornecedor: "Rufino", bm: "Perfumaria Lupi LTDA", ca: "LUPI - 03", estrutura: "EST 7 - AC [P17] | EST 4 - BK [P25] | EST 7 - PG [P16]", cartao: "MASTER CARD 9259", status: "Aquecendo [ACM]", obs: "Acompanhar - ADICIONADO COMO PARCEIRO [COFRE]" },
-      { id: 29, fornecedor: "Rufino", bm: "G. C. Sales Perfumaria", ca: "Sales - 01", estrutura: "EST 2 - BK [P22] | EST 2 - BK [P21] | EST 2 - BK [P3]", cartao: "MASTER CARD 0016", status: "⚡ Aquecida & Livre (Pronta)", obs: "PRONTO - ADICIONADO COMO PARCEIRO [COFRE]" },
-      { id: 30, fornecedor: "Rufino", bm: "G. C. Sales Perfumaria", ca: "Sales - 02", estrutura: "EST 2 - BK [P22] | EST 2 - BK [P21] | EST 2 - BK [P3]", cartao: "MASTER CARD 9131", status: "⚡ Aquecida & Livre (Pronta)", obs: "Aquecimento concluído | Pronto para receber tráfego" },
-      { id: 31, fornecedor: "Rufino", bm: "G. C. Sales Perfumaria", ca: "Sales - 03", estrutura: "EST 2 - BK [P22] | EST 2 - BK [P21] | EST 2 - BK [P3]", cartao: "MASTER CARD 5624", status: "Aquecer[ACM]", obs: "SUBIR AQUECIMENTO [ADICIONADO COMO PARCEIRO COFRE] | SUBIR AQUECIMENTO DE NOITE (04/09/26)" },
-      { id: 32, fornecedor: "Franklin Suerdes - FS", bm: "BP65- Verificado 08", ca: "BP65 - CA1", estrutura: "EST 5 - BK [P27] | EST 2 - BK [P22] | EST 2 - PG [P4] | EST 5 - PG [P15]", cartao: "MASTER CARD 5330", status: "Aquecer[ACM]", obs: "SUBIR AQUECIMENTO [ADICIONADO COMO PARCEIRO COFRE] | SUBIR AQUECIMENTO DE NOITE (04/09/26)" },
-      { id: 33, fornecedor: "Franklin Suerdes - FS", bm: "BP66 - Verificado 01", ca: "BP66 - CA1", estrutura: "EST 7 - AC [P17] | EST 5 - BK [P27] | EST 7 - PG [P16]", cartao: "MASTER CARD 7266", status: "Aquecer[ACM]", obs: "SUBIR AQUECIMENTO [ADICIONADO COMO PARCEIRO COFRE] | SUBIR AQUECIMENTO DE NOITE (04/09/26)" },
-      { id: 34, fornecedor: "Franklin Suerdes - FS", bm: "BP47 - Verificado 03", ca: "BP47 - CA1", estrutura: "EST 6 - AC [P14] | EST 4 - PG [P7] | EST 2 - BK [P3] | EST - 2 BK [P22]", cartao: "MASTER CARD 2606 [PEDIR PARA CANCELAR ESSE CARTÃO]", status: "Caiu", obs: "CONTA CAIU POR NADA" },
-      { id: 35, fornecedor: "Franklin Suerdes - FS", bm: "BP47 - Verificado 03", ca: "BP47 - CA2", estrutura: "EST 6 - PG [P14] | EST 4 - PG [P7] | EST 2 - BK [P3] | EST - 2 BK [P22]", cartao: "MASTER CARD 8865 [PEDIR PARA CANCELAR ESSE CARTÃO]", status: "Caiu", obs: "CONTA CAIU POR NADA" },
-      { id: 36, fornecedor: "Franklin Suerdes - FS", bm: "BP47 - Verificado 03", ca: "BP47 - CA3", estrutura: "EST 6 - AC [P14] | EST 4 - PG [P7] | EST 2 - BK [P3] | EST - 2 BK [P22]", cartao: "MASTER CARD 0983 [PEDIR PARA CANCELAR ESSE CARTÃO]", status: "Caiu", obs: "CONTA CAIU POR NADA" },
-      { id: 37, fornecedor: "Safe Ads", bm: "Clara Montenegro 2", ca: "CLARA MONTENEGRO - CA01", estrutura: "EST 2 - BK [P3] | EST 2 - BK [P22] | EST 2 - BK [P21]", cartao: "AGUARDAR ATÉ AMANHÃ DE NOITE", status: "Aquecer[ACM]", obs: "DEIXAR NO DOLPHIN 24hrs [ADICIONADO COMO PARCEIRO]" },
-      { id: 38, fornecedor: "Safe Ads", bm: "Eduarda Fonseca", ca: "Aguardando criação de CA", estrutura: "EST 5 - BK [P27] | EST 4 - PG [P7] | EST 5 - PG [P15]", cartao: "ESPERAR LIBERA PARA CRIAR CONTA", status: "Aquecer[ACM]", obs: "DEIXAR NO DOLPHIN 24hrs" },
-      { id: 39, fornecedor: "Safe Ads", bm: "Eduarda Fonseca - 2", ca: "Eduarda Fonseca 2 - CA01", estrutura: "EST 2 - BK [P22] | EST 5 - PG [P15] | EST 4 - PG [P7]", cartao: "AGUARDAR ATÉ AMANHÃ DE NOITE", status: "Aquecer[ACM]", obs: "DEIXAR NO DOLPHIN 24hrs [ADICIONADO COMO PARCEIRO]" }
-    ];
-
-    function getProfileBms(p) {
-      if (!p) return [];
-      if (Array.isArray(p.bms)) return p.bms.filter(Boolean);
-      if (p.bm) {
-        if (typeof p.bm === 'string' && p.bm.includes(',')) {
-          return p.bm.split(',').map(s => s.trim()).filter(Boolean);
-        }
-        return [p.bm.trim()].filter(Boolean);
-      }
-      return [];
-    }
+  {
+    "bm": "Gabriel Henrique Gaidos",
+    "ca": "GABRIEL HNRG - 01",
+    "id": 58,
+    "obs": "",
+    "cartao": "",
+    "status": "Aquecer [ACM]",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "Rufino",
+    "restStartTime": "2026-09-11T01:33:00.000Z"
+  },
+  {
+    "bm": "Fernanda Almeida Mendonca Santos",
+    "ca": "FERNANDA ALMS - 01",
+    "id": 57,
+    "obs": "",
+    "cartao": "",
+    "status": "Aquecer[ACM]",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "Rufino",
+    "restStartTime": "2026-09-11T01:23:00.000Z"
+  },
+  {
+    "bm": "BP66 - Verificado 05",
+    "ca": "BP65[05] - CA03",
+    "id": 56,
+    "obs": "",
+    "cartao": "",
+    "status": "Aquecer[ACM]",
+    "estrutura": "EST 2",
+    "fornecedor": "Franklin Suerdes - FS",
+    "restStartTime": "2026-09-11T01:33:00.000Z"
+  },
+  {
+    "bm": "BP66 - Verificado 05",
+    "ca": "BP65[05] - CA02",
+    "id": 55,
+    "obs": "",
+    "cartao": "",
+    "status": "Aquecer[ACM]",
+    "estrutura": "EST 4 - COFRE",
+    "fornecedor": "Franklin Suerdes - FS",
+    "restStartTime": "2026-09-11T01:33:00.000Z"
+  },
+  {
+    "bm": "G. C. Sales Perfumaria",
+    "ca": "Sales - 05",
+    "id": 54,
+    "obs": "",
+    "cartao": "",
+    "status": "Aquecer [ACM]",
+    "estrutura": "EST 4 - COFRE",
+    "fornecedor": "Rufino",
+    "restStartTime": "2026-09-11T01:33:00.000Z"
+  },
+  {
+    "bm": "G. C. Sales Perfumaria",
+    "ca": "Sales - 04",
+    "id": 53,
+    "obs": "",
+    "cartao": "",
+    "status": "Aquecer [ACM]",
+    "estrutura": "EST 4 - COFRE",
+    "fornecedor": "Rufino",
+    "restStartTime": "2026-09-11T01:33:00.000Z"
+  },
+  {
+    "bm": "Karina Costa",
+    "ca": "Karina Costa - CA01",
+    "id": 52,
+    "obs": "",
+    "cartao": "",
+    "status": "Aquecer [ACM]",
+    "estrutura": "P32 - JUZELINA | FAHTO-COFRE-01",
+    "fornecedor": "CONTIGENCIA SOCIAL",
+    "restStartTime": "2026-09-11T01:11:00.000Z"
+  },
+  {
+    "bm": "Gabriele Macedo da Silva Feijo Rodrigues",
+    "ca": "Gabriele MSFR - 01",
+    "id": 51,
+    "obs": "",
+    "cartao": "",
+    "status": "Aquecer [ACM]",
+    "estrutura": "P32 - JUZELINA | FAHTO-COFRE-01",
+    "fornecedor": "Rufino",
+    "restStartTime": "2026-09-10T23:32:00.000Z"
+  },
+  {
+    "bm": "Debora Regina da Silva dos Reis",
+    "ca": "DEBORA RSR - CA01",
+    "id": 50,
+    "obs": "",
+    "cartao": "",
+    "status": "Aquecer[ACM]",
+    "estrutura": "P32 - JUZELINA | FAHTO-COFRE-01",
+    "fornecedor": "Rufino",
+    "restStartTime": "2026-09-10T23:30:00.000Z"
+  },
+  {
+    "bm": "Tamara Veiga",
+    "ca": "ct 01",
+    "id": 49,
+    "obs": "",
+    "cartao": "",
+    "status": "Aquecer [ACM]",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "Safe Ads",
+    "restStartTime": "2026-09-10T22:59:50.958Z"
+  },
+  {
+    "bm": "Savannah Collins",
+    "ca": "CT 01",
+    "id": 48,
+    "obs": "",
+    "cartao": "",
+    "status": "Aquecer [ACM]",
+    "estrutura": "P32 - JUZELINA | FAHTO-COFRE-01",
+    "fornecedor": "Safe Ads",
+    "restStartTime": "2026-09-10T22:59:50.958Z"
+  },
+  {
+    "bm": "Suelen Camargo",
+    "ca": "Suelen Camargo",
+    "id": 47,
+    "obs": "",
+    "cartao": "",
+    "status": "Aquecer [ACM]",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "Safe Ads",
+    "restStartTime": "2026-09-11T01:10:00.000Z"
+  },
+  {
+    "bm": "PAWFFY.COM",
+    "ca": "New Ad Account",
+    "id": 46,
+    "obs": "",
+    "cartao": "MASTER CARD 7371",
+    "status": "⚡ Aquecida & Livre (Pronta)",
+    "estrutura": "EST 4 - COFRE",
+    "fornecedor": "Não sei [BM COMPRADA ANTES DE EU ENTRAR NA FATHO]"
+  },
+  {
+    "bm": "Ludmila Souza",
+    "ca": "Sharkwares 1186",
+    "id": 45,
+    "obs": "",
+    "cartao": "VISA 2391",
+    "status": "Rodando [REP TCHECA]",
+    "estrutura": "EST 4 - COFRE",
+    "fornecedor": "Alex - Scalefield"
+  },
+  {
+    "bm": "BM 102",
+    "ca": "CA 04 - BM102",
+    "id": 44,
+    "obs": "",
+    "cartao": "TEM QUE SETAR CARTÃO",
+    "status": "STAND BY",
+    "estrutura": "EST 4 - COFRE",
+    "fornecedor": "Não sei [BM COMPRADA ANTES DE EU ENTRAR NA FATHO]"
+  },
+  {
+    "bm": "BM 102",
+    "ca": "CA 06 - BM 102",
+    "id": 43,
+    "obs": "",
+    "cartao": "TEM QUE SETAR CARTÃO",
+    "status": "STAND BY",
+    "estrutura": "EST 4 - COFRE",
+    "fornecedor": "Não sei [BM COMPRADA ANTES DE EU ENTRAR NA FATHO]"
+  },
+  {
+    "bm": "BM 102",
+    "ca": "CA 07 - BM102",
+    "id": 42,
+    "obs": "",
+    "cartao": "TEM QUE SETAR CARTÃO",
+    "status": "STAND BY",
+    "estrutura": "EST 4 - COFRE",
+    "fornecedor": "Não sei [BM COMPRADA ANTES DE EU ENTRAR NA FATHO]"
+  },
+  {
+    "bm": "BM 102",
+    "ca": "CA 08 - BM102",
+    "id": 41,
+    "obs": "",
+    "cartao": "TEM QUE SETAR CARTÃO",
+    "status": "STAND BY",
+    "estrutura": "EST 4 - COFRE",
+    "fornecedor": "Não sei [BM COMPRADA ANTES DE EU ENTRAR NA FATHO]"
+  },
+  {
+    "bm": "HT 9761",
+    "ca": "HT 965450",
+    "id": 40,
+    "obs": "",
+    "cartao": "MASTER CARD 4662",
+    "status": "Rodando [REP TCHECA]",
+    "estrutura": "EST 4 - COFRE",
+    "fornecedor": "Alex - Scalefield"
+  },
+  {
+    "bm": "HT 9761",
+    "ca": "HT 918393",
+    "id": 39,
+    "obs": "",
+    "cartao": "MASTER CARD 8132",
+    "status": "Rodando [REP TCHECA]",
+    "estrutura": "EST 4 - COFRE",
+    "fornecedor": "Alex - Scalefield"
+  },
+  {
+    "bm": "KARINA FERREIRA",
+    "ca": "KARINA FERREIRA - 01",
+    "id": 38,
+    "obs": "BM de cortesia - Cancelar Card.",
+    "cartao": "MASTER CARD  9187",
+    "status": "BAN",
+    "estrutura": "EST 4 - COFRE",
+    "fornecedor": "CONTIGENCIA SOCIAL"
+  },
+  {
+    "bm": "Propriedade de: Cooperativa de Credito de Livre Admissao Buritis - Sicoob Buritis",
+    "ca": "SICOOB BURITIS - 05",
+    "id": 36,
+    "obs": "",
+    "cartao": "MASTER CARD 8626",
+    "status": "⚡ Aquecida & Livre (Pronta)",
+    "estrutura": "EST 4 - COFRE",
+    "fornecedor": "Rufino"
+  },
+  {
+    "bm": "Propriedade de: Cooperativa de Credito de Livre Admissao Buritis - Sicoob Buritis",
+    "ca": "SICOOB BURITIS - 04",
+    "id": 35,
+    "obs": "",
+    "cartao": "MASTER CARD 1369",
+    "status": "Aquecendo [ACM]",
+    "estrutura": "EST 4 - COFRE",
+    "fornecedor": "Rufino"
+  },
+  {
+    "bm": "Cooperativa de Credito de Livre Admissao Buritis - Sicoob Buritis",
+    "ca": "SICOOB BURITIS - 03",
+    "id": 34,
+    "obs": "",
+    "cartao": "MASTER CARD 1599",
+    "status": "⚡ Aquecida & Livre (Pronta)",
+    "estrutura": "EST 4 - COFRE",
+    "fornecedor": "Rufino"
+  },
+  {
+    "bm": "HT 9761",
+    "ca": "HT 278746",
+    "id": 33,
+    "obs": "",
+    "cartao": "MASTER CARD 1126",
+    "status": "Rodando [REP TCHECA]",
+    "estrutura": "EST 4 - COFRE",
+    "fornecedor": "Alex - Scalefield"
+  },
+  {
+    "bm": "pawffy.com",
+    "ca": "3",
+    "id": 1,
+    "obs": "",
+    "cartao": "VISA 4379",
+    "status": "Caiu",
+    "estrutura": "EST 1",
+    "fornecedor": "Não sei [BM COMPRADA ANTES DE EU ENTRAR NA FATHO]"
+  },
+  {
+    "bm": "Adriana Costa",
+    "ca": "Adriana Costa - 01",
+    "id": 2,
+    "obs": "Iniciou 04/08/26(Sexta)",
+    "cartao": "VISA 7446",
+    "status": "Rodando [REP TCHECA]",
+    "estrutura": "EST 7",
+    "fornecedor": "CONTIGENCIA SOCIAL"
+  },
+  {
+    "bm": "Elisa Pereira",
+    "ca": "Elisa Pereira - 01",
+    "id": 3,
+    "obs": "",
+    "cartao": "VISA 9234",
+    "status": "BAN",
+    "estrutura": "EST 5",
+    "fornecedor": "CONTIGENCIA SOCIAL"
+  },
+  {
+    "bm": "CLAUDIA MARTINS",
+    "ca": "CLAUDIA MARTINS - 02",
+    "id": 4,
+    "obs": "",
+    "cartao": "MASTER CARD 9527",
+    "status": "Caiu",
+    "estrutura": "EST 2",
+    "fornecedor": "CONTIGENCIA SOCIAL"
+  },
+  {
+    "bm": "CLAUDIA MARTINS",
+    "ca": "CLAUDIA MARTINS - 03",
+    "id": 5,
+    "obs": "",
+    "cartao": "MASTER CARD 2987",
+    "status": "Rodando [ED. REP TCHECA]",
+    "estrutura": "EST 2",
+    "fornecedor": "CONTIGENCIA SOCIAL",
+    "restStartTime": null
+  },
+  {
+    "bm": "Adriana Costa",
+    "ca": "Adriana Costa - 02",
+    "id": 6,
+    "obs": "",
+    "cartao": "MASTER CARD 9714",
+    "status": "Caiu",
+    "estrutura": "EST 7",
+    "fornecedor": "CONTIGENCIA SOCIAL"
+  },
+  {
+    "bm": "Adriana Costa",
+    "ca": "Adriana Costa - 03",
+    "id": 7,
+    "obs": "Caiu",
+    "cartao": "MASTER CARD 0967",
+    "status": "BAN",
+    "estrutura": "EST 7",
+    "fornecedor": "CONTIGENCIA SOCIAL"
+  },
+  {
+    "bm": "Elisa Pereira",
+    "ca": "Elisa Pereira - 02",
+    "id": 8,
+    "obs": "",
+    "cartao": "MASTER CARD 7520",
+    "status": "⚡ Aquecida & Livre (Pronta)",
+    "estrutura": "EST 5",
+    "fornecedor": "CONTIGENCIA SOCIAL"
+  },
+  {
+    "bm": "Elisa Pereira",
+    "ca": "Elisa Pereira - 03",
+    "id": 9,
+    "obs": "",
+    "cartao": "MASTER CARD 3239",
+    "status": "BAN",
+    "estrutura": "EST 5",
+    "fornecedor": "CONTIGENCIA SOCIAL"
+  },
+  {
+    "bm": "FAHTO - Bare Pantry Business Manager",
+    "ca": "C01 - FAHTO - UCL Social Media",
+    "id": 10,
+    "obs": "",
+    "cartao": "MASTER CARD 8310",
+    "status": "STAND BY",
+    "estrutura": "EST 4",
+    "fornecedor": "CONTA ALUGADA - PROSCALE"
+  },
+  {
+    "bm": "FAHTO - Bare Pantry Business Manager",
+    "ca": "01 - FAHTO - Rose Dallas1",
+    "id": 11,
+    "obs": "",
+    "cartao": "",
+    "status": "STAND BY",
+    "estrutura": "EST 4",
+    "fornecedor": "CONTA ALUGADA - PROSCALE"
+  },
+  {
+    "bm": "FAHTO - Bare Pantry Business Manager",
+    "ca": "C01 - FAHTO - Grupo Medina Leilões",
+    "id": 12,
+    "obs": "FAZER VERIFICAÇÃO C/CAIO",
+    "cartao": "",
+    "status": "STAND BY",
+    "estrutura": "EST 4",
+    "fornecedor": "CONTA ALUGADA - PROSCALE"
+  },
+  {
+    "bm": "BM 102",
+    "ca": "CA 09 BM102",
+    "id": 13,
+    "obs": "Offer ED PL parou",
+    "cartao": "MASTERCARD 4353",
+    "status": "STAND BY",
+    "estrutura": "EST 2 - AC",
+    "fornecedor": "Não sei [BM COMPRADA ANTES DE EU ENTRAR NA FATHO]"
+  },
+  {
+    "bm": "BM 102",
+    "ca": "CA 10 BM102",
+    "id": 14,
+    "obs": "Offer ED PL parou",
+    "cartao": "MASTER CARD 9690",
+    "status": "STAND BY",
+    "estrutura": "EST 2 - AC",
+    "fornecedor": "Não sei [BM COMPRADA ANTES DE EU ENTRAR NA FATHO]"
+  },
+  {
+    "bm": "Cooperativa de Credito de Livre Admissao Buritis - Sicoob Buritis",
+    "ca": "SICOOB BURITIS - 01",
+    "id": 15,
+    "obs": "CONTA LIVRE  PARA RODAR ALGO",
+    "cartao": "MASTER CARD 3818",
+    "status": "⚡ Aquecida & Livre (Pronta)",
+    "estrutura": "EST 4 -  COFRE",
+    "fornecedor": "Rufino"
+  },
+  {
+    "bm": "Cooperativa de Credito de Livre Admissao Buritis - Sicoob Buritis",
+    "ca": "SICOOB BURITIS - 02",
+    "id": 16,
+    "obs": "",
+    "cartao": "MASTER CARD 2184",
+    "status": "⚡ Aquecida & Livre (Pronta)",
+    "estrutura": "EST 4 - COFRE",
+    "fornecedor": "Rufino",
+    "restStartTime": "2026-09-11T06:15:00.000Z"
+  },
+  {
+    "bm": "Perfumaria Lupi LTDA",
+    "ca": "LUPI - 01",
+    "id": 18,
+    "obs": "Iniciou 04/08/26(Sexta)",
+    "cartao": "MASTER CARD 4396",
+    "status": "BAN",
+    "estrutura": "EST 7 - AC [P17] | EST 4 - BK [P25] | EST 7 - PG [P16]",
+    "fornecedor": "Rufino"
+  },
+  {
+    "bm": "Perfumaria Lupi LTDA",
+    "ca": "LUPI - 02",
+    "id": 19,
+    "obs": "Acompanhar - ADICIONADO COMO PARCEIRO [COFRE]",
+    "cartao": "MASTER CARD 1078 / MASTER CARD 8417",
+    "status": "BAN",
+    "estrutura": "EST 7 - AC [P17] | EST 4 - BK [P25] | EST 7 - PG [P16]",
+    "fornecedor": "Rufino"
+  },
+  {
+    "bm": "Perfumaria Lupi LTDA",
+    "ca": "LUPI - 03",
+    "id": 20,
+    "obs": "Acompanhar - ADICIONADO COMO PARCEIRO [COFRE]",
+    "cartao": "MASTER CARD 9259",
+    "status": "BAN",
+    "estrutura": "EST 7 - AC [P17] | EST 4 - BK [P25] | EST 7 - PG [P16]",
+    "fornecedor": "Rufino"
+  },
+  {
+    "bm": "G. C. Sales Perfumaria",
+    "ca": "Sales - 01",
+    "id": 21,
+    "obs": "",
+    "cartao": "MASTER CARD 0016",
+    "status": "Rodando [REP TCHECA]",
+    "estrutura": "EST 2 - BK [P22] | EST 2 - BK [P21] | EST 2 - BK [P3]",
+    "fornecedor": "Rufino",
+    "restStartTime": null
+  },
+  {
+    "bm": "G. C. Sales Perfumaria",
+    "ca": "Sales - 02",
+    "id": 22,
+    "obs": "",
+    "cartao": "MASTER CARD 9131",
+    "status": "Rodando NUTRA [EUA]",
+    "estrutura": "P32 - JUZELINA | FAHTO-COFRE-01 |EST 2 - BK [P22] | EST 2 - BK [P21] | EST 2 - BK [P3]",
+    "fornecedor": "Rufino"
+  },
+  {
+    "bm": "G. C. Sales Perfumaria",
+    "ca": "Sales - 03",
+    "id": 23,
+    "obs": "",
+    "cartao": "MASTER CARD 5624",
+    "status": "Rodando NUTRA [EUA]",
+    "estrutura": "P32 - JUZELINA | FAHTO-COFRE-01 |- EST 2 - BK [P22] | EST 2 - BK [P21] | EST 2 - BK [P3]",
+    "fornecedor": "Rufino"
+  },
+  {
+    "bm": "BP65- Verificado 08",
+    "ca": "BP65 - CA1",
+    "id": 24,
+    "obs": "SUBIR AQUECIMENTO [ADICIONADO COMO PARCEIRO COFRE]",
+    "cartao": "MASTER CARD 5330",
+    "status": "BAN",
+    "estrutura": "EST 5 - BK [P27] | EST 2 - BK [P22] | EST 2 - PG [P4] | EST 5 - PG [P15]",
+    "fornecedor": "Franklin Suerdes - FS",
+    "restStartTime": "2026-09-11T02:00:00.000Z"
+  },
+  {
+    "bm": "BP66 - Verificado 01",
+    "ca": "BP66 - CA1",
+    "id": 25,
+    "obs": "SUBIR AQUECIMENTO [ADICIONADO COMO PARCEIRO COFRE]",
+    "cartao": "MASTER CARD 7266",
+    "status": "BAN",
+    "estrutura": "EST 7 - AC [P17] | EST 5 - BK [P27] | EST 7 - PG [P16]",
+    "fornecedor": "Franklin Suerdes - FS",
+    "restStartTime": "2026-09-11T02:00:00.000Z"
+  },
+  {
+    "bm": "BP66 - Verificado 05",
+    "ca": "BP66[05] - CA1",
+    "id": 26,
+    "obs": "",
+    "cartao": "MASTER CARD 4357",
+    "status": "Rodando [ED. REP TCHECA]",
+    "estrutura": "EST 2 - BK [P3] - EST 4 - PG [P7] -  EST 2 - BK [P22]",
+    "fornecedor": "Franklin Suerdes - FS"
+  },
+  {
+    "bm": "BP47 - Verificado 03",
+    "ca": "BP47 - CA1",
+    "id": 27,
+    "obs": "CONTA CAIU POR NADA",
+    "cartao": "MASTER CARD 2606 [PEDIR PARA CANCELAR ESSE CARTÃO]",
+    "status": "BAN",
+    "estrutura": "EST 6 - AC [P14] | EST 4 - PG [P7] | EST 2 - BK [P3] | EST - 2 BK [P22]",
+    "fornecedor": "Franklin Suerdes - FS"
+  },
+  {
+    "bm": "BP47 - Verificado 03",
+    "ca": "BP47 - CA2",
+    "id": 28,
+    "obs": "CONTA CAIU POR NADA",
+    "cartao": "MASTER CARD 8865 [PEDIR PARA CANCELAR ESSE CARTÃO]",
+    "status": "BAN",
+    "estrutura": "EST 6 - PG [P14] | EST 4 - PG [P7] | EST 2 - BK [P3] | EST - 2 BK [P22]",
+    "fornecedor": "Franklin Suerdes - FS"
+  },
+  {
+    "bm": "BP47 - Verificado 03",
+    "ca": "BP47 - CA3",
+    "id": 29,
+    "obs": "CONTA CAIU POR NADA",
+    "cartao": "MASTER CARD 0983 [PEDIR PARA CANCELAR ESSE CARTÃO]",
+    "status": "BAN",
+    "estrutura": "EST 6 - AC [P14] | EST 4 - PG [P7] | EST 2 - BK [P3] | EST - 2 BK [P22]",
+    "fornecedor": "Franklin Suerdes - FS"
+  },
+  {
+    "bm": "Clara Montenegro 2",
+    "ca": "CLARA MONTENEGRO - CA01",
+    "id": 30,
+    "obs": "DEIXAR NO DOLPHIN 24hrs [ADICIONADO COMO PARCEIRO]",
+    "cartao": "AGUARDAR ATÉ AMANHÃ DE NOITE",
+    "status": "BAN",
+    "estrutura": "EST 2 - BK [P3] | EST 2 - BK [P22] | EST 2 - BK [P21]",
+    "fornecedor": "Safe Ads",
+    "restStartTime": "2026-09-11T02:00:00.000Z"
+  },
+  {
+    "bm": "Eduarda Fonseca",
+    "ca": "Não deu para criar conta de anúncio agora",
+    "id": 31,
+    "obs": "DEIXAR NO DOLPHIN 24hrs",
+    "cartao": "ESPERAR LIBERA PARA CRIAR CONTA",
+    "status": "BAN",
+    "estrutura": "EST 5 - BK [P27] | EST 4 - PG [P7] | EST 5 - PG [P15]",
+    "fornecedor": "Safe Ads",
+    "restStartTime": "2026-09-11T02:00:00.000Z"
+  },
+  {
+    "bm": "Eduarda Fonseca - 2",
+    "ca": "Eduarda Fonseca 2 - CA01",
+    "id": 32,
+    "obs": "DEIXAR NO DOLPHIN 24hrs [ADICIONADO COMO PARCEIRO]",
+    "cartao": "AGUARDAR ATÉ AMANHÃ DE NOITE",
+    "status": "BAN",
+    "estrutura": "EST 2 - BK [P22] | EST 5 - PG [P15] | EST 4 - PG [P7]",
+    "fornecedor": "Safe Ads",
+    "restStartTime": "2026-09-11T02:00:00.000Z"
+  }
+];
 
     const INITIAL_PROFILES = [
-      { id: 1, email: "danielecampos1737@novadashmail.com", pass: "XqY0uj4FHsF", gmailPass: "yhsmpl", link: "https://accountspva.email/", multilogin: "Ads Power", status: "OK [C/ PROXY]", bms: ["CLAUDIA MARTINS", "RAISSA LIMA"] },
-      { id: 2, email: "mariaribeiro7040@novadashmail.com", pass: "x9fIlvh9LdV", gmailPass: "xdb5jy", link: "https://accountspva.email/", multilogin: "Ads Power", status: "OK [C/ PROXY]", bms: ["RAISSA LIMA", "PRISCILA SOUZA"] },
-      { id: 3, email: "raulamancio4125@novadashmail.com", pass: "Uht3PV04lco", gmailPass: "xlqrwz", link: "https://accountspva.email/", multilogin: "Ads Power", status: "OK [C/ PROXY]", bms: ["HT 9761", "pawffy.com"] },
-      { id: 4, email: "wescleymata5726@novadashmail.com", pass: "r5YHReiwmeA", gmailPass: "lg73jp", link: "https://accountspva.email/", multilogin: "Ads Power", status: "OK [C/ PROXY]", bms: ["Adriana Costa", "Elisa Pereira"] },
-      { id: 5, email: "palmiranogueira9527@novadashmail.com", pass: "d9rG2Qkxw34", gmailPass: "kgrbto", link: "https://accountspva.email/", multilogin: "Ads Power", status: "OK [C/ PROXY]", bms: ["Perfumaria Lupi LTDA", "G. C. Sales Perfumaria"] },
-      { id: 6, email: "juzelinafurtado4067@novadashmail.com", pass: "Mk918toYEBX", gmailPass: "v0nexf", link: "https://accountspva.email/", multilogin: "Dolphin Anty", status: "OK [C/ PROXY]", bms: ["Sicoob Buritis"] },
-      { id: 7, email: "joaquimbonimo9754@novadashmail.com", pass: "o3TWXw5leG1", gmailPass: "h0a5et", link: "https://accountspva.email/", multilogin: "Dolphin Anty", status: "BAN", bms: ["G. C. Sales Perfumaria"] },
-      { id: 8, email: "thaliabernardes9134@novadashmail.com", pass: "ynLPz5t0E4M", gmailPass: "4nvmuc", link: "https://accountspva.email/", multilogin: "Dolphin Anty", status: "OK [C/ PROXY]", bms: ["Clara Montenegro 2"] },
-      { id: 9, email: "mariasalomao8267@novadashmail.com", pass: "CBBiJGMsdL7", gmailPass: "opekni", link: "https://accountspva.email/", multilogin: "Dolphin Anty", status: "OK [C/ PROXY]", bms: ["Eduarda Fonseca", "Eduarda Fonseca - 2"] },
-      { id: 10, email: "glaucorabelo5185@novadashmail.com", pass: "TjYSdawkZ4z", gmailPass: "5i134a", link: "https://accountspva.email/", multilogin: "Dolphin Anty", status: "OK [C/ PROXY]", bms: ["BP65- Verificado 08", "BP66 - Verificado 01"] }
-    ];
+  {
+    "bm": "",
+    "id": 31,
+    "bms": [],
+    "link": "https://accountspva.email/",
+    "name": "P7 - EST 4 - PG | Talita Santos",
+    "pass": "dT0jGz8Zkv9",
+    "email": "liliane4carvalheiro@quantummailbr.com",
+    "status": "BAN",
+    "gmailPass": ",0*O@b11yo-X",
+    "secret2fa": "",
+    "multilogin": "Dolphin Anty"
+  },
+  {
+    "bm": "",
+    "id": 30,
+    "bms": [],
+    "link": "https://accountspva.email/",
+    "name": "P10 - EST 6 - Mim Islam | AC",
+    "pass": "pL2N4JNo07a#",
+    "email": "dilmar1moana@chronomailbr.com",
+    "status": "BAN",
+    "gmailPass": "onn3(xI665LU",
+    "secret2fa": "",
+    "multilogin": "Dolphin Anty"
+  },
+  {
+    "bm": "",
+    "id": 29,
+    "bms": [],
+    "link": "https://accountspva.email/",
+    "name": "P11 - EST 7 - AC | Santa Khantun",
+    "pass": "50qYFuiujI6#",
+    "email": "valeria7nelmo@quantummailbr.com",
+    "status": "BAN",
+    "gmailPass": "onn3(xI665LU",
+    "secret2fa": "",
+    "multilogin": "Dolphin Anty"
+  },
+  {
+    "bm": "",
+    "id": 28,
+    "bms": [],
+    "link": "https://accountspva.email/",
+    "name": "P12 - EST 5 - BK | Ana Roberto",
+    "pass": "rtIummxE4Yt#",
+    "email": "gilson3soraya@novalinkbr.com",
+    "status": "BAN",
+    "gmailPass": "onn3(xI665LU",
+    "secret2fa": "",
+    "multilogin": "Ads Power"
+  },
+  {
+    "bm": "",
+    "id": 27,
+    "bms": [],
+    "link": "https://accountspva.email/",
+    "name": "P13 - EST 6 - BK | Antonio Britto Reguera Ruiz",
+    "pass": "kxhG3NE2PdC#",
+    "email": "oscar5cesar@coremailbr.com",
+    "status": "BAN",
+    "gmailPass": "onn3(xI665LU",
+    "secret2fa": "",
+    "multilogin": "Dolphin Anty"
+  },
+  {
+    "bm": "",
+    "id": 26,
+    "bms": [],
+    "link": "https://accountspva.email/",
+    "name": "P14 - EST 6 - PG | Gilmar Rodrigues Dias",
+    "pass": "JLVPOzetc9S#",
+    "email": "joaquim1jose@nimbusmailbr.com",
+    "status": "OK [S/ PROXY]",
+    "gmailPass": "onn3(xI665LU",
+    "secret2fa": "",
+    "multilogin": "Dolphin Anty"
+  },
+  {
+    "bm": "",
+    "id": 25,
+    "bms": [],
+    "link": "https://accountspva.email/",
+    "name": "P15 - EST 5 - PG | Anderson Anderle",
+    "pass": "xDvBsKoH5AV#",
+    "email": "elio6vanderlei@vertexmailbr.com",
+    "status": "OK [S/ PROXY]",
+    "gmailPass": "onn3(xI665LU",
+    "secret2fa": "",
+    "multilogin": "Dolphin Anty"
+  },
+  {
+    "bm": "",
+    "id": 24,
+    "bms": [],
+    "link": "https://accountspva.email/",
+    "name": "P16 - EST 7 - PG | Oscar Santos Santiago",
+    "pass": "SsXXD0vLBe7#",
+    "email": "joyce9geraldo@flowinboxbr.com",
+    "status": "OK [S/ PROXY]",
+    "gmailPass": "onn3(xI665LU",
+    "secret2fa": "",
+    "multilogin": "Dolphin Anty"
+  },
+  {
+    "bm": "",
+    "id": 23,
+    "bms": [],
+    "link": "https://accountspva.email/",
+    "name": "P17 - EST 7 - AC | Vinicius Lopes",
+    "pass": "InhWC03w8xP#",
+    "email": "luciana5marcio@nimbusmailbr.com",
+    "status": "OK [S/ PROXY]",
+    "gmailPass": "onn3(xI665LU",
+    "secret2fa": "",
+    "multilogin": "Dolphin Anty"
+  },
+  {
+    "bm": "",
+    "id": 22,
+    "bms": [],
+    "link": "https://accountspva.email/",
+    "name": "P09 - EST 5 - AC | SIMA RIY",
+    "pass": "Kr7TeKPfPui#",
+    "email": "dilmar0rosana@zeninboxbr.com",
+    "status": "BAN",
+    "gmailPass": "onn3(xI665LU",
+    "secret2fa": "",
+    "multilogin": "Ads Power"
+  },
+  {
+    "bm": "",
+    "id": 21,
+    "bms": [],
+    "link": "https://accountspva.email/",
+    "name": "P18 - EST 7 - BK | Daniela Fernandes",
+    "pass": "rg1h6kIYS7z",
+    "email": "munique5diovani@vertexmailbr.com",
+    "status": "OK [S/ PROXY]",
+    "gmailPass": "Sen6538!#",
+    "secret2fa": "",
+    "multilogin": "Dolphin Anty"
+  },
+  {
+    "bm": "",
+    "id": 20,
+    "bms": [],
+    "link": "https://accountspva.email/",
+    "name": "P19 - EST 7 - BK | Rosangela Oliveira",
+    "pass": "bSJ8Du3yMz7",
+    "email": "gessica0leonicio@vertexmailbr.com",
+    "status": "BAN",
+    "gmailPass": "Sen6538!#",
+    "secret2fa": "",
+    "multilogin": "Dolphin Anty"
+  },
+  {
+    "bm": "",
+    "id": 19,
+    "bms": [],
+    "link": "https://accountspva.email/",
+    "name": "P20 - EST 7 - BK | Luiza Sousa",
+    "pass": "nKG6bxCi6Qn",
+    "email": "reinaldo2pires@vertexmailbr.com",
+    "status": "BAN",
+    "gmailPass": "Sen6538!#",
+    "secret2fa": "",
+    "multilogin": "Dolphin Anty"
+  },
+  {
+    "bm": "",
+    "id": 18,
+    "bms": [],
+    "link": "https://accountspva.email/",
+    "name": "P21 - EST 2 - BK | Rebeca Costa",
+    "pass": "gc6sjdghhkD",
+    "email": "camille2diovani@vertexmailbr.com",
+    "status": "OK [S/ PROXY]",
+    "gmailPass": "Sen6538!#",
+    "secret2fa": "",
+    "multilogin": "Dolphin Anty"
+  },
+  {
+    "bm": "",
+    "id": 17,
+    "bms": [],
+    "link": "https://accountspva.email/",
+    "name": "P22- EST 2 - BK | Amanda Cardoso",
+    "pass": "Sen6538!#",
+    "email": "silezia5temperini@vertexmailbr.com",
+    "status": "OK [S/ PROXY]",
+    "gmailPass": "B9zovJV3URP",
+    "secret2fa": "",
+    "multilogin": "Dolphin Anty"
+  },
+  {
+    "bm": "",
+    "id": 16,
+    "bms": [],
+    "link": "https://accountspva.email/",
+    "name": "P23 - EST 2 - BK | Rayane Lima",
+    "pass": "2V2jhLH7G9z",
+    "email": "honoria3luis@vertexmailbr.com",
+    "status": "BAN",
+    "gmailPass": "Sen6538!#",
+    "secret2fa": "",
+    "multilogin": "Dolphin Anty"
+  },
+  {
+    "bm": "",
+    "id": 15,
+    "bms": [],
+    "link": "https://accountspva.email/",
+    "name": "P24 - EST 4 - BK | Nathalia Silva",
+    "pass": "GMqsLqaIJV0",
+    "email": "inez3werneck@vertexmailbr.com",
+    "status": "OK [S/ PROXY]",
+    "gmailPass": "Sen6538!#",
+    "secret2fa": "",
+    "multilogin": "Dolphin Anty"
+  },
+  {
+    "bm": "",
+    "id": 14,
+    "bms": [],
+    "link": "https://accountspva.email/",
+    "name": "P25 - EST 4 - BK | Cedrick Cladia",
+    "pass": "UnsvSV2wcGq",
+    "email": "rafael8spilman@vertexmailbr.com",
+    "status": "OK [S/ PROXY]",
+    "gmailPass": "Sen6538!#",
+    "secret2fa": "",
+    "multilogin": "Dolphin Anty"
+  },
+  {
+    "bm": "",
+    "id": 13,
+    "bms": [],
+    "link": "https://accountspva.email/",
+    "name": "P26 - EST 4 - BK | Thais Azevedo",
+    "pass": "KgHt26c9RCL",
+    "email": "pietir1mattos@vertexmailbr.com",
+    "status": "OK [S/ PROXY]",
+    "gmailPass": "Sen6538!#",
+    "secret2fa": "",
+    "multilogin": "Dolphin Anty"
+  },
+  {
+    "bm": "",
+    "id": 12,
+    "bms": [],
+    "link": "https://accountspva.email/",
+    "name": "P27 - EST 5 - BK | Marilene Alves Santos",
+    "pass": "N9SHxaaxa8I",
+    "email": "stevenson7salles@vertexmailbr.com",
+    "status": "OK [S/ PROXY]",
+    "gmailPass": "Sen6538!#",
+    "secret2fa": "",
+    "multilogin": "Dolphin Anty"
+  },
+  {
+    "bm": "",
+    "id": 2,
+    "bms": [],
+    "link": "https://accountspva.email/",
+    "pass": "XqY0uj4FHsF",
+    "email": "danielecampos1737@novadashmail.com",
+    "status": "OK [C/ PROXY]",
+    "gmailPass": "yhsmpl",
+    "multilogin": "Ads Power"
+  },
+  {
+    "bm": "",
+    "id": 3,
+    "bms": [],
+    "link": "https://accountspva.email/",
+    "pass": "x9fIlvh9LdV",
+    "email": "mariaribeiro7040@novadashmail.com",
+    "status": "OK [C/ PROXY]",
+    "gmailPass": "xdb5jy",
+    "multilogin": "Ads Power"
+  },
+  {
+    "bm": "",
+    "id": 4,
+    "bms": [],
+    "link": "https://accountspva.email/",
+    "pass": "Uht3PV04lco",
+    "email": "raulamancio4125@novadashmail.com",
+    "status": "OK [C/ PROXY]",
+    "gmailPass": "xlqrwz",
+    "multilogin": "Ads Power"
+  },
+  {
+    "bm": "",
+    "id": 5,
+    "bms": [],
+    "link": "https://accountspva.email/",
+    "pass": "r5YHReiwmeA",
+    "email": "wescleymata5726@novadashmail.com",
+    "status": "OK [C/ PROXY]",
+    "gmailPass": "lg73jp",
+    "multilogin": "Ads Power"
+  },
+  {
+    "bm": "",
+    "id": 6,
+    "bms": [],
+    "link": "https://accountspva.email/",
+    "pass": "d9rG2Qkxw34",
+    "email": "palmiranogueira9527@novadashmail.com",
+    "status": "OK [C/ PROXY]",
+    "gmailPass": "kgrbto",
+    "multilogin": "Ads Power"
+  },
+  {
+    "bm": "KARINA FERREIRA",
+    "id": 7,
+    "bms": [
+      "KARINA FERREIRA"
+    ],
+    "link": "https://accountspva.email/",
+    "name": "P32 - JUZELINA | FAHTO - COFRE - 01",
+    "pass": "Mk918toYEBX",
+    "email": "juzelinafurtado4067@novadashmail.com",
+    "status": "OK [C/ PROXY]",
+    "gmailPass": "v0nexf",
+    "secret2fa": "",
+    "multilogin": "Ads Power"
+  },
+  {
+    "bm": "",
+    "id": 8,
+    "bms": [],
+    "link": "https://accountspva.email/",
+    "pass": "o3TWXw5leG1",
+    "email": "joaquimbonimo9754@novadashmail.com",
+    "status": "OK [C/ PROXY]",
+    "gmailPass": "h0a5et",
+    "multilogin": "Ads Power"
+  },
+  {
+    "bm": "",
+    "id": 9,
+    "bms": [],
+    "link": "https://accountspva.email/",
+    "pass": "ynLPz5t0E4M",
+    "email": "thaliabernardes9134@novadashmail.com",
+    "status": "OK [C/ PROXY]",
+    "gmailPass": "4nvmuc",
+    "multilogin": "Ads Power"
+  },
+  {
+    "bm": "",
+    "id": 10,
+    "bms": [],
+    "link": "https://accountspva.email/",
+    "pass": "CBBiJGMsdL7",
+    "email": "mariasalomao8267@novadashmail.com",
+    "status": "OK [C/ PROXY]",
+    "gmailPass": "opekni",
+    "multilogin": "Ads Power"
+  },
+  {
+    "bm": "",
+    "id": 11,
+    "bms": [],
+    "link": "https://accountspva.email/",
+    "pass": "TjYSdawkZ4z",
+    "email": "glaucorabelo5185@novadashmail.com",
+    "status": "OK [C/ PROXY]",
+    "gmailPass": "5i134a",
+    "multilogin": "Ads Power"
+  }
+];
 
     const INITIAL_ACCESS = [
       { id: 1, nome: "Freddy Ribeiro", email: "fatho.freddyribeiro@i6pny7.adspower.com", senha: "Fahto1media.", secret2fa: "Z3XTQSLRFO4ZE46NQITNAQOICP6Q5AB5" },
@@ -3253,17 +4152,6 @@
     ];
 
     let bmsData = loadLocalData(LOCAL_STORAGE_KEY_BMS) || [...INITIAL_BMS];
-    if (Array.isArray(bmsData)) {
-      const hasWarmed = bmsData.some(i => getStatusCategory(i.status) === 'AQUECIDA');
-      if (!hasWarmed) {
-        bmsData.forEach(i => {
-          if (i.id === 29 || i.id === 30 || i.id === 18 || (i.obs && i.obs.toLowerCase().includes('pronto'))) {
-            i.status = "⚡ Aquecida & Livre (Pronta)";
-          }
-        });
-        saveLocalData(LOCAL_STORAGE_KEY_BMS, bmsData);
-      }
-    }
 
     let profilesData = loadLocalData(LOCAL_STORAGE_KEY_PROFILES) || [...INITIAL_PROFILES];
 
