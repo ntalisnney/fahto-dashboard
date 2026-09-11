@@ -3633,29 +3633,31 @@
     // INITIALIZATION
     // ==========================================
     document.addEventListener('DOMContentLoaded', () => {
-      lucide.createIcons();
-      updateClock();
-      syncStatusesFromAccounts();
-      populateDatalists();
-      populateFilters();
-      renderKPIs();
-      renderCharts();
-      renderAlertsBanner();
-      renderBMsTable();
-      renderProfiles();
-      renderAccess();
-      renderUserNotes();
-      initTabs();
-      initTOTPTimer();
-      initSearchAndFilters();
-      initTheme();
-      initAlertBannerToggle();
-      initActionButtons();
-      startLiveSyncEngine();
+      const _safe = (label, fn) => { try { fn(); } catch(e) { console.error('[INIT ERROR] ' + label + ':', e); } };
+
+      _safe('lucide.createIcons', () => lucide.createIcons());
+      _safe('updateClock', () => updateClock());
+      _safe('syncStatusesFromAccounts', () => syncStatusesFromAccounts());
+      _safe('populateDatalists', () => populateDatalists());
+      _safe('populateFilters', () => populateFilters());
+      _safe('renderKPIs', () => renderKPIs());
+      _safe('renderCharts', () => renderCharts());
+      _safe('renderAlertsBanner', () => renderAlertsBanner());
+      _safe('renderBMsTable', () => renderBMsTable());
+      _safe('renderProfiles', () => renderProfiles());
+      _safe('renderAccess', () => renderAccess());
+      _safe('renderUserNotes', () => renderUserNotes());
+      _safe('initTabs', () => initTabs());
+      _safe('initTOTPTimer', () => initTOTPTimer());
+      _safe('initSearchAndFilters', () => initSearchAndFilters());
+      _safe('initTheme', () => initTheme());
+      _safe('initAlertBannerToggle', () => initAlertBannerToggle());
+      _safe('initActionButtons', () => initActionButtons());
+      _safe('startLiveSyncEngine', () => startLiveSyncEngine());
 
       // Inicia sincronização em tempo real via Nuvem Supabase
-      syncPullFromCloud(true);
-      initSupabaseRealtimeListener();
+      _safe('syncPullFromCloud', () => syncPullFromCloud(true));
+      _safe('initSupabaseRealtimeListener', () => initSupabaseRealtimeListener());
     });
 
     // ==========================================
@@ -4803,127 +4805,151 @@
     }
 
     function renderKPIs() {
-      const total = bmsData.length;
-      let running = 0, warmingActive = 0, toWarm = 0, warmedReady = 0, down = 0, stopped = 0;
-      const uniqueBMs = new Set();
-      const uniqueVendors = new Set();
+      try {
+        const total = bmsData.length;
+        let running = 0, warmingActive = 0, toWarm = 0, warmedReady = 0, down = 0, stopped = 0;
+        const uniqueBMs = new Set();
+        const uniqueVendors = new Set();
 
-      bmsData.forEach(item => {
-        if (item.bm) uniqueBMs.add(item.bm);
-        if (item.fornecedor) uniqueVendors.add(item.fornecedor);
+        bmsData.forEach(item => {
+          if (item.bm) uniqueBMs.add(item.bm);
+          if (item.fornecedor) uniqueVendors.add(item.fornecedor);
 
-        const cat = getStatusCategory(item.status);
-        if (cat === "RODANDO") running++;
-        else if (cat === "AQUECENDO") warmingActive++;
-        else if (cat === "AQUECER") toWarm++;
-        else if (cat === "AQUECIDA") warmedReady++;
-        else if (cat === "CAIU") down++;
-        else if (cat === "PARADA" || cat === "STANDBY") stopped++;
-      });
+          const cat = getStatusCategory(item.status);
+          if (cat === "RODANDO") running++;
+          else if (cat === "AQUECENDO") warmingActive++;
+          else if (cat === "AQUECER") toWarm++;
+          else if (cat === "AQUECIDA") warmedReady++;
+          else if (cat === "CAIU") down++;
+          else if (cat === "PARADA" || cat === "STANDBY") stopped++;
+        });
 
-      const totalCAsEl = document.getElementById('kpiTotalCAs');
-      if (totalCAsEl) totalCAsEl.textContent = total;
-      const bmsRegEl = document.getElementById('kpiBMsRegisteredCount');
-      if (bmsRegEl) bmsRegEl.textContent = uniqueBMs.size;
-      document.getElementById('kpiRunningCAs').textContent = running;
-      if (document.getElementById('kpiWarmingActiveCAs')) {
-        document.getElementById('kpiWarmingActiveCAs').textContent = warmingActive;
-      }
-      if (document.getElementById('kpiToWarmCAs')) {
-        document.getElementById('kpiToWarmCAs').textContent = toWarm;
-      }
-      if (document.getElementById('kpiWarmedReadyCAs')) {
-        document.getElementById('kpiWarmedReadyCAs').textContent = warmedReady;
-      }
-      if (document.getElementById('kpiWarmedReadyDetails')) {
-        document.getElementById('kpiWarmedReadyDetails').textContent = `${warmedReady} prontas p/ projetos`;
-      }
-      if (document.getElementById('kpiWarmingCAs')) {
-        document.getElementById('kpiWarmingCAs').textContent = warmingActive + toWarm;
-      }
-      document.getElementById('kpiDownCAs').textContent = down;
-      if (document.getElementById('kpiStoppedCAs')) {
-        document.getElementById('kpiStoppedCAs').textContent = stopped;
-        const stEl = document.getElementById('kpiStoppedDetails');
-        if (stEl) stEl.textContent = stopped === 1 ? '1 conta em stand by' : `${stopped} contas em stand by`;
-      }
-      document.getElementById('kpiProfiles').textContent = profilesData.length;
-      document.getElementById('badgeCAsCount').textContent = total;
-      document.getElementById('badgePerfisCount').textContent = profilesData.length;
+        const totalCAsEl = document.getElementById('kpiTotalCAs');
+        if (totalCAsEl) totalCAsEl.textContent = total;
 
-      // Atualiza contadores das sub-abas de perfis
-      updateProfileCounts();
+        const runningEl = document.getElementById('kpiRunningCAs');
+        if (runningEl) runningEl.textContent = running;
 
-      // ===============================================
-      // CÁLCULO PRECISO DE BMS ATIVAS vs CAÍDAS
-      // ===============================================
-      // Agrupa itens por BM para calcular o estado real de cada BM
-      const bmGroupsCalc = new Map();
-      bmsData.forEach(item => {
-        const bmName = (item.bm || '').trim();
-        if (!bmName) return;
-        if (!bmGroupsCalc.has(bmName)) {
-          bmGroupsCalc.set(bmName, []);
+        const warmingActiveEl = document.getElementById('kpiWarmingActiveCAs');
+        if (warmingActiveEl) warmingActiveEl.textContent = warmingActive;
+
+        const toWarmEl = document.getElementById('kpiToWarmCAs');
+        if (toWarmEl) toWarmEl.textContent = toWarm;
+
+        const warmedReadyEl = document.getElementById('kpiWarmedReadyCAs');
+        if (warmedReadyEl) warmedReadyEl.textContent = warmedReady;
+
+        const warmedReadyDetailsEl = document.getElementById('kpiWarmedReadyDetails');
+        if (warmedReadyDetailsEl) warmedReadyDetailsEl.textContent = `${warmedReady} prontas p/ projetos`;
+
+        const warmingCAsEl = document.getElementById('kpiWarmingCAs');
+        if (warmingCAsEl) warmingCAsEl.textContent = warmingActive + toWarm;
+
+        const downCAsEl = document.getElementById('kpiDownCAs');
+        if (downCAsEl) downCAsEl.textContent = down;
+
+        const stoppedCAsEl = document.getElementById('kpiStoppedCAs');
+        if (stoppedCAsEl) {
+          stoppedCAsEl.textContent = stopped;
+          const stEl = document.getElementById('kpiStoppedDetails');
+          if (stEl) stEl.textContent = stopped === 1 ? '1 conta em stand by' : `${stopped} contas em stand by`;
         }
-        bmGroupsCalc.get(bmName).push(item);
-      });
 
-      let totalBMsCount = bmGroupsCalc.size;
-      let activeBMsCount = 0;
-      let downBMsCount = 0;
+        const profilesEl = document.getElementById('kpiProfiles');
+        if (profilesEl) profilesEl.textContent = profilesData.length;
 
-      bmGroupsCalc.forEach((items, bmName) => {
-        const override = getBmOverride(bmName);
-        const validCas = items.filter(i => i.ca && i.ca.trim() !== 'Apenas BM (Sem CA)');
-        const isBmEmpty = validCas.length === 0;
-        const allDown = validCas.length > 0 && validCas.every(i => getStatusCategory(i.status) === 'CAIU');
-        const isExplicitDisabled = override.status === 'DESATIVADA';
-        const isExplicitActive = override.status === 'ATIVA';
+        const badgeCAsEl = document.getElementById('badgeCAsCount');
+        if (badgeCAsEl) badgeCAsEl.textContent = total;
 
-        const isFallenOrDisabled = isExplicitDisabled || (!isExplicitActive && allDown);
+        const badgePerfisEl = document.getElementById('badgePerfisCount');
+        if (badgePerfisEl) badgePerfisEl.textContent = profilesData.length;
 
-        if (isFallenOrDisabled) {
-          downBMsCount++;
-        } else {
-          activeBMsCount++;
+        // Atualiza contadores das sub-abas de perfis
+        try { updateProfileCounts(); } catch(e) { console.warn('Error in updateProfileCounts:', e); }
+
+        // ===============================================
+        // CÁLCULO PRECISO DE BMS ATIVAS vs CAÍDAS
+        // ===============================================
+        // Agrupa itens por BM para calcular o estado real de cada BM
+        const bmGroupsCalc = new Map();
+        bmsData.forEach(item => {
+          const bmName = (item.bm || '').trim();
+          if (!bmName) return;
+          if (!bmGroupsCalc.has(bmName)) {
+            bmGroupsCalc.set(bmName, []);
+          }
+          bmGroupsCalc.get(bmName).push(item);
+        });
+
+        const totalBMsCount = bmGroupsCalc.size;
+        let activeBMsCount = 0;
+        let downBMsCount = 0;
+
+        bmGroupsCalc.forEach((items, bmName) => {
+          const override = (typeof getBmOverride === 'function') ? getBmOverride(bmName) : {};
+          const validCas = items.filter(i => i.ca && i.ca.trim() !== 'Apenas BM (Sem CA)');
+          const isBmEmpty = validCas.length === 0;
+          const allDown = validCas.length > 0 && validCas.every(i => getStatusCategory(i.status) === 'CAIU');
+          const isExplicitDisabled = override.status === 'DESATIVADA';
+          const isExplicitActive = override.status === 'ATIVA';
+
+          const isFallenOrDisabled = isExplicitDisabled || (!isExplicitActive && allDown);
+
+          if (isFallenOrDisabled) {
+            downBMsCount++;
+          } else {
+            activeBMsCount++;
+          }
+        });
+
+        const bmsActiveEl = document.getElementById('kpiBMsActiveCount');
+        if (bmsActiveEl) bmsActiveEl.textContent = activeBMsCount;
+
+        const bmsRegEl = document.getElementById('kpiBMsRegisteredCount');
+        if (bmsRegEl) bmsRegEl.textContent = `${totalBMsCount} BMs`;
+
+        const bmsDownBadgeEl = document.getElementById('kpiBMsDownBadge');
+        if (bmsDownBadgeEl) {
+          if (downBMsCount === 0) {
+            bmsDownBadgeEl.style.background = 'rgba(16, 185, 129, 0.15)';
+            bmsDownBadgeEl.style.color = '#34d399';
+            bmsDownBadgeEl.style.borderColor = 'rgba(16, 185, 129, 0.35)';
+            bmsDownBadgeEl.innerHTML = `<i data-lucide="check" style="width:11px; height:11px; display:inline-block; vertical-align:middle; margin-right:3px;"></i>0 Caídas`;
+          } else {
+            bmsDownBadgeEl.style.background = 'rgba(244, 63, 94, 0.18)';
+            bmsDownBadgeEl.style.color = '#fb7185';
+            bmsDownBadgeEl.style.borderColor = 'rgba(244, 63, 94, 0.4)';
+            bmsDownBadgeEl.innerHTML = `<i data-lucide="shield-alert" style="width:11px; height:11px; display:inline-block; vertical-align:middle; margin-right:3px;"></i>${downBMsCount} ${downBMsCount === 1 ? 'BM Caída' : 'BMs Caídas'}`;
+          }
         }
-      });
 
-      const bmsActiveEl = document.getElementById('kpiBMsActiveCount');
-      if (bmsActiveEl) bmsActiveEl.textContent = activeBMsCount;
-      const bmsRegEl = document.getElementById('kpiBMsRegisteredCount');
-      if (bmsRegEl) bmsRegEl.textContent = `${totalBMsCount} BMs`;
-      const bmsDownBadgeEl = document.getElementById('kpiBMsDownBadge');
-      if (bmsDownBadgeEl) {
-        bmsDownBadgeEl.innerHTML = `<i data-lucide="shield-alert" style="width:11px; height:11px; display:inline-block; vertical-align:middle; margin-right:3px;"></i>${downBMsCount} ${downBMsCount === 1 ? 'BM Caída' : 'BMs Caídas'}`;
-        if (downBMsCount === 0) {
-          bmsDownBadgeEl.style.background = 'rgba(16, 185, 129, 0.15)';
-          bmsDownBadgeEl.style.color = '#34d399';
-          bmsDownBadgeEl.style.borderColor = 'rgba(16, 185, 129, 0.35)';
-          bmsDownBadgeEl.innerHTML = `<i data-lucide="check" style="width:11px; height:11px; display:inline-block; vertical-align:middle; margin-right:3px;"></i>0 Caídas`;
-        } else {
-          bmsDownBadgeEl.style.background = 'rgba(244, 63, 94, 0.18)';
-          bmsDownBadgeEl.style.color = '#fb7185';
-          bmsDownBadgeEl.style.borderColor = 'rgba(244, 63, 94, 0.4)';
+        const bmsDownSubtextEl = document.getElementById('kpiBMsDownSubtext');
+        if (bmsDownSubtextEl) {
+          bmsDownSubtextEl.textContent = downBMsCount > 0 ? `(${downBMsCount} caídas)` : `(0 caídas)`;
         }
+
+        const bmsTotalEl = document.getElementById('kpiBMsTotal');
+        if (bmsTotalEl) bmsTotalEl.textContent = `${totalBMsCount} BMs`;
+
+        const vendorsEl = document.getElementById('kpiVendorsTotal');
+        if (vendorsEl) vendorsEl.textContent = `${uniqueVendors.size} Fornecedores`;
+
+        const downRate = total > 0 ? ((down / total) * 100).toFixed(1) : 0;
+        const downRateEl = document.getElementById('kpiDownRate');
+        if (downRateEl) downRateEl.textContent = `${downRate}% taxa de perda`;
+
+        // Preenche mini previews dinâmicos nos KPI cards
+        try { renderKPIPreviews(); } catch(e) { console.warn('Error in renderKPIPreviews:', e); }
+
+        // Renderiza o Cockpit Operacional de Contas
+        try { renderOperationsCockpit(); } catch(e) { console.warn('Error in renderOperationsCockpit:', e); }
+
+        if (typeof lucide !== 'undefined' && lucide.createIcons) {
+          lucide.createIcons();
+        }
+      } catch (err) {
+        console.error('Error in renderKPIs:', err);
       }
-      const bmsDownSubtextEl = document.getElementById('kpiBMsDownSubtext');
-      if (bmsDownSubtextEl) {
-        bmsDownSubtextEl.textContent = downBMsCount > 0 ? `(${downBMsCount} caídas)` : `(0 caídas)`;
-      }
-      const bmsTotalEl = document.getElementById('kpiBMsTotal');
-      if (bmsTotalEl) bmsTotalEl.textContent = `${totalBMsCount} BMs`;
-      const vendorsEl = document.getElementById('kpiVendorsTotal');
-      if (vendorsEl) vendorsEl.textContent = `${uniqueVendors.size} Fornecedores`;
-
-      const downRate = total > 0 ? ((down / total) * 100).toFixed(1) : 0;
-      document.getElementById('kpiDownRate').textContent = `${downRate}% taxa de perda`;
-
-      // Preenche mini previews dinâmicos nos KPI cards
-      renderKPIPreviews();
-
-      // Renderiza o Cockpit Operacional de Contas
-      renderOperationsCockpit();
     }
 
     function renderCharts() {
