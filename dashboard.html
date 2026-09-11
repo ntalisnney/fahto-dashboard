@@ -2324,20 +2324,20 @@
       <!-- SUB-TABS: FERRAMENTAS MULTILOGIN E STATUS -->
       <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
         <div class="sub-tabs" id="profilesSubTabs" style="margin-bottom:0;">
-          <button class="sub-tab-btn active" data-tool="Ads Power" onclick="setProfileToolFilter('Ads Power')">
-            <i data-lucide="shield" style="width:16px; height:16px;"></i>
-            <span>Ads Power</span>
-            <span class="sub-badge" id="badgeAdsPowerCount">0</span>
+          <button class="sub-tab-btn active" data-tool="TODOS" onclick="setProfileToolFilter('TODOS')">
+            <i data-lucide="users" style="width:16px; height:16px;"></i>
+            <span>Todos os Perfis</span>
+            <span class="sub-badge" id="badgeAllProfilesCount">0</span>
           </button>
           <button class="sub-tab-btn" data-tool="Dolphin Anty" onclick="setProfileToolFilter('Dolphin Anty')">
             <i data-lucide="globe" style="width:16px; height:16px;"></i>
             <span>Dolphin Anty</span>
             <span class="sub-badge" id="badgeDolphinCount">0</span>
           </button>
-          <button class="sub-tab-btn" data-tool="TODOS" onclick="setProfileToolFilter('TODOS')">
-            <i data-lucide="users" style="width:16px; height:16px;"></i>
-            <span>Todos os Perfis</span>
-            <span class="sub-badge" id="badgeAllProfilesCount">0</span>
+          <button class="sub-tab-btn" data-tool="Ads Power" onclick="setProfileToolFilter('Ads Power')">
+            <i data-lucide="shield" style="width:16px; height:16px;"></i>
+            <span>Ads Power</span>
+            <span class="sub-badge" id="badgeAdsPowerCount">0</span>
           </button>
         </div>
 
@@ -6917,7 +6917,7 @@
     // ==========================================
     // PROFILES TAB RENDERING
     // ==========================================
-    let currentProfileTool = 'Ads Power';
+    let currentProfileTool = 'TODOS';
     let currentProfileStatusFilter = 'ALL';
 
     function isProfileBanned(p) {
@@ -6945,6 +6945,12 @@
         targetPane.style.display = 'block';
         targetPane.classList.add('active');
       }
+
+      // Ao entrar na aba de perfis, garante que todos os perfis estejam visíveis
+      if (tabId === 'tab-perfis') {
+        renderProfiles();
+      }
+
       if (scrollToTop) {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
