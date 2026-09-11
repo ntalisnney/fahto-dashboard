@@ -7633,185 +7633,205 @@
     }
 
     function renderBMsTable() {
-      const tbody = document.getElementById('bmsTableBody');
-      const rawQ = (document.getElementById('bmSearchInput').value || "").trim();
-      const q = rawQ.toLowerCase();
-      const tokens = q.split(/\s+/).filter(Boolean);
+      try {
+        const tbody = document.getElementById('bmsTableBody');
+        if (!tbody) return;
+        const rawQ = (document.getElementById('bmSearchInput')?.value || "").trim();
+        const q = rawQ.toLowerCase();
+        const tokens = q.split(/\s+/).filter(Boolean);
 
-      const statusVal = document.getElementById('filterStatus').value;
-      const vendorVal = document.getElementById('filterVendor').value;
-      const structVal = document.getElementById('filterStructure').value;
+        const statusVal = document.getElementById('filterStatus')?.value || "ALL";
+        const vendorVal = document.getElementById('filterVendor')?.value || "ALL";
+        const structVal = document.getElementById('filterStructure')?.value || "ALL";
 
-      const filtered = bmsData.filter(item => {
-        // Universal search filter: matches all tokens across ANY column
-        if (tokens.length > 0) {
-          const fullText = `
-            ${item.id || ''}
-            ${item.fornecedor || ''}
-            ${item.bm || ''}
-            ${item.ca || ''}
-            ${item.estrutura || ''}
-            ${item.cartao || ''}
-            ${item.status || ''}
-            ${item.obs || ''}
-          `.toLowerCase();
+        const currentData = Array.isArray(bmsData) ? bmsData : [];
 
-          const matchesAllTokens = tokens.every(t => fullText.includes(t));
-          if (!matchesAllTokens) return false;
-        }
+        const filtered = currentData.filter(item => {
+          if (!item) return false;
+          // Universal search filter: matches all tokens across ANY column
+          if (tokens.length > 0) {
+            const fullText = `
+              ${item.id || ''}
+              ${item.fornecedor || ''}
+              ${item.bm || ''}
+              ${item.ca || ''}
+              ${item.estrutura || ''}
+              ${item.cartao || ''}
+              ${item.status || ''}
+              ${item.obs || ''}
+            `.toLowerCase();
 
-        if (statusVal !== "ALL") {
-          if (statusVal.startsWith("EXACT:")) {
-            const exactTarget = statusVal.substring(6).toLowerCase().trim();
-            if ((item.status || "").toLowerCase().trim() !== exactTarget) return false;
-          } else {
+            const matchesAllTokens = tokens.every(t => fullText.includes(t));
+            if (!matchesAllTokens) return false;
+          }
+
+          if (statusVal !== "ALL") {
             const cat = getStatusCategory(item.status);
-            // PARADA and STANDBY are treated as the same group (Paradas / Stand By)
-            if (statusVal === "PARADA") {
-              if (cat !== "PARADA" && cat !== "STANDBY") return false;
+            if (statusVal.startsWith("STATUS_")) {
+              const exactStatus = statusVal.replace("STATUS_", "");
+              if ((item.status || "").trim() !== exactStatus) return false;
             } else {
-              if (cat !== statusVal) return false;
+              if (statusVal === "PARADA") {
+                if (cat !== "PARADA" && cat !== "STANDBY") return false;
+              } else {
+                if (cat !== statusVal) return false;
+              }
             }
+          }
+
+          if (vendorVal !== "ALL" && item.fornecedor !== vendorVal) return false;
+          if (structVal !== "ALL" && !(item.estrutura || "").startsWith(structVal)) return false;
+
+          return true;
+        });
+
+        // Update feedback badge and buttons
+        const clearBtn = document.getElementById('btnClearSearch');
+        const badge = document.getElementById('searchResultsBadge');
+        const resetBtn = document.getElementById('btnResetAllFilters');
+        const hasActiveFilters = q.length > 0 || statusVal !== "ALL" || vendorVal !== "ALL" || structVal !== "ALL";
+
+        if (clearBtn) clearBtn.style.display = q.length > 0 ? 'inline-flex' : 'none';
+        if (resetBtn) resetBtn.style.display = hasActiveFilters ? 'inline-flex' : 'none';
+        if (badge) {
+          if (hasActiveFilters) {
+            badge.style.display = 'inline-block';
+            badge.innerHTML = `Mostrando <strong>${filtered.length}</strong> de ${currentData.length} contas`;
+          } else {
+            badge.style.display = 'none';
           }
         }
 
-        if (vendorVal !== "ALL" && item.fornecedor !== vendorVal) return false;
-        if (structVal !== "ALL" && !(item.estrutura || "").startsWith(structVal)) return false;
-
-        return true;
-      });
-
-      // Update feedback badge and buttons
-      const clearBtn = document.getElementById('btnClearSearch');
-      const badge = document.getElementById('searchResultsBadge');
-      const resetBtn = document.getElementById('btnResetAllFilters');
-      const hasActiveFilters = q.length > 0 || statusVal !== "ALL" || vendorVal !== "ALL" || structVal !== "ALL";
-
-      if (clearBtn) clearBtn.style.display = q.length > 0 ? 'inline-flex' : 'none';
-      if (resetBtn) resetBtn.style.display = hasActiveFilters ? 'inline-flex' : 'none';
-      if (badge) {
-        if (hasActiveFilters) {
-          badge.style.display = 'inline-block';
-          badge.innerHTML = `Mostrando <strong>${filtered.length}</strong> de ${bmsData.length} contas`;
-        } else {
-          badge.style.display = 'none';
-        }
-      }
-
-      if (filtered.length === 0) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="8" style="text-align:center; padding:44px 20px;">
-              <div style="display:flex; flex-direction:column; align-items:center; gap:10px; color:var(--text-dim);">
-                <i data-lucide="search-x" style="width:36px; height:36px; color:var(--text-muted); opacity:0.6;"></i>
-                <div style="font-size:0.95rem; font-weight:600; color:var(--text-muted);">Nenhuma conta encontrada com esses filtros</div>
-                <div style="font-size:0.82rem; max-width:400px; line-height:1.5;">Tente buscar por outro termo ou clique no botão abaixo para resetar os filtros.</div>
-                <button type="button" class="btn btn-secondary" onclick="resetAllFilters()" style="margin-top:6px; font-size:0.8rem; padding:6px 14px; gap:6px;">
-                  <i data-lucide="rotate-ccw" style="width:13px; height:13px;"></i>
-                  <span>Limpar Todos os Filtros</span>
-                </button>
-              </div>
-            </td>
-          </tr>
-        `;
-        lucide.createIcons();
-        return;
-      }
-
-      tbody.innerHTML = filtered.map(item => {
-        const isUrgentObs = (item.obs || "").toLowerCase().includes("cancelar") || (item.obs || "").toLowerCase().includes("caiu");
-        const obsHighlight = isUrgentObs ? 'color:#fb7185; font-weight:600;' : 'color:var(--text-muted);';
-
-        return `
-          <tr ondblclick="openAccountModal(${item.id})" title="Dê 2 cliques na linha para abrir a janela completa de edição desta conta">
-            <td onclick="makeCellEditable(this, ${item.id}, 'status')">
-              <div class="editable-cell" title="Clique para alterar o Status desta conta">
-                ${getStatusBadge(item.status, item.id)}
-                <i data-lucide="chevron-down" class="edit-pencil-icon" style="width:12px; height:12px; margin-left:3px;"></i>
-              </div>
-              ${(() => {
-                const timing = getAccountRestTiming(item);
-                if (!timing) return '';
-                if (timing.isMatured) {
-                  return `<div style="margin-top:4px;"><span class="badge badge-running" style="font-size:0.68rem; padding:1px 6px; border:1px solid rgba(16,185,129,0.3);"><i data-lucide="check" style="width:10px;height:10px;"></i> 24h OK</span></div>`;
-                }
-                return `<div style="margin-top:4px;" title="Aguardar 24h parada antes de criar CA ou adicionar cartão"><span class="badge badge-towarm" style="font-size:0.68rem; padding:1px 6px; border:1px solid rgba(249,115,22,0.3);"><i data-lucide="clock" style="width:10px;height:10px;"></i> 24h: ${timing.hours}h ${timing.mins}m</span></div>`;
-              })()}
-            </td>
-
-            <td>
-              <div class="editable-cell" onclick="makeCellEditable(this, ${item.id}, 'fornecedor')" title="Clique para editar o Fornecedor">
-                <strong>${escapeHtml(item.fornecedor)}</strong>
-                <i data-lucide="edit-2" class="edit-pencil-icon" style="width:12px; height:12px;"></i>
-              </div>
-            </td>
-
-            <td>
-              <div class="editable-cell" onclick="makeCellEditable(this, ${item.id}, 'bm')" title="Clique para editar a BM">
-                <div>
-                  <span style="font-weight:600;">${escapeHtml(item.bm)}</span>
-                  ${(() => {
-                    const linkedProfs = profilesData.filter(p => getProfileBms(p).some(b => b.toLowerCase() === (item.bm || "").trim().toLowerCase()));
-                    return linkedProfs.length > 0
-                      ? `<div style="margin-top:2px;"><span class="badge badge-purple" style="font-size:0.7rem; padding:1px 6px; cursor:pointer;" onclick="event.stopPropagation(); switchTab('tab-profiles'); document.getElementById('profileSearchInput').value='${escapeHtml(item.bm)}'; renderProfiles();" title="Perfil vinculado: ${linkedProfs.map(p => p.name || p.email).join(', ')}"><i data-lucide="user" style="width:10px; height:10px;"></i> ${escapeHtml(linkedProfs[0].name || linkedProfs[0].email.split('@')[0])} (${linkedProfs.length})</span></div>`
-                      : '';
-                  })()}
+        if (filtered.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="8" style="text-align:center; padding:44px 20px;">
+                <div style="display:flex; flex-direction:column; align-items:center; gap:10px; color:var(--text-dim);">
+                  <i data-lucide="search-x" style="width:36px; height:36px; color:var(--text-muted); opacity:0.6;"></i>
+                  <div style="font-size:0.95rem; font-weight:600; color:var(--text-muted);">Nenhuma conta encontrada com esses filtros</div>
+                  <div style="font-size:0.82rem; max-width:400px; line-height:1.5;">Tente buscar por outro termo ou clique no botão abaixo para resetar os filtros.</div>
+                  <button type="button" class="btn btn-secondary" onclick="resetAllFilters()" style="margin-top:6px; font-size:0.8rem; padding:6px 14px; gap:6px;">
+                    <i data-lucide="rotate-ccw" style="width:13px; height:13px;"></i>
+                    <span>Limpar Todos os Filtros</span>
+                  </button>
                 </div>
-                <i data-lucide="edit-2" class="edit-pencil-icon" style="width:12px; height:12px;"></i>
-              </div>
-            </td>
+              </td>
+            </tr>
+          `;
+          if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
+          return;
+        }
 
-            <td>
-              <div class="editable-cell" onclick="makeCellEditable(this, ${item.id}, 'ca')" title="Clique para editar a CA">
-                ${(item.ca && (item.ca.includes("Apenas BM") || item.ca.includes("Sem CA")))
-                  ? `<span class="badge" style="background:rgba(234, 179, 8, 0.15); color:#facc15; border:1px solid rgba(234, 179, 8, 0.3); font-size:0.72rem; font-weight:700;"><i data-lucide="alert-circle" style="width:10px;height:10px;margin-right:2px;"></i> Apenas BM (Sem CA)</span>`
-                  : `<code style="font-size:0.82rem; color:var(--text-main); font-weight:700;">${escapeHtml(item.ca || "—")}</code>`
-                }
-                <i data-lucide="edit-2" class="edit-pencil-icon" style="width:12px; height:12px;"></i>
-              </div>
-            </td>
+        tbody.innerHTML = filtered.map(item => {
+          try {
+            const isUrgentObs = (item.obs || "").toLowerCase().includes("cancelar") || (item.obs || "").toLowerCase().includes("caiu");
+            const obsHighlight = isUrgentObs ? 'color:#fb7185; font-weight:600;' : 'color:var(--text-muted);';
 
-            <td>
-              <div class="editable-cell" onclick="makeCellEditable(this, ${item.id}, 'estrutura')" title="Clique para editar a Estrutura">
-                <span style="font-size:0.8rem; color:var(--text-dim);">${escapeHtml(item.estrutura || "—")}</span>
-                <i data-lucide="edit-2" class="edit-pencil-icon" style="width:12px; height:12px;"></i>
-              </div>
-            </td>
+            return `
+              <tr ondblclick="openAccountModal(${item.id})" title="Dê 2 cliques na linha para abrir a janela completa de edição desta conta">
+                <td onclick="makeCellEditable(this, ${item.id}, 'status')">
+                  <div class="editable-cell" title="Clique para alterar o Status desta conta">
+                    ${getStatusBadge(item.status, item.id)}
+                    <i data-lucide="chevron-down" class="edit-pencil-icon" style="width:12px; height:12px; margin-left:3px;"></i>
+                  </div>
+                  ${(() => {
+                    try {
+                      const timing = getAccountRestTiming(item);
+                      if (!timing) return '';
+                      if (timing.isMatured) {
+                        return `<div style="margin-top:4px;"><span class="badge badge-running" style="font-size:0.68rem; padding:1px 6px; border:1px solid rgba(16,185,129,0.3);"><i data-lucide="check" style="width:10px;height:10px;"></i> 24h OK</span></div>`;
+                      }
+                      return `<div style="margin-top:4px;" title="Aguardar 24h parada antes de criar CA ou adicionar cartão"><span class="badge badge-towarm" style="font-size:0.68rem; padding:1px 6px; border:1px solid rgba(249,115,22,0.3);"><i data-lucide="clock" style="width:10px;height:10px;"></i> 24h: ${timing.hours}h ${timing.mins}m</span></div>`;
+                    } catch(e) { return ''; }
+                  })()}
+                </td>
 
-            <td>
-              <div class="editable-cell" onclick="makeCellEditable(this, ${item.id}, 'cartao')" title="Clique para editar o Cartão">
-                <span style="font-family:monospace; font-size:0.82rem;">${escapeHtml(item.cartao || "—")}</span>
-                <i data-lucide="edit-2" class="edit-pencil-icon" style="width:12px; height:12px;"></i>
-              </div>
-            </td>
+                <td>
+                  <div class="editable-cell" onclick="makeCellEditable(this, ${item.id}, 'fornecedor')" title="Clique para editar o Fornecedor">
+                    <strong>${escapeHtml(item.fornecedor)}</strong>
+                    <i data-lucide="edit-2" class="edit-pencil-icon" style="width:12px; height:12px;"></i>
+                  </div>
+                </td>
 
-            <td>
-              <div class="editable-cell" onclick="makeCellEditable(this, ${item.id}, 'obs')" title="Clique para editar as Observações">
-                <span style="font-size:0.82rem; ${obsHighlight}">${escapeHtml(item.obs || "—")}</span>
-                <i data-lucide="edit-2" class="edit-pencil-icon" style="width:12px; height:12px;"></i>
-              </div>
-            </td>
+                <td>
+                  <div class="editable-cell" onclick="makeCellEditable(this, ${item.id}, 'bm')" title="Clique para editar a BM">
+                    <div>
+                      <span style="font-weight:600;">${escapeHtml(item.bm)}</span>
+                      ${(() => {
+                        try {
+                          const linkedProfs = (Array.isArray(profilesData) ? profilesData : []).filter(p => {
+                            if (!p) return false;
+                            const bms = (typeof getProfileBms === 'function') ? getProfileBms(p) : (p.bms || []);
+                            return bms.some(b => b && b.toLowerCase() === (item.bm || "").trim().toLowerCase());
+                          });
+                          return linkedProfs.length > 0
+                            ? `<div style="margin-top:2px;"><span class="badge badge-purple" style="font-size:0.7rem; padding:1px 6px; cursor:pointer;" onclick="event.stopPropagation(); switchTab('tab-profiles'); document.getElementById('profileSearchInput').value='${escapeHtml(item.bm)}'; renderProfiles();" title="Perfil vinculado: ${linkedProfs.map(p => p.name || p.email).join(', ')}"><i data-lucide="user" style="width:10px; height:10px;"></i> ${escapeHtml(linkedProfs[0].name || (linkedProfs[0].email ? linkedProfs[0].email.split('@')[0] : 'Perfil'))} (${linkedProfs.length})</span></div>`
+                            : '';
+                        } catch(e) { return ''; }
+                      })()}
+                    </div>
+                    <i data-lucide="edit-2" class="edit-pencil-icon" style="width:12px; height:12px;"></i>
+                  </div>
+                </td>
 
-            <td style="text-align:center;">
-              <div class="action-btn-group" style="justify-content:center; gap:4px;">
-                <button type="button" class="btn btn-secondary" onclick="openAccountModal(null, null, '${escapeHtml(item.bm)}', '${escapeHtml(item.fornecedor)}')" style="height:28px; padding:0 6px; font-size:0.72rem; gap:3px;" title="Adicionar nova Conta de Anúncios nesta BM">
-                  <i data-lucide="plus" style="width:12px; height:12px; color:var(--primary);"></i>
-                  <span>+ CA</span>
-                </button>
-                <button class="action-btn-edit" onclick="openAccountModal(${item.id})" title="Editar todos os dados deste ativo">
-                  <i data-lucide="edit-3" style="width:12px; height:12px;"></i>
-                  <span>Editar</span>
-                </button>
-                <button class="action-btn delete" onclick="deleteAccount(${item.id})" title="Excluir ativo">
-                  <i data-lucide="trash-2" style="width:12px; height:12px;"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-        `;
-      }).join('');
+                <td>
+                  <div class="editable-cell" onclick="makeCellEditable(this, ${item.id}, 'ca')" title="Clique para editar a CA">
+                    ${(item.ca && (item.ca.includes("Apenas BM") || item.ca.includes("Sem CA")))
+                      ? `<span class="badge" style="background:rgba(234, 179, 8, 0.15); color:#facc15; border:1px solid rgba(234, 179, 8, 0.3); font-size:0.72rem; font-weight:700;"><i data-lucide="alert-circle" style="width:10px;height:10px;margin-right:2px;"></i> Apenas BM (Sem CA)</span>`
+                      : `<code style="font-size:0.82rem; color:var(--text-main); font-weight:700;">${escapeHtml(item.ca || "—")}</code>`
+                    }
+                    <i data-lucide="edit-2" class="edit-pencil-icon" style="width:12px; height:12px;"></i>
+                  </div>
+                </td>
 
-      lucide.createIcons();
+                <td>
+                  <div class="editable-cell" onclick="makeCellEditable(this, ${item.id}, 'estrutura')" title="Clique para editar a Estrutura">
+                    <span style="font-size:0.8rem; color:var(--text-dim);">${escapeHtml(item.estrutura || "—")}</span>
+                    <i data-lucide="edit-2" class="edit-pencil-icon" style="width:12px; height:12px;"></i>
+                  </div>
+                </td>
+
+                <td>
+                  <div class="editable-cell" onclick="makeCellEditable(this, ${item.id}, 'cartao')" title="Clique para editar o Cartão">
+                    <span style="font-family:monospace; font-size:0.82rem;">${escapeHtml(item.cartao || "—")}</span>
+                    <i data-lucide="edit-2" class="edit-pencil-icon" style="width:12px; height:12px;"></i>
+                  </div>
+                </td>
+
+                <td>
+                  <div class="editable-cell" onclick="makeCellEditable(this, ${item.id}, 'obs')" title="Clique para editar as Observações">
+                    <span style="font-size:0.82rem; ${obsHighlight}">${escapeHtml(item.obs || "—")}</span>
+                    <i data-lucide="edit-2" class="edit-pencil-icon" style="width:12px; height:12px;"></i>
+                  </div>
+                </td>
+
+                <td style="text-align:center;">
+                  <div class="action-btn-group" style="justify-content:center; gap:4px;">
+                    <button type="button" class="btn btn-secondary" onclick="openAccountModal(null, null, '${escapeHtml(item.bm)}', '${escapeHtml(item.fornecedor)}')" style="height:28px; padding:0 6px; font-size:0.72rem; gap:3px;" title="Adicionar nova Conta de Anúncios nesta BM">
+                      <i data-lucide="plus" style="width:12px; height:12px; color:var(--primary);"></i>
+                      <span>+ CA</span>
+                    </button>
+                    <button class="action-btn-edit" onclick="openAccountModal(${item.id})" title="Editar todos os dados deste ativo">
+                      <i data-lucide="edit-3" style="width:12px; height:12px;"></i>
+                      <span>Editar</span>
+                    </button>
+                    <button class="action-btn delete" onclick="deleteAccount(${item.id})" title="Excluir ativo">
+                      <i data-lucide="trash-2" style="width:12px; height:12px;"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          } catch(errItem) {
+            console.error("Erro ao renderizar linha de BM:", item, errItem);
+            return '';
+          }
+        }).join('');
+
+        if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
+      } catch(err) {
+        console.error("Erro em renderBMsTable:", err);
+      }
     }
 
     // ==========================================
@@ -7917,138 +7937,155 @@
     }
 
     function renderProfiles() {
-      updateProfileCounts();
+      try {
+        updateProfileCounts();
 
-      const container = document.getElementById('profilesGrid');
-      const q = (document.getElementById('profileSearchInput').value || "").toLowerCase();
+        const container = document.getElementById('profilesGrid');
+        if (!container) return;
+        const q = (document.getElementById('profileSearchInput')?.value || "").toLowerCase();
 
-      const filtered = profilesData.filter(p => {
-        const pTool = (p.multilogin || 'Ads Power').toLowerCase();
-        let matchesTool = false;
-        if (currentProfileTool === 'TODOS') {
-          matchesTool = true;
-        } else if (currentProfileTool === 'Dolphin Anty') {
-          matchesTool = pTool.includes('dolphin');
-        } else {
-          matchesTool = pTool === currentProfileTool.toLowerCase();
+        const currentProfiles = Array.isArray(profilesData) ? profilesData : [];
+
+        const filtered = currentProfiles.filter(p => {
+          if (!p) return false;
+          const pTool = (p.multilogin || 'Ads Power').toLowerCase();
+          let matchesTool = false;
+          if (currentProfileTool === 'TODOS') {
+            matchesTool = true;
+          } else if (currentProfileTool === 'Dolphin Anty') {
+            matchesTool = pTool.includes('dolphin');
+          } else {
+            matchesTool = pTool === currentProfileTool.toLowerCase();
+          }
+
+          const pBms = (typeof getProfileBms === 'function') ? getProfileBms(p) : (p.bms || []);
+          const matchesBmSearch = pBms.some(b => b && b.toLowerCase().includes(q));
+
+          const matchesSearch = (p.name || "").toLowerCase().includes(q) ||
+                                (p.email || "").toLowerCase().includes(q) ||
+                                (p.status || "").toLowerCase().includes(q) ||
+                                (p.multilogin || "").toLowerCase().includes(q) ||
+                                matchesBmSearch;
+
+          let matchesStatus = true;
+          if (currentProfileStatusFilter === 'ACTIVE') {
+            matchesStatus = !isProfileBanned(p);
+          } else if (currentProfileStatusFilter === 'BAN') {
+            matchesStatus = isProfileBanned(p);
+          }
+
+          return matchesTool && matchesSearch && matchesStatus;
+        });
+
+        if (filtered.length === 0) {
+          let emptyFilterMsg = `Nenhum perfil encontrado nesta categoria`;
+          if (currentProfileStatusFilter === 'BAN') emptyFilterMsg = `Nenhum perfil com ban encontrado nesta categoria.`;
+          else if (currentProfileStatusFilter === 'ACTIVE') emptyFilterMsg = `Nenhum perfil ativo encontrado nesta categoria.`;
+          else if (currentProfileTool !== 'TODOS') emptyFilterMsg = `Nenhum perfil cadastrado na categoria "${currentProfileTool}"`;
+
+          container.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:48px 20px; background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:var(--radius-md); color:var(--text-dim);">
+            <i data-lucide="users-round" style="width:36px; height:36px; margin-bottom:10px; color:var(--text-dim);"></i>
+            <div style="font-size:0.95rem; font-weight:600; color:var(--text-muted);">${escapeHtml(emptyFilterMsg)}</div>
+            <div style="font-size:0.8rem; margin-top:4px;">Clique em "Todos" ou em "+ Novo Perfil" para visualizar ou cadastrar perfis.</div>
+          </div>`;
+          if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
+          return;
         }
 
-        const pBms = getProfileBms(p);
-        const matchesBmSearch = pBms.some(b => b.toLowerCase().includes(q));
+        container.innerHTML = filtered.map(p => {
+          try {
+            const pBms = (typeof getProfileBms === 'function') ? getProfileBms(p) : (p.bms || []);
+            const userEmail = p.email || 'perfil';
+            const userHandle = userEmail.includes('@') ? userEmail.split('@')[0] : userEmail;
+            const avatarText = (p.name || userEmail).substring(0, 2).toUpperCase();
 
-        const matchesSearch = (p.name || "").toLowerCase().includes(q) ||
-                              p.email.toLowerCase().includes(q) ||
-                              (p.status || "").toLowerCase().includes(q) ||
-                              (p.multilogin || "").toLowerCase().includes(q) ||
-                              matchesBmSearch;
+            return `
+            <div class="profile-card">
+              <div class="profile-card-header">
+                <div class="profile-user-info">
+                  <div class="profile-avatar">${escapeHtml(avatarText)}</div>
+                  <div>
+                    ${p.name ? `<div class="profile-user-name" style="font-size:1rem; font-weight:700; color:var(--text-main);">${escapeHtml(p.name)}</div><div class="profile-user-role" style="font-size:0.78rem; color:var(--text-dim);">${escapeHtml(userHandle)}</div>` : `<div class="profile-user-name">${escapeHtml(userHandle)}</div>`}
+                    <div class="profile-user-role" style="display:flex; align-items:center; gap:4px; margin-top:2px;">
+                      <span style="background:rgba(0,82,255,0.15); color:#60a5fa; padding:2px 8px; border-radius:4px; font-weight:600; font-size:0.72rem;">${escapeHtml(p.multilogin || 'Ads Power')}</span>
+                    </div>
+                  </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  ${getProfileStatusBadge(p.status, p.id)}
+                  <button class="action-btn" onclick="openProfileModal(${p.id})" title="Editar perfil"><i data-lucide="edit-2" style="width:13px; height:13px;"></i></button>
+                  <button class="action-btn delete" onclick="deleteProfile(${p.id})" title="Excluir perfil"><i data-lucide="trash-2" style="width:13px; height:13px;"></i></button>
+                </div>
+              </div>
 
-        let matchesStatus = true;
-        if (currentProfileStatusFilter === 'ACTIVE') {
-          matchesStatus = !isProfileBanned(p);
-        } else if (currentProfileStatusFilter === 'BAN') {
-          matchesStatus = isProfileBanned(p);
-        }
+              <div class="profile-credentials-box">
+                <div class="cred-row" style="background:rgba(0,82,255,0.06); border-radius:8px; padding:10px 12px; border:1px solid rgba(0,82,255,0.2); margin-bottom:10px; display:block;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <span class="cred-label" style="display:flex; align-items:center; gap:6px; color:#60a5fa; font-weight:700; font-size:0.78rem;">
+                      <i data-lucide="briefcase" style="width:13px; height:13px;"></i> BMs Vinculadas
+                    </span>
+                    <span style="font-size:0.72rem; color:var(--text-dim); background:rgba(255,255,255,0.05); padding:1px 6px; border-radius:4px; font-weight:600;">
+                      ${pBms.length} BM${pBms.length === 1 ? '' : 's'}
+                    </span>
+                  </div>
+                  <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+                    ${pBms.length === 0 ? `<span style="color:var(--text-dim); font-style:italic; font-size:0.8rem;">Nenhuma BM vinculada</span>` : pBms.map(bmName => `
+                      <span class="bm-chip-badge" onclick="filterBmsByBm('${escapeHtml(bmName)}')" title="Clique para ver esta BM na tabela">
+                        <i data-lucide="briefcase" style="width:11px; height:11px;"></i>
+                        <span>${escapeHtml(bmName)}</span>
+                        <i data-lucide="arrow-right" style="width:10px; height:10px; opacity:0.7;"></i>
+                      </span>
+                    `).join('')}
+                  </div>
+                </div>
 
-        return matchesTool && matchesSearch && matchesStatus;
-      });
+                <div class="cred-row">
+                  <span class="cred-label">Login Meta</span>
+                  <div class="cred-value">
+                    <span>${escapeHtml(p.email || '—')}</span>
+                    <button class="copy-btn" onclick="copyText('${escapeHtml(p.email || '')}')"><i data-lucide="copy" style="width:13px; height:13px;"></i></button>
+                  </div>
+                </div>
 
-      if (filtered.length === 0) {
-        let emptyFilterMsg = `Nenhum perfil encontrado nesta categoria`;
-        if (currentProfileStatusFilter === 'BAN') emptyFilterMsg = `Nenhum perfil com ban encontrado nesta categoria.`;
-        else if (currentProfileStatusFilter === 'ACTIVE') emptyFilterMsg = `Nenhum perfil ativo encontrado nesta categoria.`;
-        else if (currentProfileTool !== 'TODOS') emptyFilterMsg = `Nenhum perfil cadastrado na categoria "${currentProfileTool}"`;
+                <div class="cred-row">
+                  <span class="cred-label">Senha Meta</span>
+                  <div class="cred-value">
+                    <span id="pwd_${p.id}">••••••••</span>
+                    <button class="copy-btn" onclick="togglePass('${p.id}', '${escapeHtml(p.pass || '')}')"><i data-lucide="eye" style="width:13px; height:13px;"></i></button>
+                    <button class="copy-btn" onclick="copyText('${escapeHtml(p.pass || '')}')"><i data-lucide="copy" style="width:13px; height:13px;"></i></button>
+                  </div>
+                </div>
 
-        container.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:48px 20px; background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:var(--radius-md); color:var(--text-dim);">
-          <i data-lucide="users-round" style="width:36px; height:36px; margin-bottom:10px; color:var(--text-dim);"></i>
-          <div style="font-size:0.95rem; font-weight:600; color:var(--text-muted);">${escapeHtml(emptyFilterMsg)}</div>
-          <div style="font-size:0.8rem; margin-top:4px;">Clique em "Todos" ou em "+ Novo Perfil" para visualizar ou cadastrar perfis.</div>
-        </div>`;
-        lucide.createIcons();
-        return;
-      }
+                <div class="cred-row">
+                  <span class="cred-label">Gmail PVA / Senha</span>
+                  <div class="cred-value">
+                    <span>${escapeHtml(p.gmailPass || '—')}</span>
+                    <button class="copy-btn" onclick="copyText('${escapeHtml(p.gmailPass || '')}')"><i data-lucide="copy" style="width:13px; height:13px;"></i></button>
+                    <a href="${escapeHtml(p.link || 'https://accountspva.email/')}" target="_blank" class="copy-btn" title="Abrir PVA Mail" style="color:var(--primary);"><i data-lucide="external-link" style="width:13px; height:13px;"></i></a>
+                  </div>
+                </div>
 
-      container.innerHTML = filtered.map(p => {
-        const pBms = getProfileBms(p);
-        return `
-        <div class="profile-card">
-          <div class="profile-card-header">
-            <div class="profile-user-info">
-              <div class="profile-avatar">${(p.name || p.email).substring(0, 2).toUpperCase()}</div>
-              <div>
-                ${p.name ? `<div class="profile-user-name" style="font-size:1rem; font-weight:700; color:var(--text-main);">${escapeHtml(p.name)}</div><div class="profile-user-role" style="font-size:0.78rem; color:var(--text-dim);">${p.email.split('@')[0]}</div>` : `<div class="profile-user-name">${p.email.split('@')[0]}</div>`}
-                <div class="profile-user-role" style="display:flex; align-items:center; gap:4px; margin-top:2px;">
-                  <span style="background:rgba(0,82,255,0.15); color:#60a5fa; padding:2px 8px; border-radius:4px; font-weight:600; font-size:0.72rem;">${p.multilogin || 'Ads Power'}</span>
+                <div class="cred-row">
+                  <span class="cred-label" style="display:flex; align-items:center; gap:4px;">
+                    <i data-lucide="shield-check" style="width:12px; height:12px; color:var(--primary);"></i> Chave 2FA
+                  </span>
+                  <div class="cred-value">
+                    <span>${p.secret2fa ? '<span style="letter-spacing:2px; font-family:monospace; color:var(--text-muted);">••••••••••••</span>' : '<span style="color:var(--text-dim); font-size:0.75rem; font-style:italic;">Não configurada</span>'}</span>
+                    ${p.secret2fa ? `<button class="copy-btn" onclick="copyText('${escapeHtml(p.secret2fa)}')" title="Copiar Chave Secreta 2FA"><i data-lucide="copy" style="width:13px; height:13px;"></i></button>` : `<button class="copy-btn" onclick="openProfileModal(${p.id})" title="Configurar Chave 2FA" style="font-size:0.7rem; color:var(--primary); width:auto; padding:2px 6px; gap:3px;"><i data-lucide="plus" style="width:11px; height:11px;"></i> Adicionar</button>`}
+                  </div>
                 </div>
               </div>
             </div>
-            <div style="display:flex; align-items:center; gap:8px;">
-              ${getProfileStatusBadge(p.status, p.id)}
-              <button class="action-btn" onclick="openProfileModal(${p.id})" title="Editar perfil"><i data-lucide="edit-2" style="width:13px; height:13px;"></i></button>
-              <button class="action-btn delete" onclick="deleteProfile(${p.id})" title="Excluir perfil"><i data-lucide="trash-2" style="width:13px; height:13px;"></i></button>
-            </div>
-          </div>
+          `;} catch(errCard) {
+            console.error("Erro ao renderizar cartão de perfil:", p, errCard);
+            return '';
+          }
+        }).join('');
 
-          <div class="profile-credentials-box">
-            <div class="cred-row" style="background:rgba(0,82,255,0.06); border-radius:8px; padding:10px 12px; border:1px solid rgba(0,82,255,0.2); margin-bottom:10px; display:block;">
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                <span class="cred-label" style="display:flex; align-items:center; gap:6px; color:#60a5fa; font-weight:700; font-size:0.78rem;">
-                  <i data-lucide="briefcase" style="width:13px; height:13px;"></i> BMs Vinculadas
-                </span>
-                <span style="font-size:0.72rem; color:var(--text-dim); background:rgba(255,255,255,0.05); padding:1px 6px; border-radius:4px; font-weight:600;">
-                  ${pBms.length} BM${pBms.length === 1 ? '' : 's'}
-                </span>
-              </div>
-              <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
-                ${pBms.length === 0 ? `<span style="color:var(--text-dim); font-style:italic; font-size:0.8rem;">Nenhuma BM vinculada</span>` : pBms.map(bmName => `
-                  <span class="bm-chip-badge" onclick="filterBmsByBm('${escapeHtml(bmName)}')" title="Clique para ver esta BM na tabela">
-                    <i data-lucide="briefcase" style="width:11px; height:11px;"></i>
-                    <span>${escapeHtml(bmName)}</span>
-                    <i data-lucide="arrow-right" style="width:10px; height:10px; opacity:0.7;"></i>
-                  </span>
-                `).join('')}
-              </div>
-            </div>
-
-            <div class="cred-row">
-              <span class="cred-label">Login Meta</span>
-              <div class="cred-value">
-                <span>${p.email}</span>
-                <button class="copy-btn" onclick="copyText('${p.email}')"><i data-lucide="copy" style="width:13px; height:13px;"></i></button>
-              </div>
-            </div>
-
-            <div class="cred-row">
-              <span class="cred-label">Senha Meta</span>
-              <div class="cred-value">
-                <span id="pwd_${p.id}">••••••••</span>
-                <button class="copy-btn" onclick="togglePass('${p.id}', '${p.pass}')"><i data-lucide="eye" style="width:13px; height:13px;"></i></button>
-                <button class="copy-btn" onclick="copyText('${p.pass}')"><i data-lucide="copy" style="width:13px; height:13px;"></i></button>
-              </div>
-            </div>
-
-            <div class="cred-row">
-              <span class="cred-label">Gmail PVA / Senha</span>
-              <div class="cred-value">
-                <span>${p.gmailPass}</span>
-                <button class="copy-btn" onclick="copyText('${p.gmailPass}')"><i data-lucide="copy" style="width:13px; height:13px;"></i></button>
-                <a href="${p.link}" target="_blank" class="copy-btn" title="Abrir PVA Mail" style="color:var(--primary);"><i data-lucide="external-link" style="width:13px; height:13px;"></i></a>
-              </div>
-            </div>
-
-            <div class="cred-row">
-              <span class="cred-label" style="display:flex; align-items:center; gap:4px;">
-                <i data-lucide="shield-check" style="width:12px; height:12px; color:var(--primary);"></i> Chave 2FA
-              </span>
-              <div class="cred-value">
-                <span>${p.secret2fa ? '<span style="letter-spacing:2px; font-family:monospace; color:var(--text-muted);">••••••••••••</span>' : '<span style="color:var(--text-dim); font-size:0.75rem; font-style:italic;">Não configurada</span>'}</span>
-                ${p.secret2fa ? `<button class="copy-btn" onclick="copyText('${p.secret2fa}')" title="Copiar Chave Secreta 2FA"><i data-lucide="copy" style="width:13px; height:13px;"></i></button>` : `<button class="copy-btn" onclick="openProfileModal(${p.id})" title="Configurar Chave 2FA" style="font-size:0.7rem; color:var(--primary); width:auto; padding:2px 6px; gap:3px;"><i data-lucide="plus" style="width:11px; height:11px;"></i> Adicionar</button>`}
-              </div>
-            </div>
-          </div>
-        </div>
-      `;}).join('');
-
-      lucide.createIcons();
+        if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
+      } catch(err) {
+        console.error("Erro em renderProfiles:", err);
+      }
     }
 
     function togglePass(id, rawPass) {
