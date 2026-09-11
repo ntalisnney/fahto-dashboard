@@ -3013,9 +3013,14 @@
     async function syncPushToCloud() {
       if (!supabaseClient) return;
       try {
-        // SEGURANÇA MÁXIMA: Nunca sobrescreve o banco da nuvem se os arrays locais estiverem vazios ou zerados por erro de cache
-        if (!Array.isArray(bmsData) || bmsData.length < 10 || !Array.isArray(profilesData) || profilesData.length < 5) {
-          console.warn("Segurança ativada: tentativa de push com dados insuficientes ou vazios ignorada para proteger o banco.", { bms: (bmsData || []).length, profiles: (profilesData || []).length });
+        // SEGURANÇA MÁXIMA E ABSOLUTA:
+        // Bloqueia qualquer tentativa de envio que contenha menos de 45 contas ou menos de 20 perfis.
+        // Isso impede que instâncias desatualizadas, abas anônimas ou versões antigas na Vercel sobrescrevam a nuvem.
+        const bmsLen = Array.isArray(bmsData) ? bmsData.length : 0;
+        const profsLen = Array.isArray(profilesData) ? profilesData.length : 0;
+
+        if (bmsLen < 45 || profsLen < 20) {
+          console.warn("🛡️ Push bloqueado pelo firewall de segurança: volume de dados menor que o esperado da contingência.", { bms: bmsLen, profiles: profsLen });
           return;
         }
 
@@ -3070,14 +3075,29 @@
 
         if (data && data.data) {
           const remote = data.data;
+
+          // BLINDAGEM REVERSA: Se os dados da nuvem vierem corrompidos ou truncados (menos de 45 contas ou 20 perfis),
+          // NÃO aplica localmente e NÃO sobrescreve a tela.
+          const remoteBmsLen = Array.isArray(remote.bmsData) ? remote.bmsData.length : 0;
+          const remoteProfsLen = Array.isArray(remote.profilesData) ? remote.profilesData.length : 0;
+          if (remoteBmsLen < 45 || remoteProfsLen < 20) {
+            console.warn("🛡️ Pull rejeitado pelo firewall: dados remotos truncados ou insuficientes.", { bms: remoteBmsLen, profiles: remoteProfsLen });
+            // Se nosso estado local tiver 56 contas completas, repara a nuvem imediatamente
+            if (Array.isArray(bmsData) && bmsData.length >= 45 && Array.isArray(profilesData) && profilesData.length >= 20) {
+              console.log("Reparando estado da nuvem com a base local completa...");
+              syncPushToCloud();
+            }
+            return;
+          }
+
           let changed = false;
 
-          if (Array.isArray(remote.bmsData) && remote.bmsData.length > 0) {
+          if (Array.isArray(remote.bmsData) && remote.bmsData.length >= 45) {
             bmsData = remote.bmsData;
             localStorage.setItem(LOCAL_STORAGE_KEY_BMS, JSON.stringify(bmsData));
             changed = true;
           }
-          if (Array.isArray(remote.profilesData) && remote.profilesData.length > 0) {
+          if (Array.isArray(remote.profilesData) && remote.profilesData.length >= 20) {
             profilesData = remote.profilesData;
             localStorage.setItem(LOCAL_STORAGE_KEY_PROFILES, JSON.stringify(profilesData));
             changed = true;
