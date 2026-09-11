@@ -2960,11 +2960,11 @@
   <!-- MAIN LOGIC SCRIPT -->
   <script>
     const SHEET_ID = '1UDS8Uvv_Kc5SRRBWVeZmXhKMbm_TNslnPPPw71-EY4c';
-    const LOCAL_STORAGE_KEY_BMS = 'fahto_ops_bms_v3';
-    const LOCAL_STORAGE_KEY_PROFILES = 'fahto_ops_profiles_v3';
-    const LOCAL_STORAGE_KEY_ACCESS = 'fahto_ops_access_v3';
-    const LOCAL_STORAGE_KEY_STATUSES = 'fahto_ops_statuses_v3';
-    const LOCAL_STORAGE_KEY_BM_OVERRIDES = 'fahto_bm_overrides_v1';
+    const LOCAL_STORAGE_KEY_BMS = 'fahto_ops_bms_v4';
+    const LOCAL_STORAGE_KEY_PROFILES = 'fahto_ops_profiles_v4';
+    const LOCAL_STORAGE_KEY_ACCESS = 'fahto_ops_access_v4';
+    const LOCAL_STORAGE_KEY_STATUSES = 'fahto_ops_statuses_v4';
+    const LOCAL_STORAGE_KEY_BM_OVERRIDES = 'fahto_bm_overrides_v2';
 
     // ==========================================
     // SUPABASE REAL-TIME CLOUD SYNC ENGINE
@@ -4184,8 +4184,20 @@
     ];
 
     let bmsData = loadLocalData(LOCAL_STORAGE_KEY_BMS) || [...INITIAL_BMS];
-
     let profilesData = loadLocalData(LOCAL_STORAGE_KEY_PROFILES) || [...INITIAL_PROFILES];
+
+    // SANITIZADOR E FIREWALL DE INICIALIZAÇÃO:
+    // Garante que caches locais antigos ou incompletos nunca corrompam a visão completa do dashboard (56 BMs e 30 perfis)
+    if (!Array.isArray(bmsData) || bmsData.length < 45) {
+      console.warn("⚠️ Cache local obsoleto de BMs detectado (< 45). Restaurando base completa oficial (56 BMs)...");
+      bmsData = JSON.parse(JSON.stringify(INITIAL_BMS));
+      saveLocalData(LOCAL_STORAGE_KEY_BMS, bmsData);
+    }
+    if (!Array.isArray(profilesData) || profilesData.length < 20) {
+      console.warn("⚠️ Cache local obsoleto de perfis detectado (< 20). Restaurando base completa oficial (30 perfis)...");
+      profilesData = JSON.parse(JSON.stringify(INITIAL_PROFILES));
+      saveLocalData(LOCAL_STORAGE_KEY_PROFILES, profilesData);
+    }
 
     // Normalize profilesData so bms array is present for all profiles
     if (Array.isArray(profilesData)) {
@@ -4575,7 +4587,7 @@
     let countdownTimer = null;
     let syncIntervalSeconds = 600; // 10 minutos (600s)
     let countdown = 600;
-    let hasLocalEdits = !!loadLocalData(LOCAL_STORAGE_KEY_BMS);
+    let hasLocalEdits = true; // Contingência gerenciada via Supabase / Dashboard (bloqueia regressão para planilha antiga)
 
     // Chart instances
     let statusChart = null;
