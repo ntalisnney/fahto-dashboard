@@ -3158,6 +3158,7 @@
           renderProfiles();
           renderAccess();
           if (typeof renderUserNotes === 'function') renderUserNotes();
+          if (typeof renderOperationsCockpit === 'function') renderOperationsCockpit();
           if (!silent && typeof showToast === 'function') {
             showToast("☁️ Dados sincronizados em tempo real via Nuvem!");
           }
@@ -4988,6 +4989,7 @@
       _safe('populateFilters', () => populateFilters());
       _safe('renderKPIs', () => renderKPIs());
       _safe('renderCharts', () => renderCharts());
+      _safe('renderOperationsCockpit', () => renderOperationsCockpit());
       _safe('renderAlertsBanner', () => renderAlertsBanner());
       _safe('renderBMsTable', () => renderBMsTable());
       _safe('renderProfiles', () => renderProfiles());
@@ -6164,7 +6166,8 @@
 
     function renderCharts() {
       if (typeof Chart === 'undefined') {
-        console.warn("Chart.js is not loaded.");
+        console.warn("Chart.js not yet loaded, retrying in 500ms...");
+        setTimeout(() => renderCharts(), 500);
         return;
       }
       try {
