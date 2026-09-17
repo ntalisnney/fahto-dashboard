@@ -1877,7 +1877,7 @@
             </div>
             <div style="display:flex; align-items:center; gap:6px;">
               <span class="badge" id="kpiBMsDownBadge" style="background:rgba(244,63,94,0.18); color:#fb7185; border:1px solid rgba(244,63,94,0.4); font-size:0.75rem; font-weight:800; padding:2px 8px; border-radius:6px;">
-                0 Caídas
+                <i data-lucide="shield-alert" style="width:11px; height:11px; display:inline-block; vertical-align:middle; margin-right:3px;"></i>16 BMs Caídas
               </span>
             </div>
           </div>
@@ -1932,7 +1932,7 @@
               <i data-lucide="clock" style="width:20px; height:20px;"></i>
             </div>
           </div>
-          <div class="kpi-value" style="color: #fb923c;" id="kpiToWarmCAs">0</div>
+          <div class="kpi-value" style="color: #fb923c;" id="kpiToWarmCAs">13</div>
           <div class="kpi-meta">
             <i data-lucide="hourglass" style="width:14px; height:14px; color:#fb923c;"></i>
             <span id="kpiToWarmDetails">Aguardando início / Fila</span>
@@ -1948,7 +1948,7 @@
               <i data-lucide="zap" style="width:20px; height:20px;"></i>
             </div>
           </div>
-          <div class="kpi-value" style="color: #c084fc;" id="kpiWarmedReadyCAs">0</div>
+          <div class="kpi-value" style="color: #c084fc;" id="kpiWarmedReadyCAs">8</div>
           <div class="kpi-meta">
             <i data-lucide="rocket" style="width:14px; height:14px; color:#c084fc;"></i>
             <span id="kpiWarmedReadyDetails">Prontas p/ Subir Projetos</span>
@@ -1964,7 +1964,7 @@
               <i data-lucide="pause-circle" style="width:20px; height:20px;"></i>
             </div>
           </div>
-          <div class="kpi-value" style="color: #22d3ee;" id="kpiStoppedCAs">0</div>
+          <div class="kpi-value" style="color: #22d3ee;" id="kpiStoppedCAs">10</div>
           <div class="kpi-meta">
             <i data-lucide="circle-slash" style="width:14px; height:14px; color:#22d3ee;"></i>
             <span id="kpiStoppedDetails">Contas em stand by</span>
@@ -2003,7 +2003,7 @@
             </div>
             <div style="display:flex; align-items:center; gap:6px;">
               <span class="badge" id="kpiProfilesBanBadge" style="background:rgba(244,63,94,0.18); color:#fb7185; border:1px solid rgba(244,63,94,0.4); font-size:0.75rem; font-weight:800; padding:2px 8px; border-radius:6px;">
-                0 com Ban
+                <i data-lucide="shield-alert" style="width:11px; height:11px; display:inline-block; vertical-align:middle; margin-right:3px;"></i>11 com Ban
               </span>
             </div>
           </div>
@@ -3205,16 +3205,21 @@
       }
     }
 
-    const DEFAULT_STATUSES = [
+        const DEFAULT_STATUSES = [
       { id: "s_aquecida_livre", name: "⚡ Aquecida & Livre (Pronta)", category: "AQUECIDA", color: "#a855f7", icon: "zap" },
       { id: "s_rodando_rep", name: "Rodando [REP TCHECA]", category: "RODANDO", color: "#10b981", icon: "play-circle" },
       { id: "s_rodando_ed", name: "Rodando [ED ROM]", category: "RODANDO", color: "#10b981", icon: "play-circle" },
+      { id: "s_auto_umdyfk0", name: "Rodando NUTRA [EUA]", category: "RODANDO", color: "#10b981", icon: "play-circle" },
+      { id: "s_auto_btrkrq8", name: "Rodando [ED. REP TCHECA]", category: "RODANDO", color: "#10b981", icon: "play-circle" },
       { id: "s_aquecendo_acm", name: "Aquecendo [ACM]", category: "AQUECENDO", color: "#38bdf8", icon: "flame" },
       { id: "s_aquecer_acm", name: "Aquecer [ACM]", category: "AQUECER", color: "#fb923c", icon: "clock" },
+      { id: "s_auto_34cafnj", name: "Aquecer[ACM]", category: "AQUECER", color: "#fb923c", icon: "clock" },
       { id: "s_standby", name: "STAND BY", category: "STANDBY", color: "#fbbf24", icon: "pause-circle" },
       { id: "s_caiu", name: "Caiu", category: "CAIU", color: "#fb7185", icon: "x-circle" },
       { id: "s_ban", name: "BAN", category: "CAIU", color: "#fb7185", icon: "shield-alert" },
-      { id: "s_parada", name: "Parada", category: "PARADA", color: "#94a3b8", icon: "circle" }
+      { id: "s_parada", name: "Parada", category: "PARADA", color: "#94a3b8", icon: "circle" },
+      { id: "s_auto_6kea42e", name: "OK [S/ PROXY]", category: "OUTRO", color: "#94a3b8", icon: "circle" },
+      { id: "s_auto_nhjz6o4", name: "OK [C/ PROXY]", category: "OUTRO", color: "#94a3b8", icon: "circle" }
     ];
 
     let statusesData = loadLocalData(LOCAL_STORAGE_KEY_STATUSES);
@@ -5969,7 +5974,52 @@
       return "OUTRO";
     }
 
-    function renderKPIs() {
+        function isProfileBanned(p) {
+      if (!p) return false;
+      const s = (p.status || "").trim().toUpperCase();
+      if (s.includes("BAN") || s.includes("CAIU") || s.includes("BLOQUE") || s.includes("DESATIV") || s.includes("RESTRI")) {
+        return true;
+      }
+      const cat = (typeof getStatusCategory === "function") ? getStatusCategory(p.status) : "OUTRO";
+      return cat === "CAIU";
+    }
+
+    function updateProfileCounts() {
+      const totalProfiles = profilesData.length;
+      let activeCount = 0;
+      let banCount = 0;
+
+      profilesData.forEach(p => {
+        if (isProfileBanned(p)) {
+          banCount++;
+        } else {
+          activeCount++;
+        }
+      });
+
+      const adsPowerCount = profilesData.filter(p => (p.multilogin || "Ads Power").toLowerCase() === "ads power").length;
+      const dolphinCount = profilesData.filter(p => (p.multilogin || "").toLowerCase().includes("dolphin")).length;
+
+      const elAds = document.getElementById("badgeAdsPowerCount");
+      if (elAds) elAds.textContent = adsPowerCount;
+
+      const elDolphin = document.getElementById("badgeDolphinCount");
+      if (elDolphin) elDolphin.textContent = dolphinCount;
+
+      const elAll = document.getElementById("badgeAllProfilesCount");
+      if (elAll) elAll.textContent = totalProfiles;
+
+      const badgeFilterAll = document.getElementById("badgeProfileFilterAll");
+      if (badgeFilterAll) badgeFilterAll.textContent = totalProfiles;
+
+      const badgeFilterActive = document.getElementById("badgeProfileFilterActive");
+      if (badgeFilterActive) badgeFilterActive.textContent = activeCount;
+
+      const badgeFilterBan = document.getElementById("badgeProfileFilterBan");
+      if (badgeFilterBan) badgeFilterBan.textContent = banCount;
+    }
+
+function renderKPIs() {
       try {
         const total = bmsData.length;
         let running = 0, warmingActive = 0, toWarm = 0, warmedReady = 0, down = 0, stopped = 0;
