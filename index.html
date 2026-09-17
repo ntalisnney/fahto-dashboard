@@ -2990,14 +2990,20 @@
       }
     }
 
-    function saveLocalData(key, data) {
+    // Sincroniza estado completo com o Supabase com Merge Guard Anti-Regressão
+    let isInitialCloudPullComplete = false;
+    let hasLocalEdits = false;
+
+    function saveLocalData(key, data, syncToCloud = true) {
       try {
         localStorage.setItem(key, JSON.stringify(data));
       } catch(e) {
         console.error("Error saving to localStorage", e);
       }
-      // Sempre que salvar dados locais, envia automaticamente para a Nuvem Supabase
-      triggerCloudSyncDebounced();
+      if (syncToCloud && isInitialCloudPullComplete) {
+        hasLocalEdits = true;
+        triggerCloudSyncDebounced();
+      }
     }
 
     function loadLocalData(key) {
@@ -3034,6 +3040,14 @@
     // Sincroniza estado completo com o Supabase com Merge Guard Anti-Regressão
     async function syncPushToCloud() {
       if (!supabaseClient) return;
+      if (!isInitialCloudPullComplete) {
+        console.warn("🛡️ Push bloqueado: o dashboard ainda não concluiu o pull inicial da nuvem. Impossível sobrescrever dados com cache local.");
+        return;
+      }
+      if (!hasLocalEdits) {
+        console.log("ℹ️ Push ignorado: nenhuma alteração do usuário foi realizada nesta sessão.");
+        return;
+      }
       try {
         const bmsLen = Array.isArray(bmsData) ? bmsData.length : 0;
         const profsLen = Array.isArray(profilesData) ? profilesData.length : 0;
@@ -3043,35 +3057,10 @@
           return;
         }
 
-        let finalBms = bmsData || [];
-        let finalProfiles = profilesData || [];
-
-        try {
-          const { data: currentRemote } = await supabaseClient
-            .from('fahto_state')
-            .select('data')
-            .eq('id', 'primary_dashboard_state')
-            .maybeSingle();
-
-          if (currentRemote && currentRemote.data) {
-            if (Array.isArray(currentRemote.data.bmsData)) {
-              finalBms = mergeByIdOrUnique(currentRemote.data.bmsData, finalBms, 'id');
-              bmsData = finalBms;
-              localStorage.setItem(LOCAL_STORAGE_KEY_BMS, JSON.stringify(bmsData));
-            }
-            if (Array.isArray(currentRemote.data.profilesData)) {
-              finalProfiles = mergeByIdOrUnique(currentRemote.data.profilesData, finalProfiles, 'id');
-              profilesData = finalProfiles;
-              localStorage.setItem(LOCAL_STORAGE_KEY_PROFILES, JSON.stringify(profilesData));
-            }
-          }
-        } catch(fetchErr) {
-          console.warn("Consulta defensiva pré-push falhou (usando dados locais):", fetchErr);
-        }
-
+        // PUSH SEGURO: Envia diretamente os dados locais atualizados (que já passaram pela validação mínima)
         const payload = {
-          bmsData: finalBms,
-          profilesData: finalProfiles,
+          bmsData: bmsData,
+          profilesData: profilesData,
           accessData: accessData || [],
           statusesData: statusesData || [],
           userNotesData: typeof userNotesData !== 'undefined' ? userNotesData : [],
@@ -3097,6 +3086,7 @@
     }
 
     function triggerCloudSyncDebounced() {
+      if (!isInitialCloudPullComplete) return;
       if (cloudDebounceTimer) clearTimeout(cloudDebounceTimer);
       cloudDebounceTimer = setTimeout(() => {
         syncPushToCloud();
@@ -3128,67 +3118,53 @@
           const remoteProfsLen = Array.isArray(remote.profilesData) ? remote.profilesData.length : 0;
           if (remoteBmsLen < 70 || remoteProfsLen < 25) {
             console.warn("🛡️ Pull rejeitado pelo firewall: dados remotos truncados ou insuficientes.", { bms: remoteBmsLen, profiles: remoteProfsLen });
-            // Se nosso estado local tiver base completa, repara a nuvem imediatamente
-            if (Array.isArray(bmsData) && bmsData.length >= 70 && Array.isArray(profilesData) && profilesData.length >= 25) {
-              console.log("Reparando estado da nuvem com a base local completa...");
-              syncPushToCloud();
-            }
             return;
           }
 
-          let changed = false;
+          // A nuvem é a FONTE DE VERDADE canônica. Atualiza o estado da aplicação diretamente com o que está na nuvem
+          bmsData = remote.bmsData;
+          localStorage.setItem(LOCAL_STORAGE_KEY_BMS, JSON.stringify(bmsData));
 
-          if (Array.isArray(remote.bmsData) && remote.bmsData.length >= 70) {
-            const mergedBms = mergeByIdOrUnique(bmsData, remote.bmsData, 'id');
-            bmsData = mergedBms;
-            localStorage.setItem(LOCAL_STORAGE_KEY_BMS, JSON.stringify(bmsData));
-            changed = true;
-          }
           if (Array.isArray(remote.profilesData) && remote.profilesData.length >= 20) {
-            const mergedProfs = mergeByIdOrUnique(profilesData, remote.profilesData, 'id');
-            profilesData = mergedProfs;
+            profilesData = remote.profilesData;
             localStorage.setItem(LOCAL_STORAGE_KEY_PROFILES, JSON.stringify(profilesData));
-            changed = true;
           }
           if (Array.isArray(remote.accessData) && remote.accessData.length > 0) {
             accessData = remote.accessData;
             localStorage.setItem(LOCAL_STORAGE_KEY_ACCESS, JSON.stringify(accessData));
-            changed = true;
           }
           if (Array.isArray(remote.statusesData) && remote.statusesData.length > 0) {
             statusesData = remote.statusesData;
             localStorage.setItem(LOCAL_STORAGE_KEY_STATUSES, JSON.stringify(statusesData));
-            changed = true;
           }
           if (Array.isArray(remote.userNotesData) && typeof userNotesData !== 'undefined') {
             userNotesData = remote.userNotesData;
             localStorage.setItem(LOCAL_STORAGE_KEY_USER_NOTES, JSON.stringify(userNotesData));
-            changed = true;
           }
           if (remote.bmOverrides && typeof remote.bmOverrides === 'object') {
             bmOverrides = remote.bmOverrides;
             localStorage.setItem(LOCAL_STORAGE_KEY_BM_OVERRIDES, JSON.stringify(bmOverrides));
-            changed = true;
           }
 
-          if (changed) {
-            updateClock();
-            populateDatalists();
-            populateFilters();
-            renderKPIs();
-            renderCharts();
-            renderBMsTable();
-            renderProfiles();
-            renderAccess();
-            if (typeof renderUserNotes === 'function') renderUserNotes();
-            if (!silent && typeof showToast === 'function') {
-              showToast("☁️ Dados sincronizados em tempo real via Nuvem!");
-            }
+          // Marca que o pull inicial foi concluído com sucesso e autoriza futuras alterações do usuário a subirem
+          isInitialCloudPullComplete = true;
+
+          updateClock();
+          populateDatalists();
+          populateFilters();
+          renderKPIs();
+          renderCharts();
+          renderBMsTable();
+          renderProfiles();
+          renderAccess();
+          if (typeof renderUserNotes === 'function') renderUserNotes();
+          if (!silent && typeof showToast === 'function') {
+            showToast("☁️ Dados sincronizados em tempo real via Nuvem!");
           }
           updateCloudStatusIndicator(true);
         } else {
-          // Primeira vez conectando: banco vazio, envia os dados locais iniciais
-          syncPushToCloud();
+          // Banco vazio pela primeira vez: apenas marca pull completo
+          isInitialCloudPullComplete = true;
         }
       } catch(e) {
         console.warn("Cloud pull error:", e);
