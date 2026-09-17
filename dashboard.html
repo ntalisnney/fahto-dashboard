@@ -3038,7 +3038,7 @@
         const bmsLen = Array.isArray(bmsData) ? bmsData.length : 0;
         const profsLen = Array.isArray(profilesData) ? profilesData.length : 0;
 
-        if (bmsLen < 45 || profsLen < 20) {
+        if (bmsLen < 70 || profsLen < 25) {
           console.warn("🛡️ Push bloqueado pelo firewall de segurança: volume de dados menor que o esperado da contingência.", { bms: bmsLen, profiles: profsLen });
           return;
         }
@@ -3122,14 +3122,14 @@
         if (data && data.data) {
           const remote = data.data;
 
-          // BLINDAGEM REVERSA: Se os dados da nuvem vierem corrompidos ou truncados (menos de 45 contas ou 20 perfis),
+          // BLINDAGEM REVERSA: Se os dados da nuvem vierem corrompidos ou truncados (menos de 70 contas ou 25 perfis),
           // NÃO aplica localmente e NÃO sobrescreve a tela.
           const remoteBmsLen = Array.isArray(remote.bmsData) ? remote.bmsData.length : 0;
           const remoteProfsLen = Array.isArray(remote.profilesData) ? remote.profilesData.length : 0;
-          if (remoteBmsLen < 45 || remoteProfsLen < 20) {
+          if (remoteBmsLen < 70 || remoteProfsLen < 25) {
             console.warn("🛡️ Pull rejeitado pelo firewall: dados remotos truncados ou insuficientes.", { bms: remoteBmsLen, profiles: remoteProfsLen });
-            // Se nosso estado local tiver 56 contas completas, repara a nuvem imediatamente
-            if (Array.isArray(bmsData) && bmsData.length >= 45 && Array.isArray(profilesData) && profilesData.length >= 20) {
+            // Se nosso estado local tiver base completa, repara a nuvem imediatamente
+            if (Array.isArray(bmsData) && bmsData.length >= 70 && Array.isArray(profilesData) && profilesData.length >= 25) {
               console.log("Reparando estado da nuvem com a base local completa...");
               syncPushToCloud();
             }
@@ -3138,7 +3138,7 @@
 
           let changed = false;
 
-          if (Array.isArray(remote.bmsData) && remote.bmsData.length >= 45) {
+          if (Array.isArray(remote.bmsData) && remote.bmsData.length >= 70) {
             const mergedBms = mergeByIdOrUnique(bmsData, remote.bmsData, 'id');
             bmsData = mergedBms;
             localStorage.setItem(LOCAL_STORAGE_KEY_BMS, JSON.stringify(bmsData));
@@ -4456,8 +4456,8 @@
 
     // SANITIZADOR E FIREWALL DE INICIALIZAÇÃO COM MERGE AUTOMÁTICO:
     // Garante que a base oficial atualizada nunca falte no estado inicial
-    if (!Array.isArray(bmsData) || bmsData.length < 45) {
-      console.warn("⚠️ Cache local obsoleto de BMs detectado (< 45). Restaurando base completa oficial...");
+    if (!Array.isArray(bmsData) || bmsData.length < 70) {
+      console.warn("⚠️ Cache local obsoleto de BMs detectado (< 70). Restaurando base completa oficial...");
       bmsData = JSON.parse(JSON.stringify(INITIAL_BMS));
       saveLocalData(LOCAL_STORAGE_KEY_BMS, bmsData);
     } else {
@@ -4472,8 +4472,8 @@
       if (addedAny) saveLocalData(LOCAL_STORAGE_KEY_BMS, bmsData);
     }
 
-    if (!Array.isArray(profilesData) || profilesData.length < 20) {
-      console.warn("⚠️ Cache local obsoleto de perfis detectado (< 20). Restaurando base completa oficial...");
+    if (!Array.isArray(profilesData) || profilesData.length < 25) {
+      console.warn("⚠️ Cache local obsoleto de perfis detectado (< 25). Restaurando base completa oficial...");
       profilesData = JSON.parse(JSON.stringify(INITIAL_PROFILES));
       saveLocalData(LOCAL_STORAGE_KEY_PROFILES, profilesData);
     } else {
