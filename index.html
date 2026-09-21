@@ -2052,17 +2052,33 @@
           <div class="chart-box" style="height: 260px;">
             <canvas id="vendorBarChart"></canvas>
           </div>
-          <!-- TABELA VISUAL DIRETA: TAXA DE PERDA POR FORNECEDOR -->
+          <!-- TABELA VISUAL E ASSERTIVA: CONTAS ATIVAS, CAÍDAS, % PERDA E % ATIVO POR FORNECEDOR -->
           <div style="margin-top: 14px; border-top: 1px solid rgba(255,255,255,0.07); padding-top: 12px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
-              <div style="font-size: 0.78rem; font-weight: 700; color: #fb7185; display: flex; align-items: center; gap: 6px;">
-                <i data-lucide="shield-alert" style="width:14px; height:14px;"></i>
-                <span>Ranking Direto de Perdas por Fornecedor (% e Ativos Caídos)</span>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px; flex-wrap:wrap; gap:8px;">
+              <div style="font-size: 0.82rem; font-weight: 700; color: #f8fafc; display: flex; align-items: center; gap: 6px;">
+                <i data-lucide="calculator" style="width:15px; height:15px; color:#38bdf8;"></i>
+                <span>Métricas Assertivas por Fornecedor (Ativas vs Caídas • % Ativo • % Perda)</span>
               </div>
-              <div style="font-size: 0.7rem; color: var(--text-dim);" id="vendorLossTotalSummary"></div>
+              <div style="font-size: 0.72rem; color: var(--text-dim);" id="vendorLossTotalSummary"></div>
             </div>
-            <div id="vendorLossDetailList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px;">
-              <!-- Preenchido dinamicamente via JS -->
+
+            <div style="overflow-x: auto; width: 100%; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); background: rgba(0,0,0,0.2);">
+              <table style="width: 100%; border-collapse: collapse; font-size: 0.75rem; text-align: left;">
+                <thead>
+                  <tr style="background: rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.08); color: #94a3b8;">
+                    <th style="padding: 8px 12px; font-weight: 600;">Fornecedor</th>
+                    <th style="padding: 8px 10px; font-weight: 600; text-align: center;">Total</th>
+                    <th style="padding: 8px 10px; font-weight: 600; text-align: center; color: #34d399;">Ativas / Op.</th>
+                    <th style="padding: 8px 10px; font-weight: 600; text-align: center; color: #34d399;">% Ativo</th>
+                    <th style="padding: 8px 10px; font-weight: 600; text-align: center; color: #fb7185;">Caídas</th>
+                    <th style="padding: 8px 10px; font-weight: 600; text-align: center; color: #fb7185;">% Perda</th>
+                    <th style="padding: 8px 12px; font-weight: 600;">Saúde do Ativo</th>
+                  </tr>
+                </thead>
+                <tbody id="vendorAssertiveTableBody">
+                  <!-- Inserido dinamicamente via JS -->
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -6302,33 +6318,53 @@
           });
         }
 
+        // ==============================================================
+        // CÁLCULO ASSERTIVO E TRANSPARENTE POR FORNECEDOR
+        // ==============================================================
+        // Agrupa todas as contas pelo nome normalizado do Fornecedor
         const vendorStats = {};
         bmsData.forEach(i => {
-          const v = i.fornecedor || "Outro";
-          if (!vendorStats[v]) vendorStats[v] = { active: 0, down: 0, warmingActive: 0, toWarm: 0 };
+          const vRaw = (i.fornecedor || "").trim();
+          const v = vRaw || "Sem Fornecedor";
+          if (!vendorStats[v]) {
+            vendorStats[v] = { 
+              running: 0, 
+              warming: 0, 
+              toWarm: 0, 
+              ready: 0, 
+              stopped: 0, 
+              down: 0, 
+              total: 0 
+            };
+          }
+          vendorStats[v].total++;
           const cat = getStatusCategory(i.status);
-          if (cat === "RODANDO") vendorStats[v].active++;
-          else if (cat === "CAIU") vendorStats[v].down++;
-          else if (cat === "AQUECENDO") vendorStats[v].warmingActive++;
+          if (cat === "RODANDO") vendorStats[v].running++;
+          else if (cat === "AQUECENDO") vendorStats[v].warming++;
           else if (cat === "AQUECER") vendorStats[v].toWarm++;
-          else vendorStats[v].warmingActive++;
+          else if (cat === "AQUECIDA") vendorStats[v].ready++;
+          else if (cat === "CAIU") vendorStats[v].down++;
+          else if (cat === "PARADA" || cat === "STANDBY") vendorStats[v].stopped++;
+          else vendorStats[v].warming++; // fallback seguro
         });
 
         const vendors = Object.keys(vendorStats);
-        const activeData = vendors.map(v => vendorStats[v].active);
-        const downData = vendors.map(v => vendorStats[v].down);
-        const warmingActiveData = vendors.map(v => vendorStats[v].warmingActive);
-        const toWarmData = vendors.map(v => vendorStats[v].toWarm);
 
-        // Renderiza badges resumidos de taxa de perda por fornecedor no topo do gráfico
+        // Dados para o Gráfico de Barras Empilhadas
+        const runningData = vendors.map(v => vendorStats[v].running);
+        const warmingData = vendors.map(v => vendorStats[v].warming);
+        const readyData = vendors.map(v => vendorStats[v].ready);
+        const toWarmData = vendors.map(v => vendorStats[v].toWarm);
+        const downData = vendors.map(v => vendorStats[v].down);
+
+        // Renderiza badges resumidos no topo do card
         const vendorBadgesEl = document.getElementById('vendorLossSummaryBadges');
         if (vendorBadgesEl) {
           const vendorsWithLoss = vendors
             .map(v => {
-              const totalV = (vendorStats[v].active + vendorStats[v].down + vendorStats[v].warmingActive + vendorStats[v].toWarm);
-              const lostV = vendorStats[v].down;
-              const rateV = totalV > 0 ? ((lostV / totalV) * 100).toFixed(0) : 0;
-              return { name: v, total: totalV, lost: lostV, rate: rateV };
+              const s = vendorStats[v];
+              const rateV = s.total > 0 ? ((s.down / s.total) * 100).toFixed(0) : 0;
+              return { name: v, total: s.total, lost: s.down, rate: rateV };
             })
             .filter(x => x.lost > 0)
             .sort((a, b) => b.lost - a.lost);
@@ -6344,57 +6380,92 @@
           }
         }
 
-        // Renderiza lista detalhada visual de perda por fornecedor abaixo do gráfico
-        const vendorLossListEl = document.getElementById('vendorLossDetailList');
+        // ==============================================================
+        // RENDERIZAÇÃO DA TABELA ASSERTIVA POR FORNECEDOR
+        // ==============================================================
+        const vendorTableBodyEl = document.getElementById('vendorAssertiveTableBody');
         const vendorLossSummaryEl = document.getElementById('vendorLossTotalSummary');
-        if (vendorLossListEl) {
-          let totalLostAll = 0;
-          let totalAccountsAll = 0;
-          const vendorRanking = vendors
-            .map(v => {
-              const totalV = (vendorStats[v].active + vendorStats[v].down + vendorStats[v].warmingActive + vendorStats[v].toWarm);
-              const lostV = vendorStats[v].down;
-              const rateV = totalV > 0 ? ((lostV / totalV) * 100).toFixed(1) : '0.0';
-              totalLostAll += lostV;
-              totalAccountsAll += totalV;
-              return { name: v, total: totalV, lost: lostV, rate: rateV, active: vendorStats[v].active };
-            })
-            .sort((a, b) => b.lost - a.lost || parseFloat(b.rate) - parseFloat(a.rate));
+        if (vendorTableBodyEl) {
+          let globalTotal = 0;
+          let globalLost = 0;
+          let globalOperational = 0;
+
+          // Processa e ordena fornecedores (mais ativos/contas e maiores perdas primeiro)
+          const vendorRows = vendors.map(v => {
+            const s = vendorStats[v];
+            // Operacional / Ativo = Rodando + Aquecendo + Aquecidas Livres + Fila
+            const opCount = s.running + s.warming + s.ready + s.toWarm;
+            const lossPct = s.total > 0 ? ((s.down / s.total) * 100).toFixed(1) : '0.0';
+            const activePct = s.total > 0 ? ((opCount / s.total) * 100).toFixed(1) : '0.0';
+
+            globalTotal += s.total;
+            globalLost += s.down;
+            globalOperational += opCount;
+
+            return {
+              name: v,
+              total: s.total,
+              running: s.running,
+              operational: opCount,
+              activePct: activePct,
+              down: s.down,
+              lossPct: lossPct
+            };
+          }).sort((a, b) => b.down - a.down || b.total - a.total);
 
           if (vendorLossSummaryEl) {
-            const overallRate = totalAccountsAll > 0 ? ((totalLostAll / totalAccountsAll) * 100).toFixed(1) : '0.0';
-            vendorLossSummaryEl.innerHTML = `<span style="color:#fb7185; font-weight:700;">${totalLostAll} perdidas (${overallRate}%)</span> de ${totalAccountsAll} contas`;
+            const gLossPct = globalTotal > 0 ? ((globalLost / globalTotal) * 100).toFixed(1) : '0.0';
+            const gActPct = globalTotal > 0 ? ((globalOperational / globalTotal) * 100).toFixed(1) : '0.0';
+            vendorLossSummaryEl.innerHTML = `Total: <strong style="color:#f8fafc;">${globalTotal}</strong> | Ativas: <strong style="color:#34d399;">${globalOperational} (${gActPct}%)</strong> | Caídas: <strong style="color:#fb7185;">${globalLost} (${gLossPct}%)</strong>`;
           }
 
-          vendorLossListEl.innerHTML = vendorRanking.map(item => {
-            const isCritical = parseFloat(item.rate) >= 40 && item.lost > 0;
-            const borderCol = item.lost > 0 ? (isCritical ? 'rgba(244,63,94,0.45)' : 'rgba(244,63,94,0.25)') : 'rgba(255,255,255,0.06)';
-            const bgCol = item.lost > 0 ? 'rgba(244,63,94,0.06)' : 'rgba(255,255,255,0.02)';
-            const rateBadgeCol = isCritical ? '#fb7185' : (item.lost > 0 ? '#fda4af' : '#34d399');
-            const rateBadgeBg = item.lost > 0 ? 'rgba(244,63,94,0.18)' : 'rgba(16,185,129,0.12)';
+          vendorTableBodyEl.innerHTML = vendorRows.map((r, idx) => {
+            const isHighLoss = parseFloat(r.lossPct) >= 50 && r.down > 0;
+            const isZeroLoss = r.down === 0;
+            const healthColor = isZeroLoss ? '#34d399' : (isHighLoss ? '#fb7185' : '#f59e0b');
+            const rowBg = idx % 2 === 0 ? 'rgba(255,255,255,0.015)' : 'transparent';
 
             return `
-              <div style="background:${bgCol}; border:1px solid ${borderCol}; border-radius:8px; padding:8px 10px; display:flex; flex-direction:column; gap:4px;">
-                <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:4px;">
-                  <span style="font-size:0.75rem; font-weight:700; color:#f8fafc; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${escapeHtml(item.name)}">
-                    ${escapeHtml(item.name)}
+              <tr style="background:${rowBg}; border-bottom:1px solid rgba(255,255,255,0.05);">
+                <td style="padding: 8px 12px; font-weight: 600; color: #f1f5f9; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(r.name)}">
+                  ${escapeHtml(r.name)}
+                </td>
+                <td style="padding: 8px 10px; text-align: center; color: #94a3b8; font-weight: 600;">
+                  ${r.total}
+                </td>
+                <td style="padding: 8px 10px; text-align: center; color: #34d399; font-weight: 700;">
+                  ${r.operational} ${r.running > 0 ? `<span style="font-size:0.67rem; color:#10b981; opacity:0.8;">(${r.running} rodando)</span>` : ''}
+                </td>
+                <td style="padding: 8px 10px; text-align: center; font-weight: 800; color: #34d399;">
+                  <span style="background: rgba(16,185,129,0.14); border: 1px solid rgba(16,185,129,0.3); border-radius: 4px; padding: 2px 6px;">
+                    ${r.activePct}%
                   </span>
-                  <span style="font-size:0.72rem; font-weight:800; color:${rateBadgeCol}; background:${rateBadgeBg}; border-radius:4px; padding:1px 6px; white-space:nowrap;">
-                    ${item.rate}%
+                </td>
+                <td style="padding: 8px 10px; text-align: center; color: ${r.down > 0 ? '#fb7185' : 'var(--text-dim)'}; font-weight: 700;">
+                  ${r.down}
+                </td>
+                <td style="padding: 8px 10px; text-align: center; font-weight: 800; color: ${r.down > 0 ? '#fb7185' : '#34d399'};">
+                  <span style="background: ${r.down > 0 ? 'rgba(244,63,94,0.16)' : 'rgba(16,185,129,0.1)'}; border: 1px solid ${r.down > 0 ? 'rgba(244,63,94,0.35)' : 'rgba(16,185,129,0.25)'}; border-radius: 4px; padding: 2px 6px;">
+                    ${r.lossPct}%
                   </span>
-                </div>
-                <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.68rem; color:var(--text-dim); margin-top:2px;">
-                  <span>Perdidas: <strong style="color:#fb7185;">${item.lost}</strong> / ${item.total}</span>
-                  <span>Ativas: <strong style="color:#34d399;">${item.active}</strong></span>
-                </div>
-                <!-- Barra de progresso de perda -->
-                <div style="width:100%; height:4px; background:rgba(255,255,255,0.08); border-radius:2px; overflow:hidden; margin-top:2px;">
-                  <div style="width:${Math.min(100, Math.max(0, parseFloat(item.rate)))}%; height:100%; background:${item.lost > 0 ? '#f43f5e' : '#10b981'};"></div>
-                </div>
-              </div>
+                </td>
+                <td style="padding: 8px 12px; vertical-align: middle;">
+                  <div style="display:flex; align-items:center; gap:6px;">
+                    <div style="flex:1; height:6px; background:rgba(255,255,255,0.08); border-radius:3px; overflow:hidden; display:flex;">
+                      <div style="width:${r.activePct}%; background:#10b981; height:100%;" title="Ativo: ${r.activePct}%"></div>
+                      <div style="width:${r.lossPct}%; background:#f43f5e; height:100%;" title="Perda: ${r.lossPct}%"></div>
+                    </div>
+                    <span style="font-size:0.65rem; color:${healthColor}; font-weight:700; width:45px; text-align:right;">
+                      ${isZeroLoss ? '100% OK' : (isHighLoss ? 'Crítico' : 'Atenção')}
+                    </span>
+                  </div>
+                </td>
+              </tr>
             `;
           }).join('');
         }
+
+        const vendorCanvas = document.getElementById('vendorBarChart');
         if (vendorCanvas && vendorCanvas.getContext) {
           const ctxVendor = vendorCanvas.getContext('2d');
           if (vendorChart) vendorChart.destroy();
@@ -6403,10 +6474,11 @@
             data: {
               labels: vendors.map(v => v.length > 18 ? v.substring(0, 16) + '...' : v),
               datasets: [
-                { label: 'Ativas', data: activeData, backgroundColor: '#10b981', borderRadius: 4 },
-                { label: 'Aquecendo', data: warmingActiveData, backgroundColor: '#0052ff', borderRadius: 4 },
-                { label: 'Para Aquecer', data: toWarmData, backgroundColor: '#f97316', borderRadius: 4 },
-                { label: 'Caídas', data: downData, backgroundColor: '#f43f5e', borderRadius: 4 }
+                { label: 'Rodando no Tráfego', data: runningData, backgroundColor: '#10b981', borderRadius: 4 },
+                { label: 'Em Aquecimento', data: warmingData, backgroundColor: '#0052ff', borderRadius: 4 },
+                { label: 'Prontas (Estoque)', data: readyData, backgroundColor: '#a855f7', borderRadius: 4 },
+                { label: 'Fila p/ Aquecer', data: toWarmData, backgroundColor: '#f97316', borderRadius: 4 },
+                { label: 'Caídas / Perdidas', data: downData, backgroundColor: '#f43f5e', borderRadius: 4 }
               ]
             },
             options: {
@@ -6418,7 +6490,7 @@
                 y: { stacked: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', stepSize: 2 } }
               },
               plugins: {
-                legend: { position: 'bottom', labels: { color: '#94a3b8' } },
+                legend: { position: 'bottom', labels: { color: '#94a3b8', boxWidth: 12, font: { size: 11 } } },
                 tooltip: {
                   callbacks: {
                     afterBody: function(tooltipItems) {
@@ -6427,9 +6499,10 @@
                       const vName = vendors[index];
                       const s = vendorStats[vName];
                       if (!s) return '';
-                      const totalV = s.active + s.down + s.warmingActive + s.toWarm;
-                      const lossPct = totalV > 0 ? ((s.down / totalV) * 100).toFixed(1) : '0.0';
-                      return `\nTotal: ${totalV} contas | Perda: ${s.down} (${lossPct}%)`;
+                      const opTotal = s.running + s.warming + s.ready + s.toWarm;
+                      const actPct = s.total > 0 ? ((opTotal / s.total) * 100).toFixed(1) : '0.0';
+                      const lossPct = s.total > 0 ? ((s.down / s.total) * 100).toFixed(1) : '0.0';
+                      return `\nTotal: ${s.total} contas\nAtivas/Operacionais: ${opTotal} (${actPct}%)\nCaídas/Perdidas: ${s.down} (${lossPct}%)`;
                     }
                   }
                 }
