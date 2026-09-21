@@ -1984,6 +1984,7 @@
           <div class="kpi-meta" style="display:flex; flex-direction:column; align-items:flex-start; gap:2px;">
             <span id="kpiDownRate">37.6% taxa de perda</span>
             <div style="font-size: 0.68rem; color: #fb7185;">(Contas & BMs Perdidas)</div>
+            <div id="kpiDownVendorBreakdown" style="display:flex; flex-wrap:wrap; gap:4px; margin-top:4px; max-width:100%;"></div>
           </div>
           <div id="kpiDownPreview" style="display:flex; flex-wrap:wrap; gap:4px; margin-top:8px; border-top:1px solid rgba(255,255,255,0.06); padding-top:6px; min-height:22px;"></div>
           <div class="kpi-click-hint"><i data-lucide="arrow-right" style="width:10px;height:10px;"></i> ver contas</div>
@@ -2038,14 +2039,15 @@
         </div>
 
         <div class="card">
-          <div class="card-header">
+          <div class="card-header" style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px;">
             <div>
               <div class="card-title">
                 <i data-lucide="bar-chart-3" style="color:#10b981; width:18px; height:18px;"></i>
-                <span>Contas por Fornecedor</span>
+                <span>Contas e Taxa de Perda por Fornecedor</span>
               </div>
-              <div class="card-subtitle">Volume de contas e status por parceiro de contingência</div>
+              <div class="card-subtitle">Volume de contas, status e taxa de perda (%) por parceiro de contingência</div>
             </div>
+            <div id="vendorLossSummaryBadges" style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;"></div>
           </div>
           <div class="chart-box">
             <canvas id="vendorBarChart"></canvas>
@@ -3015,7 +3017,29 @@
       }
     }
 
-    // Helper de fusão segura: preserva todas as contas e perfis sem deletar nada
+    // Helper de fusão segura: preserva todas as contas e perfis sem deletar nada e sem duplicar
+    function deduplicateAccountsList(list) {
+      if (!Array.isArray(list)) return [];
+      const seenIds = new Set();
+      const seenBmCa = new Set();
+      const result = [];
+      list.forEach(item => {
+        if (!item) return;
+        const idKey = item.id !== undefined && item.id !== null ? String(item.id) : null;
+        const bmNorm = (item.bm || '').trim().toLowerCase();
+        const caNorm = (item.ca || '').trim().toLowerCase();
+        const bmCaKey = (bmNorm && caNorm && caNorm !== 'apenas bm (sem ca)') ? `${bmNorm}:::${caNorm}` : null;
+
+        if (idKey && seenIds.has(idKey)) return;
+        if (bmCaKey && seenBmCa.has(bmCaKey)) return;
+
+        if (idKey) seenIds.add(idKey);
+        if (bmCaKey) seenBmCa.add(bmCaKey);
+        result.push(item);
+      });
+      return result;
+    }
+
     function mergeByIdOrUnique(baseList, incomingList, keyProp = 'id') {
       const map = new Map();
       if (Array.isArray(baseList)) {
@@ -3034,7 +3058,7 @@
           }
         });
       }
-      return Array.from(map.values());
+      return deduplicateAccountsList(Array.from(map.values()));
     }
 
     // Sincroniza estado completo com o Supabase com Merge Guard Anti-Regressão
@@ -3057,7 +3081,8 @@
           return;
         }
 
-        // PUSH SEGURO: Envia diretamente os dados locais atualizados (que já passaram pela validação mínima)
+        // PUSH SEGURO: Envia diretamente os dados locais atualizados (que já passaram pela validação mínima e deduplicação)
+        bmsData = deduplicateAccountsList(bmsData);
         const payload = {
           bmsData: bmsData,
           profilesData: profilesData,
@@ -3121,8 +3146,8 @@
             return;
           }
 
-          // A nuvem é a FONTE DE VERDADE canônica. Atualiza o estado da aplicação diretamente com o que está na nuvem
-          bmsData = remote.bmsData;
+          // A nuvem é a FONTE DE VERDADE canônica. Atualiza o estado da aplicação diretamente com o que está na nuvem (deduplicando automaticamente)
+          bmsData = deduplicateAccountsList(remote.bmsData);
           localStorage.setItem(LOCAL_STORAGE_KEY_BMS, JSON.stringify(bmsData));
 
           if (Array.isArray(remote.profilesData) && remote.profilesData.length >= 20) {
@@ -4547,21 +4572,35 @@
     let profilesData = loadLocalData(LOCAL_STORAGE_KEY_PROFILES) || [...INITIAL_PROFILES];
 
     // SANITIZADOR E FIREWALL DE INICIALIZAÇÃO COM MERGE AUTOMÁTICO:
-    // Garante que a base oficial atualizada nunca falte no estado inicial
+    // Garante que a base oficial atualizada nunca falte no estado inicial e NUNCA duplique
     if (!Array.isArray(bmsData) || bmsData.length < 70) {
       console.warn("⚠️ Cache local obsoleto de BMs detectado (< 70). Restaurando base completa oficial...");
       bmsData = JSON.parse(JSON.stringify(INITIAL_BMS));
       saveLocalData(LOCAL_STORAGE_KEY_BMS, bmsData);
     } else {
       const initialIds = new Set(bmsData.map(b => b.id));
+      const existingBmCa = new Set(
+        bmsData
+          .filter(b => b && b.bm && b.ca && b.ca.trim() !== 'Apenas BM (Sem CA)')
+          .map(b => `${b.bm.trim().toLowerCase()}:::${b.ca.trim().toLowerCase()}`)
+      );
       let addedAny = false;
       INITIAL_BMS.forEach(b => {
-        if (!initialIds.has(b.id)) {
+        const bmCaKey = (b.bm && b.ca && b.ca.trim() !== 'Apenas BM (Sem CA)')
+          ? `${b.bm.trim().toLowerCase()}:::${b.ca.trim().toLowerCase()}`
+          : null;
+
+        if (!initialIds.has(b.id) && (!bmCaKey || !existingBmCa.has(bmCaKey))) {
           bmsData.push(b);
+          initialIds.add(b.id);
+          if (bmCaKey) existingBmCa.add(bmCaKey);
           addedAny = true;
         }
       });
-      if (addedAny) saveLocalData(LOCAL_STORAGE_KEY_BMS, bmsData);
+      bmsData = deduplicateAccountsList(bmsData);
+      if (addedAny || bmsData.length !== loadLocalData(LOCAL_STORAGE_KEY_BMS)?.length) {
+        saveLocalData(LOCAL_STORAGE_KEY_BMS, bmsData);
+      }
     }
 
     if (!Array.isArray(profilesData) || profilesData.length < 25) {
@@ -5978,6 +6017,7 @@
 
     function renderKPIs() {
       try {
+        bmsData = deduplicateAccountsList(bmsData);
         const total = bmsData.length;
         let running = 0, warmingActive = 0, toWarm = 0, warmedReady = 0, down = 0, stopped = 0;
         const uniqueBMs = new Set();
@@ -6150,6 +6190,35 @@
         const downRateEl = document.getElementById('kpiDownRate');
         if (downRateEl) downRateEl.textContent = `${downRate}% taxa de perda`;
 
+        // Detalhamento de % de perda por fornecedor
+        const vendorBreakdownEl = document.getElementById('kpiDownVendorBreakdown');
+        if (vendorBreakdownEl) {
+          const vendorLossMap = {};
+          let totalLost = 0;
+          bmsData.forEach(item => {
+            if (getStatusCategory(item.status) === 'CAIU') {
+              totalLost++;
+              const rawV = (item.fornecedor || 'Desconhecido').trim();
+              const vName = rawV.length > 18 ? rawV.substring(0, 16) + '…' : rawV;
+              vendorLossMap[vName] = (vendorLossMap[vName] || 0) + 1;
+            }
+          });
+
+          if (totalLost === 0) {
+            vendorBreakdownEl.innerHTML = `<span style="font-size:0.68rem; color:#34d399;">0 perdas registradas</span>`;
+          } else {
+            const sortedVendors = Object.entries(vendorLossMap)
+              .sort((a, b) => b[1] - a[1]);
+
+            // Exibe os 3 fornecedores com maior número de perdas + badge
+            vendorBreakdownEl.innerHTML = sortedVendors.slice(0, 3).map(([v, count]) => {
+              const pct = ((count / totalLost) * 100).toFixed(0);
+              return `<span style="font-size:0.67rem; background:rgba(244,63,94,0.14); color:#fda4af; border:1px solid rgba(244,63,94,0.3); border-radius:4px; padding:1px 5px; white-space:nowrap;" title="${escapeHtml(v)}: ${count} contas caídas (${pct}% do total de perdas)">` +
+                     `<strong style="color:#fb7185;">${escapeHtml(v)}:</strong> ${count} (${pct}%)</span>`;
+            }).join('') + (sortedVendors.length > 3 ? `<span style="font-size:0.65rem; color:#f43f5e; opacity:0.85; align-self:center;">+${sortedVendors.length - 3}</span>` : '');
+          }
+        }
+
         // Preenche mini previews dinâmicos nos KPI cards
         try { renderKPIPreviews(); } catch(e) { console.warn('Error in renderKPIPreviews:', e); }
 
@@ -6238,6 +6307,30 @@
         const warmingActiveData = vendors.map(v => vendorStats[v].warmingActive);
         const toWarmData = vendors.map(v => vendorStats[v].toWarm);
 
+        // Renderiza badges resumidos de taxa de perda por fornecedor no topo do gráfico
+        const vendorBadgesEl = document.getElementById('vendorLossSummaryBadges');
+        if (vendorBadgesEl) {
+          const vendorsWithLoss = vendors
+            .map(v => {
+              const totalV = (vendorStats[v].active + vendorStats[v].down + vendorStats[v].warmingActive + vendorStats[v].toWarm);
+              const lostV = vendorStats[v].down;
+              const rateV = totalV > 0 ? ((lostV / totalV) * 100).toFixed(0) : 0;
+              return { name: v, total: totalV, lost: lostV, rate: rateV };
+            })
+            .filter(x => x.lost > 0)
+            .sort((a, b) => b.lost - a.lost);
+
+          if (vendorsWithLoss.length === 0) {
+            vendorBadgesEl.innerHTML = `<span style="font-size:0.7rem; color:#34d399; background:rgba(16,185,129,0.12); padding:2px 8px; border-radius:6px; border:1px solid rgba(16,185,129,0.3);">0% perda geral</span>`;
+          } else {
+            vendorBadgesEl.innerHTML = vendorsWithLoss.slice(0, 3).map(item => {
+              const shortName = item.name.length > 14 ? item.name.substring(0, 12) + '…' : item.name;
+              return `<span style="font-size:0.68rem; background:rgba(244,63,94,0.14); color:#fda4af; border:1px solid rgba(244,63,94,0.3); border-radius:6px; padding:2px 7px;" title="${escapeHtml(item.name)}: ${item.lost} caídas de ${item.total} (${item.rate}% de perda)">` +
+                     `<strong style="color:#fb7185;">${escapeHtml(shortName)}:</strong> ${item.lost} caídas (${item.rate}%)</span>`;
+            }).join('') + (vendorsWithLoss.length > 3 ? `<span style="font-size:0.65rem; color:#f43f5e; opacity:0.85;">+${vendorsWithLoss.length - 3}</span>` : '');
+          }
+        }
+
         const vendorCanvas = document.getElementById('vendorBarChart');
         if (vendorCanvas && vendorCanvas.getContext) {
           const ctxVendor = vendorCanvas.getContext('2d');
@@ -6262,7 +6355,21 @@
                 y: { stacked: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', stepSize: 2 } }
               },
               plugins: {
-                legend: { position: 'bottom', labels: { color: '#94a3b8' } }
+                legend: { position: 'bottom', labels: { color: '#94a3b8' } },
+                tooltip: {
+                  callbacks: {
+                    afterBody: function(tooltipItems) {
+                      if (!tooltipItems || tooltipItems.length === 0) return '';
+                      const index = tooltipItems[0].dataIndex;
+                      const vName = vendors[index];
+                      const s = vendorStats[vName];
+                      if (!s) return '';
+                      const totalV = s.active + s.down + s.warmingActive + s.toWarm;
+                      const lossPct = totalV > 0 ? ((s.down / totalV) * 100).toFixed(1) : '0.0';
+                      return `\nTotal: ${totalV} contas | Perda: ${s.down} (${lossPct}%)`;
+                    }
+                  }
+                }
               }
             }
           });
@@ -6849,7 +6956,9 @@
         } else {
           downEl.innerHTML = downAccounts.slice(0, 3).map(acc => {
             const name = escapeHtml(acc.ca || acc.bm || 'Conta');
-            return `<span class="kpi-preview-pill" style="border-color:rgba(244,63,94,0.3); color:#fda4af;"><i data-lucide="shield-x" style="width:9px;height:9px;color:#fb7185;"></i>${name}</span>`;
+            const vendor = escapeHtml((acc.fornecedor || '').trim() || '—');
+            const shortVendor = vendor.length > 14 ? vendor.substring(0, 12) + '…' : vendor;
+            return `<span class="kpi-preview-pill" style="border-color:rgba(244,63,94,0.3); color:#fda4af;" title="${name} • Fornecedor: ${vendor}"><i data-lucide="shield-x" style="width:9px;height:9px;color:#fb7185;"></i>${name} <strong style="opacity:0.8; font-size:0.65rem; color:#fca5a5;">(${shortVendor})</strong></span>`;
           }).join('') + (downAccounts.length > 3 ? `<span style="font-size:0.68rem; color:var(--text-dim); align-self:center;">+${downAccounts.length - 3} mais</span>` : '');
         }
       }
@@ -6881,6 +6990,9 @@
     }
 
     function renderOperationsCockpit() {
+      // Blindagem: Garante que bmsData esteja sempre livre de duplicatas
+      bmsData = deduplicateAccountsList(bmsData);
+
       const container = document.getElementById('opsAccountsContainer');
       const badge = document.getElementById('opsCurrentViewBadge');
       const headerIcon = document.getElementById('opsHeaderIcon');
@@ -7873,6 +7985,7 @@
 
     function renderBMsTable() {
       try {
+        bmsData = deduplicateAccountsList(bmsData);
         const tbody = document.getElementById('bmsTableBody');
         if (!tbody) return;
         const rawQ = (document.getElementById('bmSearchInput')?.value || "").trim();
@@ -9102,7 +9215,7 @@
       }
 
       if (Array.isArray(payload.bmsData)) {
-        bmsData = payload.bmsData;
+        bmsData = deduplicateAccountsList(payload.bmsData);
         saveLocalData(LOCAL_STORAGE_KEY_BMS, bmsData);
       }
 
