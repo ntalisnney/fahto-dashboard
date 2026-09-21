@@ -2067,12 +2067,13 @@
                 <thead>
                   <tr style="background: rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.08); color: #94a3b8;">
                     <th style="padding: 10px 14px; font-weight: 700; font-size: 0.78rem;">Fornecedor</th>
-                    <th style="padding: 10px 10px; font-weight: 700; text-align: center;" title="Total de contas cadastradas com este fornecedor">Total de Contas</th>
-                    <th style="padding: 10px 10px; font-weight: 700; text-align: center; color: #34d399;" title="Contas funcionando (Rodando no Tráfego + Aquecendo + Prontas no Estoque)">Contas Ativas</th>
-                    <th style="padding: 10px 10px; font-weight: 700; text-align: center; color: #34d399;" title="Porcentagem de contas ativas sobre o total do fornecedor">% Ativa</th>
-                    <th style="padding: 10px 10px; font-weight: 700; text-align: center; color: #fb7185;" title="Contas que caíram ou foram bloqueadas/banidas">Contas Caídas</th>
-                    <th style="padding: 10px 10px; font-weight: 700; text-align: center; color: #fb7185;" title="Porcentagem de contas que caíram sobre o total do fornecedor">% que Caiu</th>
-                    <th style="padding: 10px 14px; font-weight: 700;">Status do Fornecedor</th>
+                    <th style="padding: 10px 10px; font-weight: 700; text-align: center;" title="Total de contas cadastradas com este parceiro">Total</th>
+                    <th style="padding: 10px 10px; font-weight: 700; text-align: center; color: #34d399;" title="Contas funcionando ou aproveitáveis (Rodando + Aquecendo + Estoque Pronto + Fila)">Contas Ativas</th>
+                    <th style="padding: 10px 10px; font-weight: 700; text-align: center; color: #34d399;" title="Porcentagem de contas ativas sobre o total">% Ativa</th>
+                    <th style="padding: 10px 10px; font-weight: 700; text-align: center; color: #fbbf24;" title="Contas em Stand By / Pausadas (não estão caídas nem rodando)">Stand By</th>
+                    <th style="padding: 10px 10px; font-weight: 700; text-align: center; color: #fb7185;" title="Contas bloqueadas ou que caíram">Contas Caídas</th>
+                    <th style="padding: 10px 10px; font-weight: 700; text-align: center; color: #fb7185;" title="Porcentagem de perda real sobre o total">% que Caiu</th>
+                    <th style="padding: 10px 14px; font-weight: 700;">Diagnóstico</th>
                   </tr>
                 </thead>
                 <tbody id="vendorAssertiveTableBody">
@@ -6390,7 +6391,7 @@
           let globalLost = 0;
           let globalOperational = 0;
 
-          // Processa e ordena fornecedores (mais ativos/contas e maiores perdas primeiro)
+          // Processa e ordena fornecedores (mais contas e perdas primeiro)
           const vendorRows = vendors.map(v => {
             const s = vendorStats[v];
             // Operacional / Ativo = Rodando + Aquecendo + Aquecidas Livres + Fila
@@ -6408,6 +6409,7 @@
               running: s.running,
               operational: opCount,
               activePct: activePct,
+              stopped: s.stopped,
               down: s.down,
               lossPct: lossPct
             };
@@ -6416,14 +6418,14 @@
           if (vendorLossSummaryEl) {
             const gLossPct = globalTotal > 0 ? ((globalLost / globalTotal) * 100).toFixed(1) : '0.0';
             const gActPct = globalTotal > 0 ? ((globalOperational / globalTotal) * 100).toFixed(1) : '0.0';
-            vendorLossSummaryEl.innerHTML = `Total: <strong style="color:#f8fafc;">${globalTotal}</strong> | Ativas: <strong style="color:#34d399;">${globalOperational} (${gActPct}%)</strong> | Caídas: <strong style="color:#fb7185;">${globalLost} (${gLossPct}%)</strong>`;
+            vendorLossSummaryEl.innerHTML = `Total: <strong style="color:#f8fafc;">${globalTotal} contas</strong> | Ativas: <strong style="color:#34d399;">${globalOperational} (${gActPct}%)</strong> | Caídas: <strong style="color:#fb7185;">${globalLost} (${gLossPct}%)</strong>`;
           }
 
           vendorTableBodyEl.innerHTML = vendorRows.map((r, idx) => {
             const isHighLoss = parseFloat(r.lossPct) >= 50 && r.down > 0;
             const isZeroLoss = r.down === 0;
             const healthColor = isZeroLoss ? '#34d399' : (isHighLoss ? '#fb7185' : '#f59e0b');
-            const statusText = isZeroLoss ? '🟢 100% Ativo' : (isHighLoss ? '🔴 Alto Risco' : '🟡 Moderado');
+            const statusText = isZeroLoss ? '🟢 100% OK' : (isHighLoss ? '🔴 Alto Risco' : '🟡 Moderado');
             const rowBg = idx % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent';
 
             return `
@@ -6442,6 +6444,9 @@
                     ${r.activePct}%
                   </span>
                 </td>
+                <td style="padding: 10px 10px; text-align: center; color: ${r.stopped > 0 ? '#fbbf24' : '#64748b'}; font-weight: 700; font-size: 0.8rem;">
+                  ${r.stopped}
+                </td>
                 <td style="padding: 10px 10px; text-align: center; color: ${r.down > 0 ? '#fb7185' : '#64748b'}; font-weight: 800; font-size: 0.82rem;">
                   ${r.down}
                 </td>
@@ -6454,6 +6459,7 @@
                   <div style="display:flex; align-items:center; gap:8px;">
                     <div style="flex:1; height:7px; background:rgba(255,255,255,0.08); border-radius:3px; overflow:hidden; display:flex;">
                       <div style="width:${r.activePct}%; background:#10b981; height:100%;" title="Ativo: ${r.activePct}%"></div>
+                      <div style="width:${r.total > 0 ? ((r.stopped / r.total) * 100).toFixed(1) : 0}%; background:#fbbf24; height:100%;" title="Stand By"></div>
                       <div style="width:${r.lossPct}%; background:#f43f5e; height:100%;" title="Caiu: ${r.lossPct}%"></div>
                     </div>
                     <span style="font-size:0.68rem; color:${healthColor}; font-weight:700; white-space:nowrap;">
