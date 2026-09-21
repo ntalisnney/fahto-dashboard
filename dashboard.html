@@ -2062,17 +2062,17 @@
               <div style="font-size: 0.72rem; color: var(--text-dim);" id="vendorLossTotalSummary"></div>
             </div>
 
-            <div style="overflow-x: auto; width: 100%; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); background: rgba(0,0,0,0.2);">
-              <table style="width: 100%; border-collapse: collapse; font-size: 0.75rem; text-align: left;">
+            <div style="overflow-x: auto; width: 100%; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); background: rgba(0,0,0,0.25);">
+              <table style="width: 100%; border-collapse: collapse; font-size: 0.76rem; text-align: left;">
                 <thead>
                   <tr style="background: rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.08); color: #94a3b8;">
-                    <th style="padding: 8px 12px; font-weight: 600;">Fornecedor</th>
-                    <th style="padding: 8px 10px; font-weight: 600; text-align: center;">Total</th>
-                    <th style="padding: 8px 10px; font-weight: 600; text-align: center; color: #34d399;">Ativas / Op.</th>
-                    <th style="padding: 8px 10px; font-weight: 600; text-align: center; color: #34d399;">% Ativo</th>
-                    <th style="padding: 8px 10px; font-weight: 600; text-align: center; color: #fb7185;">Caídas</th>
-                    <th style="padding: 8px 10px; font-weight: 600; text-align: center; color: #fb7185;">% Perda</th>
-                    <th style="padding: 8px 12px; font-weight: 600;">Saúde do Ativo</th>
+                    <th style="padding: 10px 14px; font-weight: 700; font-size: 0.78rem;">Fornecedor</th>
+                    <th style="padding: 10px 10px; font-weight: 700; text-align: center;" title="Total de contas cadastradas com este fornecedor">Total de Contas</th>
+                    <th style="padding: 10px 10px; font-weight: 700; text-align: center; color: #34d399;" title="Contas funcionando (Rodando no Tráfego + Aquecendo + Prontas no Estoque)">Contas Ativas</th>
+                    <th style="padding: 10px 10px; font-weight: 700; text-align: center; color: #34d399;" title="Porcentagem de contas ativas sobre o total do fornecedor">% Ativa</th>
+                    <th style="padding: 10px 10px; font-weight: 700; text-align: center; color: #fb7185;" title="Contas que caíram ou foram bloqueadas/banidas">Contas Caídas</th>
+                    <th style="padding: 10px 10px; font-weight: 700; text-align: center; color: #fb7185;" title="Porcentagem de contas que caíram sobre o total do fornecedor">% que Caiu</th>
+                    <th style="padding: 10px 14px; font-weight: 700;">Status do Fornecedor</th>
                   </tr>
                 </thead>
                 <tbody id="vendorAssertiveTableBody">
@@ -6423,40 +6423,41 @@
             const isHighLoss = parseFloat(r.lossPct) >= 50 && r.down > 0;
             const isZeroLoss = r.down === 0;
             const healthColor = isZeroLoss ? '#34d399' : (isHighLoss ? '#fb7185' : '#f59e0b');
-            const rowBg = idx % 2 === 0 ? 'rgba(255,255,255,0.015)' : 'transparent';
+            const statusText = isZeroLoss ? '🟢 100% Ativo' : (isHighLoss ? '🔴 Alto Risco' : '🟡 Moderado');
+            const rowBg = idx % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent';
 
             return `
-              <tr style="background:${rowBg}; border-bottom:1px solid rgba(255,255,255,0.05);">
-                <td style="padding: 8px 12px; font-weight: 600; color: #f1f5f9; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(r.name)}">
+              <tr style="background:${rowBg}; border-bottom:1px solid rgba(255,255,255,0.06);">
+                <td style="padding: 10px 14px; font-weight: 700; color: #f8fafc; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(r.name)}">
                   ${escapeHtml(r.name)}
                 </td>
-                <td style="padding: 8px 10px; text-align: center; color: #94a3b8; font-weight: 600;">
+                <td style="padding: 10px 10px; text-align: center; color: #cbd5e1; font-weight: 700; font-size: 0.8rem;">
                   ${r.total}
                 </td>
-                <td style="padding: 8px 10px; text-align: center; color: #34d399; font-weight: 700;">
-                  ${r.operational} ${r.running > 0 ? `<span style="font-size:0.67rem; color:#10b981; opacity:0.8;">(${r.running} rodando)</span>` : ''}
+                <td style="padding: 10px 10px; text-align: center; color: #34d399; font-weight: 800; font-size: 0.82rem;">
+                  ${r.operational}
                 </td>
-                <td style="padding: 8px 10px; text-align: center; font-weight: 800; color: #34d399;">
-                  <span style="background: rgba(16,185,129,0.14); border: 1px solid rgba(16,185,129,0.3); border-radius: 4px; padding: 2px 6px;">
+                <td style="padding: 10px 10px; text-align: center; font-weight: 800; color: #34d399;">
+                  <span style="background: rgba(16,185,129,0.16); border: 1px solid rgba(16,185,129,0.35); border-radius: 4px; padding: 3px 8px; font-size: 0.78rem;">
                     ${r.activePct}%
                   </span>
                 </td>
-                <td style="padding: 8px 10px; text-align: center; color: ${r.down > 0 ? '#fb7185' : 'var(--text-dim)'}; font-weight: 700;">
+                <td style="padding: 10px 10px; text-align: center; color: ${r.down > 0 ? '#fb7185' : '#64748b'}; font-weight: 800; font-size: 0.82rem;">
                   ${r.down}
                 </td>
-                <td style="padding: 8px 10px; text-align: center; font-weight: 800; color: ${r.down > 0 ? '#fb7185' : '#34d399'};">
-                  <span style="background: ${r.down > 0 ? 'rgba(244,63,94,0.16)' : 'rgba(16,185,129,0.1)'}; border: 1px solid ${r.down > 0 ? 'rgba(244,63,94,0.35)' : 'rgba(16,185,129,0.25)'}; border-radius: 4px; padding: 2px 6px;">
+                <td style="padding: 10px 10px; text-align: center; font-weight: 800; color: ${r.down > 0 ? '#fb7185' : '#34d399'};">
+                  <span style="background: ${r.down > 0 ? 'rgba(244,63,94,0.18)' : 'rgba(16,185,129,0.1)'}; border: 1px solid ${r.down > 0 ? 'rgba(244,63,94,0.4)' : 'rgba(16,185,129,0.25)'}; border-radius: 4px; padding: 3px 8px; font-size: 0.78rem;">
                     ${r.lossPct}%
                   </span>
                 </td>
-                <td style="padding: 8px 12px; vertical-align: middle;">
-                  <div style="display:flex; align-items:center; gap:6px;">
-                    <div style="flex:1; height:6px; background:rgba(255,255,255,0.08); border-radius:3px; overflow:hidden; display:flex;">
+                <td style="padding: 10px 14px; vertical-align: middle;">
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <div style="flex:1; height:7px; background:rgba(255,255,255,0.08); border-radius:3px; overflow:hidden; display:flex;">
                       <div style="width:${r.activePct}%; background:#10b981; height:100%;" title="Ativo: ${r.activePct}%"></div>
-                      <div style="width:${r.lossPct}%; background:#f43f5e; height:100%;" title="Perda: ${r.lossPct}%"></div>
+                      <div style="width:${r.lossPct}%; background:#f43f5e; height:100%;" title="Caiu: ${r.lossPct}%"></div>
                     </div>
-                    <span style="font-size:0.65rem; color:${healthColor}; font-weight:700; width:45px; text-align:right;">
-                      ${isZeroLoss ? '100% OK' : (isHighLoss ? 'Crítico' : 'Atenção')}
+                    <span style="font-size:0.68rem; color:${healthColor}; font-weight:700; white-space:nowrap;">
+                      ${statusText}
                     </span>
                   </div>
                 </td>
