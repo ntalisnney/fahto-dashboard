@@ -5632,9 +5632,14 @@
 
     function deleteAccount(id) {
       const item = bmsData.find(i => i.id === id);
-      if (!item) return;
+      if (!item) return false;
 
-      if (confirm(`Tem certeza que deseja excluir a conta "${item.ca}" (${item.bm})?`)) {
+      const accountName = item.ca || item.bm || 'esta conta';
+      const confirmMsg = item.ca && item.bm 
+        ? `Tem certeza que deseja excluir a conta "${item.ca}" (${item.bm})?`
+        : `Tem certeza que deseja excluir a conta "${accountName}"?`;
+
+      if (confirm(confirmMsg)) {
         hasLocalEdits = true;
         bmsData = bmsData.filter(i => i.id !== id);
         saveLocalData(LOCAL_STORAGE_KEY_BMS, bmsData);
@@ -5643,8 +5648,12 @@
         renderKPIs();
         renderCharts();
         renderBMsTable();
-        showToast(`Conta "${item.ca}" excluída!`);
+        if (typeof renderOperationsCockpit === 'function') renderOperationsCockpit();
+        if (typeof renderKPIPreviews === 'function') renderKPIPreviews();
+        showToast(`Conta "${accountName}" excluída com sucesso!`);
+        return true;
       }
+      return false;
     }
 
     // Quick Status changer directly from table badge
@@ -7856,6 +7865,9 @@
               <button type="button" class="btn btn-secondary" onclick="openAccountModal(${acc.id})" style="height: 32px; padding: 0 10px; font-size: 0.76rem;" title="Editar Conta">
                 <i data-lucide="edit-2" style="width: 13px; height: 13px;"></i>
               </button>
+              <button type="button" class="action-btn delete" onclick="deleteAccount(${acc.id})" style="height: 32px; width: 32px; flex-shrink: 0; color: #f87171; border-color: rgba(239, 68, 68, 0.35); background: rgba(239, 68, 68, 0.08);" title="Excluir Conta">
+                <i data-lucide="trash-2" style="width: 13px; height: 13px;"></i>
+              </button>
             </div>
           </div>
         `;
@@ -7991,6 +8003,9 @@
                   </button>
                   <button type="button" class="btn btn-secondary" style="padding:4px 8px; height:28px; font-size:0.72rem;" onclick="closeBmDetailModal(); openAccountModal(${caItem.id})" title="Editar conta">
                     <i data-lucide="edit-2" style="width:12px; height:12px;"></i>
+                  </button>
+                  <button type="button" class="action-btn delete" style="padding:4px 8px; height:28px; width:28px; font-size:0.72rem; color:#f87171; border-color:rgba(239,68,68,0.35); background:rgba(239,68,68,0.08);" onclick="if(deleteAccount(${caItem.id})) { if(currentSelectedBmName) openBmDetailModal(currentSelectedBmName); }" title="Excluir conta">
+                    <i data-lucide="trash-2" style="width:12px; height:12px;"></i>
                   </button>
                 </div>
               </div>
