@@ -1804,6 +1804,218 @@
       font-size: 0.82rem;
       color: var(--text-dim);
     }
+
+    /* ================================================
+       MOBILE RESPONSIVE — max-width: 768px
+       ================================================ */
+    @media (max-width: 768px) {
+      .app-container {
+        padding: 12px 14px 48px;
+      }
+
+      /* Header */
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 14px 16px;
+      }
+      .brand-section {
+        width: 100%;
+      }
+      .brand-text h1 {
+        font-size: 1.05rem;
+      }
+      .brand-text p {
+        font-size: 0.72rem;
+      }
+      .header-actions {
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .header-actions .btn {
+        font-size: 0.75rem;
+        padding: 7px 12px;
+      }
+      .live-status-pill {
+        font-size: 0.7rem;
+        padding: 4px 10px;
+      }
+
+      /* Nav Tabs */
+      .nav-tabs {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        gap: 4px;
+        padding-bottom: 4px;
+        flex-wrap: nowrap;
+        scrollbar-width: none;
+      }
+      .nav-tabs::-webkit-scrollbar { display: none; }
+      .nav-tab-btn {
+        font-size: 0.73rem;
+        padding: 8px 12px;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+
+      /* Sub-tabs */
+      .sub-tabs {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        flex-wrap: nowrap;
+        scrollbar-width: none;
+        padding-bottom: 4px;
+      }
+      .sub-tabs::-webkit-scrollbar { display: none; }
+      .sub-tab-btn {
+        font-size: 0.75rem;
+        padding: 8px 12px;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+
+      /* Cockpit ops tabs */
+      .ops-tabs {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        flex-wrap: nowrap;
+        gap: 4px;
+        scrollbar-width: none;
+        padding-bottom: 4px;
+      }
+      .ops-tabs::-webkit-scrollbar { display: none; }
+      .ops-tab-btn {
+        font-size: 0.7rem;
+        padding: 7px 10px;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+      .ops-tab-btn span:not(.tab-badge) {
+        display: none;
+      }
+
+      /* BM Filter buttons */
+      .bm-filter-btn {
+        font-size: 0.7rem;
+        padding: 5px 10px;
+      }
+
+      /* KPI cards */
+      .kpi-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px;
+      }
+      .kpi-card {
+        padding: 14px 16px;
+        min-height: 120px;
+      }
+      .kpi-card .kpi-value {
+        font-size: 2rem;
+      }
+
+      /* Charts */
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+
+      /* Account cards grid (cockpit inline style override) */
+      #opsAccountsContainer {
+        grid-template-columns: 1fr !important;
+      }
+
+      /* Profiles & Access grids */
+      .profiles-grid {
+        grid-template-columns: 1fr !important;
+      }
+      .access-grid {
+        grid-template-columns: 1fr !important;
+      }
+
+      /* Filter bar */
+      .filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 12px;
+        gap: 10px;
+      }
+      .filter-bar > * {
+        width: 100%;
+      }
+
+      /* Search box */
+      .search-box {
+        min-width: 100%;
+        width: 100%;
+      }
+      .search-input {
+        width: 100%;
+      }
+
+      /* Table */
+      .table-responsive table {
+        font-size: 0.72rem;
+      }
+      .table-responsive th,
+      .table-responsive td {
+        padding: 8px 10px;
+      }
+
+      /* Modals */
+      .modal-window {
+        width: calc(100% - 24px) !important;
+        max-width: calc(100% - 24px) !important;
+        margin: 12px auto !important;
+        max-height: 95vh;
+        border-radius: 14px;
+      }
+      .modal-header {
+        padding: 16px;
+      }
+      .modal-body {
+        padding: 14px 16px;
+      }
+
+      /* Form rows — collapse to 1 column */
+      .form-row {
+        grid-template-columns: 1fr !important;
+        gap: 12px;
+      }
+
+      /* Buttons inside modals */
+      .modal-footer {
+        flex-direction: column;
+        gap: 8px;
+      }
+      .modal-footer .btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      /* Footer */
+      footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+    }
+
+    /* ================================================
+       MOBILE RESPONSIVE — max-width: 480px (very small)
+       ================================================ */
+    @media (max-width: 480px) {
+      .kpi-grid {
+        grid-template-columns: 1fr !important;
+      }
+      .brand-text h1 {
+        font-size: 0.95rem;
+      }
+      .app-container {
+        padding: 10px 10px 40px;
+      }
+    }
   </style>
 </head>
 <body>
