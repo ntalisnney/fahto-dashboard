@@ -2041,6 +2041,11 @@
       </div>
 
       <div class="header-actions">
+        <button class="btn btn-secondary" id="btnOpenRecycleBinModal" onclick="openRecycleBinModal()" style="gap:6px; font-weight:600;" title="Ver e restaurar contas de anúncios excluídas">
+          <i data-lucide="archive-restore" style="width:16px; height:16px; color:#38bdf8;"></i>
+          <span>Lixeira / Restaurar</span>
+          <span class="badge" id="recycleBinBadge" style="background:rgba(56,189,248,0.2); color:#38bdf8; font-size:0.72rem; padding:1px 6px; border-radius:10px; display:none;">0</span>
+        </button>
         <button class="btn btn-primary" id="btnOpenNewAccountModal">
           <i data-lucide="plus-circle" style="width:16px; height:16px;"></i>
           <span>Incluir novo ativo</span>
@@ -2521,6 +2526,11 @@
           </div>
 
           <div style="display:flex; align-items:center; gap:8px;">
+            <button type="button" class="btn btn-secondary" onclick="openRecycleBinModal()" style="gap:6px; font-weight:600;" title="Ver e restaurar contas de anúncios excluídas">
+              <i data-lucide="archive-restore" style="width:16px; height:16px; color:#38bdf8;"></i>
+              <span>Lixeira</span>
+              <span class="badge" id="recycleBinBadgeTable" style="background:rgba(56,189,248,0.2); color:#38bdf8; font-size:0.72rem; padding:1px 6px; border-radius:10px; display:none;">0</span>
+            </button>
             <button class="btn btn-secondary" id="btnManageStatuses" onclick="openStatusManagerModal()" title="Criar novos status ou gerenciar opções disponíveis">
               <i data-lucide="tags" style="width:16px; height:16px; color:var(--primary);"></i>
               <span>Gerenciar Status</span>
@@ -2710,6 +2720,49 @@
         <div style="background:rgba(56, 189, 248, 0.08); border:1px solid rgba(56, 189, 248, 0.2); padding:12px; border-radius:var(--radius-sm); font-size:0.78rem; color:#93c5fd;">
           💡 <strong>Dica Pro:</strong> Copie o Código Sync aqui no seu Dashboard Local e clique em <strong>"Colar Código Sync"</strong> quando abrir o link da Vercel. Todos os seus dados ficarão 100% idênticos!
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: RECYCLE BIN / RESTORE DELETED ACCOUNTS -->
+  <div class="modal-backdrop" id="modalRecycleBinBackdrop">
+    <div class="modal-window" style="max-width: 680px;">
+      <div class="modal-header">
+        <div class="modal-title" style="display:flex; align-items:center; gap:8px;">
+          <i data-lucide="archive-restore" style="color:#38bdf8; width:20px; height:20px;"></i>
+          <span>Lixeira & Restauração de Contas</span>
+          <span class="badge" id="recycleBinModalBadge" style="background:rgba(56,189,248,0.18); color:#38bdf8; font-size:0.75rem; padding:2px 8px;">0 itens</span>
+        </div>
+        <button class="action-btn" onclick="closeRecycleBinModal()"><i data-lucide="x" style="width:16px; height:16px;"></i></button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:0.83rem; color:var(--text-muted); margin-bottom:14px; line-height:1.4;">
+          Contas excluídas recentemente são guardadas aqui com segurança. Você pode <strong>restaurá-las</strong> a qualquer momento de volta ao Cockpit e à tabela com todos os dados intactos.
+        </p>
+
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px;">
+          <div class="search-box" style="flex:1;">
+            <i data-lucide="search" style="width:16px; height:16px;"></i>
+            <input type="text" id="recycleSearchInput" class="search-input" placeholder="Buscar por conta, BM ou fornecedor..." oninput="renderRecycleBinList()" style="height:36px; font-size:0.82rem;" />
+          </div>
+          <button type="button" class="btn btn-secondary" onclick="restoreAllDeletedAccounts()" style="font-size:0.76rem; padding:0 12px; height:36px; color:#34d399; border-color:rgba(16,185,129,0.3); font-weight:700; white-space:nowrap;">
+            <i data-lucide="rotate-ccw" style="width:13px; height:13px;"></i>
+            <span>Restaurar Todas</span>
+          </button>
+        </div>
+
+        <div id="recycleBinListContainer" style="display:flex; flex-direction:column; gap:8px; max-height:360px; overflow-y:auto; padding-right:4px;">
+          <!-- Itens da lixeira inseridos dinamicamente -->
+        </div>
+      </div>
+      <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center; padding:12px 18px; border-top:1px solid var(--border-subtle);">
+        <button type="button" class="btn btn-secondary" onclick="emptyRecycleBin()" style="font-size:0.75rem; color:#f87171; border-color:rgba(239,68,68,0.3); background:rgba(239,68,68,0.06);" title="Limpar lixeira permanentemente">
+          <i data-lucide="trash" style="width:13px; height:13px;"></i>
+          <span>Esvaziar Lixeira</span>
+        </button>
+        <button type="button" class="btn btn-secondary" onclick="closeRecycleBinModal()" style="font-size:0.8rem; padding:0 16px; height:34px;">
+          <span>Fechar</span>
+        </button>
       </div>
     </div>
   </div>
@@ -3209,6 +3262,7 @@
     const LOCAL_STORAGE_KEY_ACCESS = 'fahto_ops_access_v5';
     const LOCAL_STORAGE_KEY_STATUSES = 'fahto_ops_statuses_v5';
     const LOCAL_STORAGE_KEY_BM_OVERRIDES = 'fahto_bm_overrides_v2';
+    const LOCAL_STORAGE_KEY_DELETED_ACCOUNTS = 'fahto_ops_deleted_accounts_v1';
 
     // ==========================================
     // SUPABASE REAL-TIME CLOUD SYNC ENGINE
@@ -3332,6 +3386,7 @@
           statusesData: statusesData || [],
           userNotesData: typeof userNotesData !== 'undefined' ? userNotesData : [],
           bmOverrides: typeof bmOverrides !== 'undefined' ? bmOverrides : {},
+          deletedAccountsData: typeof deletedAccountsData !== 'undefined' ? deletedAccountsData : [],
           updatedAt: new Date().toISOString()
         };
 
@@ -3411,6 +3466,11 @@
           if (remote.bmOverrides && typeof remote.bmOverrides === 'object') {
             bmOverrides = remote.bmOverrides;
             localStorage.setItem(LOCAL_STORAGE_KEY_BM_OVERRIDES, JSON.stringify(bmOverrides));
+          }
+          if (Array.isArray(remote.deletedAccountsData)) {
+            deletedAccountsData = remote.deletedAccountsData;
+            localStorage.setItem(LOCAL_STORAGE_KEY_DELETED_ACCOUNTS, JSON.stringify(deletedAccountsData));
+            updateRecycleBinBadge();
           }
 
           // Marca que o pull inicial foi concluído com sucesso e autoriza futuras alterações do usuário a subirem
@@ -5238,6 +5298,7 @@
     }
     let accessData = loadLocalData(LOCAL_STORAGE_KEY_ACCESS) || [...INITIAL_ACCESS];
     let bmOverrides = loadLocalData(LOCAL_STORAGE_KEY_BM_OVERRIDES) || {};
+    let deletedAccountsData = loadLocalData(LOCAL_STORAGE_KEY_DELETED_ACCOUNTS) || [];
 
     function getBmOverride(bmName) {
       if (!bmName || typeof bmName !== 'string') return {};
@@ -5647,6 +5708,7 @@
       _safe('initAlertBannerToggle', () => initAlertBannerToggle());
       _safe('initActionButtons', () => initActionButtons());
       _safe('startLiveSyncEngine', () => startLiveSyncEngine());
+      _safe('updateRecycleBinBadge', () => updateRecycleBinBadge());
 
       // Inicia sincronização em tempo real via Nuvem Supabase
       _safe('syncPullFromCloud', () => syncPullFromCloud(true));
@@ -6212,24 +6274,239 @@
 
       const accountName = item.ca || item.bm || 'esta conta';
       const confirmMsg = item.ca && item.bm 
-        ? `Tem certeza que deseja excluir a conta "${item.ca}" (${item.bm})?`
-        : `Tem certeza que deseja excluir a conta "${accountName}"?`;
+        ? `Tem certeza que deseja excluir a conta "${item.ca}" (${item.bm})?\n\n(A conta ficará salva na Lixeira e poderá ser restaurada a qualquer momento)`
+        : `Tem certeza que deseja excluir a conta "${accountName}"?\n\n(A conta ficará salva na Lixeira e poderá ser restaurada a qualquer momento)`;
 
       if (confirm(confirmMsg)) {
         hasLocalEdits = true;
+        // Salva na lixeira com timestamp e backup completo
+        if (!Array.isArray(deletedAccountsData)) deletedAccountsData = [];
+        const deletedEntry = {
+          ...item,
+          deletedAt: new Date().toISOString()
+        };
+        // Remove se já existia na lixeira por precaução e insere no início
+        deletedAccountsData = deletedAccountsData.filter(d => d.id !== id);
+        deletedAccountsData.unshift(deletedEntry);
+        saveLocalData(LOCAL_STORAGE_KEY_DELETED_ACCOUNTS, deletedAccountsData);
+
+        // Remove dos ativos ativos
         bmsData = bmsData.filter(i => i.id !== id);
         saveLocalData(LOCAL_STORAGE_KEY_BMS, bmsData);
 
+        updateRecycleBinBadge();
         populateFilters();
         renderKPIs();
         renderCharts();
         renderBMsTable();
         if (typeof renderOperationsCockpit === 'function') renderOperationsCockpit();
         if (typeof renderKPIPreviews === 'function') renderKPIPreviews();
-        showToast(`Conta "${accountName}" excluída com sucesso!`);
+        showToast(`Conta "${accountName}" movida para a Lixeira!`);
         return true;
       }
       return false;
+    }
+
+    // ==========================================
+    // RECYCLE BIN / RESTORE DELETED ACCOUNTS LOGIC
+    // ==========================================
+    function updateRecycleBinBadge() {
+      const count = Array.isArray(deletedAccountsData) ? deletedAccountsData.length : 0;
+      const bHeader = document.getElementById('recycleBinBadge');
+      const bTable = document.getElementById('recycleBinBadgeTable');
+      const bModal = document.getElementById('recycleBinModalBadge');
+
+      if (bHeader) {
+        bHeader.textContent = count;
+        bHeader.style.display = count > 0 ? 'inline-block' : 'none';
+      }
+      if (bTable) {
+        bTable.textContent = count;
+        bTable.style.display = count > 0 ? 'inline-block' : 'none';
+      }
+      if (bModal) {
+        bModal.textContent = `${count} ${count === 1 ? 'item' : 'itens'}`;
+      }
+    }
+
+    function openRecycleBinModal() {
+      const backdrop = document.getElementById('modalRecycleBinBackdrop');
+      if (!backdrop) return;
+      const sInput = document.getElementById('recycleSearchInput');
+      if (sInput) sInput.value = '';
+      renderRecycleBinList();
+      backdrop.classList.add('active');
+      lucide.createIcons();
+    }
+
+    function closeRecycleBinModal() {
+      const backdrop = document.getElementById('modalRecycleBinBackdrop');
+      if (backdrop) backdrop.classList.remove('active');
+    }
+
+    function renderRecycleBinList() {
+      const container = document.getElementById('recycleBinListContainer');
+      if (!container) return;
+
+      const sInput = document.getElementById('recycleSearchInput');
+      const q = sInput ? sInput.value.trim().toLowerCase() : '';
+
+      updateRecycleBinBadge();
+
+      if (!Array.isArray(deletedAccountsData) || deletedAccountsData.length === 0) {
+        container.innerHTML = `
+          <div style="text-align:center; padding:32px 16px; color:var(--text-dim); background:rgba(255,255,255,0.02); border-radius:var(--radius-md); border:1px dashed rgba(255,255,255,0.1);">
+            <i data-lucide="archive" style="width:32px; height:32px; margin-bottom:8px; display:block; margin-left:auto; margin-right:auto; opacity:0.5; color:#38bdf8;"></i>
+            <strong>A lixeira de contas está vazia.</strong>
+            <p style="font-size:0.75rem; margin-top:4px; opacity:0.8;">Qualquer conta que você excluir no Cockpit ou na Tabela aparecerá aqui para ser restaurada.</p>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      let filtered = deletedAccountsData;
+      if (q) {
+        filtered = deletedAccountsData.filter(item => {
+          const text = `${item.bm || ''} ${item.ca || ''} ${item.fornecedor || ''} ${item.status || ''} ${item.cartao || ''}`.toLowerCase();
+          return text.includes(q);
+        });
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div style="text-align:center; padding:24px 16px; color:var(--text-dim); font-size:0.82rem;">
+            Nenhuma conta encontrada com o termo "<strong>${escapeHtml(q)}</strong>".
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(item => {
+        const title = item.ca || item.bm || 'Conta sem nome';
+        const bm = item.bm || '—';
+        const vendor = item.fornecedor || '—';
+        const status = item.status || '—';
+        const card = item.cartao || '—';
+        const timeStr = item.deletedAt ? new Date(item.deletedAt).toLocaleString('pt-BR') : '';
+
+        return `
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 14px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; transition:border 0.2s;">
+            <div style="flex:1; min-width:0;">
+              <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <strong style="color:#ffffff; font-size:0.88rem;">${escapeHtml(title)}</strong>
+                <span class="badge" style="background:rgba(56,189,248,0.15); color:#38bdf8; font-size:0.7rem; padding:1px 6px;">${escapeHtml(status)}</span>
+              </div>
+              <div style="font-size:0.75rem; color:var(--text-dim); margin-top:3px; display:flex; gap:10px; flex-wrap:wrap;">
+                <span>BM: <strong style="color:#cbd5e1;">${escapeHtml(bm)}</strong></span>
+                <span>Fornecedor: <strong style="color:#cbd5e1;">${escapeHtml(vendor)}</strong></span>
+                <span>Cartão: <strong style="color:#34d399; font-family:monospace;">${escapeHtml(card)}</strong></span>
+                ${timeStr ? `<span style="color:#64748b;">(Excluída: ${timeStr})</span>` : ''}
+              </div>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:6px;">
+              <button type="button" class="btn btn-primary" onclick="restoreDeletedAccount(${item.id})" style="font-size:0.75rem; padding:0 12px; height:32px; background:linear-gradient(135deg, #10b981, #059669); border:none; font-weight:700; gap:5px;" title="Restaurar esta conta ao Dashboard">
+                <i data-lucide="rotate-ccw" style="width:13px; height:13px;"></i>
+                <span>Restaurar</span>
+              </button>
+              <button type="button" class="action-btn delete" onclick="deletePermanentlyFromRecycle(${item.id})" style="width:32px; height:32px; color:#f87171; border-color:rgba(239,68,68,0.3); background:rgba(239,68,68,0.08);" title="Excluir permanentemente da lixeira">
+                <i data-lucide="trash-2" style="width:13px; height:13px;"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+    }
+
+    function restoreDeletedAccount(id) {
+      if (!Array.isArray(deletedAccountsData)) return;
+      const idx = deletedAccountsData.findIndex(d => d.id === id);
+      if (idx === -1) return;
+
+      const itemToRestore = { ...deletedAccountsData[idx] };
+      delete itemToRestore.deletedAt;
+
+      // Remove da lixeira
+      deletedAccountsData.splice(idx, 1);
+      saveLocalData(LOCAL_STORAGE_KEY_DELETED_ACCOUNTS, deletedAccountsData);
+
+      // Adiciona de volta às contas ativas
+      hasLocalEdits = true;
+      // Garante que não duplica se por acaso já existisse
+      bmsData = bmsData.filter(i => i.id !== id);
+      bmsData.unshift(itemToRestore);
+      saveLocalData(LOCAL_STORAGE_KEY_BMS, bmsData);
+
+      updateRecycleBinBadge();
+      renderRecycleBinList();
+      populateFilters();
+      renderKPIs();
+      renderCharts();
+      renderBMsTable();
+      if (typeof renderOperationsCockpit === 'function') renderOperationsCockpit();
+      if (typeof renderKPIPreviews === 'function') renderKPIPreviews();
+
+      const accName = itemToRestore.ca || itemToRestore.bm || 'Conta';
+      showToast(`✅ "${accName}" restaurada com sucesso!`);
+    }
+
+    function restoreAllDeletedAccounts() {
+      if (!Array.isArray(deletedAccountsData) || deletedAccountsData.length === 0) {
+        alert("A lixeira está vazia.");
+        return;
+      }
+
+      if (confirm(`Deseja restaurar todas as ${deletedAccountsData.length} contas da lixeira?`)) {
+        hasLocalEdits = true;
+        const count = deletedAccountsData.length;
+        deletedAccountsData.forEach(item => {
+          const itemClean = { ...item };
+          delete itemClean.deletedAt;
+          bmsData = bmsData.filter(i => i.id !== item.id);
+          bmsData.unshift(itemClean);
+        });
+
+        deletedAccountsData = [];
+        saveLocalData(LOCAL_STORAGE_KEY_DELETED_ACCOUNTS, deletedAccountsData);
+        saveLocalData(LOCAL_STORAGE_KEY_BMS, bmsData);
+
+        updateRecycleBinBadge();
+        renderRecycleBinList();
+        populateFilters();
+        renderKPIs();
+        renderCharts();
+        renderBMsTable();
+        if (typeof renderOperationsCockpit === 'function') renderOperationsCockpit();
+        if (typeof renderKPIPreviews === 'function') renderKPIPreviews();
+
+        showToast(`✅ ${count} contas restauradas com sucesso!`);
+      }
+    }
+
+    function deletePermanentlyFromRecycle(id) {
+      if (!confirm("Tem certeza que deseja apagar permanentemente este item da lixeira?")) return;
+      deletedAccountsData = deletedAccountsData.filter(d => d.id !== id);
+      saveLocalData(LOCAL_STORAGE_KEY_DELETED_ACCOUNTS, deletedAccountsData);
+      updateRecycleBinBadge();
+      renderRecycleBinList();
+      showToast("Item excluído permanentemente.");
+    }
+
+    function emptyRecycleBin() {
+      if (!Array.isArray(deletedAccountsData) || deletedAccountsData.length === 0) {
+        alert("A lixeira já está vazia.");
+        return;
+      }
+      if (confirm(`Tem certeza que deseja esvaziar a lixeira e apagar ${deletedAccountsData.length} contas permanentemente?`)) {
+        deletedAccountsData = [];
+        saveLocalData(LOCAL_STORAGE_KEY_DELETED_ACCOUNTS, deletedAccountsData);
+        updateRecycleBinBadge();
+        renderRecycleBinList();
+        showToast("Lixeira esvaziada com sucesso.");
+      }
     }
 
     // Quick Status changer directly from table badge
