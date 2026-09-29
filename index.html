@@ -1845,7 +1845,7 @@
       <button class="nav-tab-btn" data-tab="tab-bms">
         <i data-lucide="server" style="width:18px; height:18px;"></i>
         <span>BMs, CAs & Cartões</span>
-        <span class="tab-badge" id="badgeCAsCount">85</span>
+        <span class="tab-badge" id="badgeCAsCount">121</span>
       </button>
       <button class="nav-tab-btn" data-tab="tab-perfis">
         <i data-lucide="users" style="width:18px; height:18px;"></i>
@@ -1900,7 +1900,7 @@
               <i data-lucide="play-circle" style="width:20px; height:20px;"></i>
             </div>
           </div>
-          <div class="kpi-value" style="color: #34d399;" id="kpiRunningCAs">12</div>
+          <div class="kpi-value" style="color: #34d399;" id="kpiRunningCAs">21</div>
           <div class="kpi-meta">
             <i data-lucide="check" style="width:14px; height:14px; color:#34d399;"></i>
             <span>Tráfego Ativo</span>
@@ -1916,7 +1916,7 @@
               <i data-lucide="flame" style="width:20px; height:20px;"></i>
             </div>
           </div>
-          <div class="kpi-value" style="color: #38bdf8;" id="kpiWarmingActiveCAs">10</div>
+          <div class="kpi-value" style="color: #38bdf8;" id="kpiWarmingActiveCAs">12</div>
           <div class="kpi-meta">
             <i data-lucide="activity" style="width:14px; height:14px; color:#38bdf8;"></i>
             <span id="kpiWarmingActiveDetails">Em processo ativo</span>
@@ -1932,7 +1932,7 @@
               <i data-lucide="clock" style="width:20px; height:20px;"></i>
             </div>
           </div>
-          <div class="kpi-value" style="color: #fb923c;" id="kpiToWarmCAs">13</div>
+          <div class="kpi-value" style="color: #fb923c;" id="kpiToWarmCAs">0</div>
           <div class="kpi-meta">
             <i data-lucide="hourglass" style="width:14px; height:14px; color:#fb923c;"></i>
             <span id="kpiToWarmDetails">Aguardando início / Fila</span>
@@ -1948,7 +1948,7 @@
               <i data-lucide="zap" style="width:20px; height:20px;"></i>
             </div>
           </div>
-          <div class="kpi-value" style="color: #c084fc;" id="kpiWarmedReadyCAs">8</div>
+          <div class="kpi-value" style="color: #c084fc;" id="kpiWarmedReadyCAs">2</div>
           <div class="kpi-meta">
             <i data-lucide="rocket" style="width:14px; height:14px; color:#c084fc;"></i>
             <span id="kpiWarmedReadyDetails">Prontas p/ Subir Projetos</span>
@@ -1980,9 +1980,9 @@
               <i data-lucide="shield-x" style="width:20px; height:20px;"></i>
             </div>
           </div>
-          <div class="kpi-value" style="color: #fb7185;" id="kpiDownCAs">32</div>
+          <div class="kpi-value" style="color: #fb7185;" id="kpiDownCAs">76</div>
           <div class="kpi-meta" style="display:flex; flex-direction:column; align-items:flex-start; gap:2px;">
-            <span id="kpiDownRate">37.6% taxa de perda</span>
+            <span id="kpiDownRate">62.8% taxa de perda</span>
             <div style="font-size: 0.68rem; color: #fb7185;">(Contas & BMs Perdidas)</div>
             <div id="kpiDownVendorBreakdown" style="display:flex; flex-wrap:wrap; gap:4px; margin-top:4px; max-width:100%;"></div>
           </div>
@@ -3290,917 +3290,1313 @@
 
     // Base Initial Data (Snapshot Real Atualizado)
     const INITIAL_BMS = [
-    {
-        "bm": "Tatiana Maria da Silva",
-        "ca": "TATIANA SILVA - CA01",
-        "id": 59,
-        "obs": "",
-        "cartao": "MASTER CARD - 7056",
-        "status": "⚡ Aquecida & Livre (Pronta)",
-        "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
-        "fornecedor": "Rufino",
-        "restStartTime": null
-    },
-    {
-        "bm": "Gabriel Henrique Gaidos",
-        "ca": "GABRIEL HNRG - 01",
-        "id": 58,
-        "obs": "Acompanhar aquecimento.",
-        "cartao": "MASTER CARD - 7334",
-        "status": "⚡ Aquecida & Livre (Pronta)",
-        "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
-        "fornecedor": "Rufino",
-        "restStartTime": null
-    },
-    {
-        "bm": "Fernanda Almeida Mendonca Santos",
-        "ca": "FERNANDA ALMS - 01",
-        "id": 57,
-        "obs": "",
-        "cartao": "MASTER CARD 1849",
-        "status": "⚡ Aquecida & Livre (Pronta)",
-        "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
-        "fornecedor": "Rufino",
-        "restStartTime": null
-    },
-    {
-        "bm": "BP66 - Verificado 05",
-        "ca": "BP65[05] - CA03",
-        "id": 56,
-        "obs": "",
-        "cartao": "",
-        "status": "BAN",
-        "estrutura": "EST 2",
-        "fornecedor": "Franklin Suerdes - FS",
-        "restStartTime": "2026-09-11T04:33:00.000Z"
-    },
-    {
-        "bm": "BP66 - Verificado 05",
-        "ca": "BP65[05] - CA02",
-        "id": 55,
-        "obs": "",
-        "cartao": "",
-        "status": "BAN",
-        "estrutura": "EST 4 - COFRE",
-        "fornecedor": "Franklin Suerdes - FS",
-        "restStartTime": "2026-09-11T04:33:00.000Z"
-    },
-    {
-        "bm": "G. C. Sales Perfumaria",
-        "ca": "Sales - 05",
-        "id": 54,
-        "obs": "",
-        "cartao": "MASTER CARD 8024",
-        "status": "⚡ Aquecida & Livre (Pronta)",
-        "estrutura": "EST 4 - COFRE",
-        "fornecedor": "Rufino",
-        "restStartTime": null
-    },
-    {
-        "bm": "G. C. Sales Perfumaria",
-        "ca": "Sales - 04",
-        "id": 53,
-        "obs": "",
-        "cartao": "MASTER CARD  5476",
-        "status": "⚡ Aquecida & Livre (Pronta)",
-        "estrutura": "EST 4 - COFRE",
-        "fornecedor": "Rufino",
-        "restStartTime": null
-    },
-    {
-        "bm": "Karina Costa",
-        "ca": "Karina Costa - CA01",
-        "id": 52,
-        "obs": "",
-        "cartao": "MASTER CARD 7057",
-        "status": "BAN",
-        "estrutura": "P32 - JUZELINA | FAHTO-COFRE-01",
-        "fornecedor": "CONTIGENCIA SOCIAL",
-        "restStartTime": null
-    },
-    {
-        "bm": "Gabriele Macedo da Silva Feijo Rodrigues",
-        "ca": "Gabriele MSFR - 01",
-        "id": 51,
-        "obs": "",
-        "cartao": "MASTER CARD 2325",
-        "status": "⚡ Aquecida & Livre (Pronta)",
-        "estrutura": "P32 - JUZELINA | FAHTO-COFRE-01",
-        "fornecedor": "Rufino",
-        "restStartTime": null
-    },
-    {
-        "bm": "Debora Regina da Silva dos Reis",
-        "ca": "DEBORA RSR - CA01",
-        "id": 50,
-        "obs": "",
-        "cartao": "MASTER CARD  9479",
-        "status": "BAN",
-        "estrutura": "P32 - JUZELINA | FAHTO-COFRE-01",
-        "fornecedor": "Rufino",
-        "restStartTime": null
-    },
-    {
-        "bm": "Tamara Veiga",
-        "ca": "ct 01",
-        "id": 49,
-        "obs": "",
-        "cartao": "MASTER CARD 5875",
-        "status": "⚡ Aquecida & Livre (Pronta)",
-        "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
-        "fornecedor": "Safe Ads",
-        "restStartTime": null
-    },
-    {
-        "bm": "Savannah Collins",
-        "ca": "CT 01",
-        "id": 48,
-        "obs": "",
-        "cartao": "MASTER CARD 4558",
-        "status": "⚡ Aquecida & Livre (Pronta)",
-        "estrutura": "P32 - JUZELINA | FAHTO-COFRE-01",
-        "fornecedor": "Safe Ads",
-        "restStartTime": null
-    },
-    {
-        "bm": "Suelen Camargo",
-        "ca": "Suelen Camargo",
-        "id": 47,
-        "obs": "CONTA NÃO GASTA POR NADA.",
-        "cartao": "MASTER CARD 0763",
-        "status": "Aquecendo [ACM]",
-        "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
-        "fornecedor": "Safe Ads",
-        "restStartTime": null
-    },
-    {
-        "bm": "PAWFFY.COM",
-        "ca": "New Ad Account",
-        "id": 46,
-        "obs": "",
-        "cartao": "MASTER CARD 7371",
-        "status": "Rodando [REP TCHECA]",
-        "estrutura": "EST 4 - COFRE",
-        "fornecedor": "Não sei [BM COMPRADA ANTES DE EU ENTRAR NA FATHO]",
-        "restStartTime": null
-    },
-    {
-        "bm": "Ludmila Souza",
-        "ca": "Sharkwares 1186",
-        "id": 45,
-        "obs": "",
-        "cartao": "VISA 2391",
-        "status": "Rodando [REP TCHECA]",
-        "estrutura": "EST 4 - COFRE",
-        "fornecedor": "Alex - Scalefield"
-    },
-    {
-        "bm": "BM 102",
-        "ca": "CA 04 - BM102",
-        "id": 44,
-        "obs": "",
-        "cartao": "TEM QUE SETAR CARTÃO",
-        "status": "STAND BY",
-        "estrutura": "EST 4 - COFRE",
-        "fornecedor": "Não sei [BM COMPRADA ANTES DE EU ENTRAR NA FATHO]"
-    },
-    {
-        "bm": "BM 102",
-        "ca": "CA 06 - BM 102",
-        "id": 43,
-        "obs": "",
-        "cartao": "TEM QUE SETAR CARTÃO",
-        "status": "STAND BY",
-        "estrutura": "EST 4 - COFRE",
-        "fornecedor": "Não sei [BM COMPRADA ANTES DE EU ENTRAR NA FATHO]"
-    },
-    {
-        "bm": "BM 102",
-        "ca": "CA 07 - BM102",
-        "id": 42,
-        "obs": "",
-        "cartao": "TEM QUE SETAR CARTÃO",
-        "status": "STAND BY",
-        "estrutura": "EST 4 - COFRE",
-        "fornecedor": "Não sei [BM COMPRADA ANTES DE EU ENTRAR NA FATHO]"
-    },
-    {
-        "bm": "BM 102",
-        "ca": "CA 08 - BM102",
-        "id": 41,
-        "obs": "",
-        "cartao": "TEM QUE SETAR CARTÃO",
-        "status": "STAND BY",
-        "estrutura": "EST 4 - COFRE",
-        "fornecedor": "Não sei [BM COMPRADA ANTES DE EU ENTRAR NA FATHO]"
-    },
-    {
-        "bm": "HT 9761",
-        "ca": "HT 965450",
-        "id": 40,
-        "obs": "",
-        "cartao": "MASTER CARD 4662",
-        "status": "BAN",
-        "estrutura": "EST 4 - COFRE",
-        "fornecedor": "Alex - Scalefield",
-        "restStartTime": null
-    },
-    {
-        "bm": "HT 9761",
-        "ca": "HT 918393",
-        "id": 39,
-        "obs": "",
-        "cartao": "MASTER CARD 8132",
-        "status": "BAN",
-        "estrutura": "EST 4 - COFRE",
-        "fornecedor": "Alex - Scalefield",
-        "restStartTime": null
-    },
-    {
-        "bm": "KARINA FERREIRA",
-        "ca": "KARINA FERREIRA - 01",
-        "id": 38,
-        "obs": "BM de cortesia - Cancelar Card.",
-        "cartao": "MASTER CARD  9187",
-        "status": "BAN",
-        "estrutura": "EST 4 - COFRE",
-        "fornecedor": "CONTIGENCIA SOCIAL"
-    },
-    {
-        "bm": "Propriedade de: Cooperativa de Credito de Livre Admissao Buritis - Sicoob Buritis",
-        "ca": "SICOOB BURITIS - 05",
-        "id": 36,
-        "obs": "",
-        "cartao": "MASTER CARD 8626",
-        "status": "Rodando [REP TCHECA]",
-        "estrutura": "EST 4 - COFRE",
-        "fornecedor": "Rufino",
-        "restStartTime": null
-    },
-    {
-        "bm": "Propriedade de: Cooperativa de Credito de Livre Admissao Buritis - Sicoob Buritis",
-        "ca": "SICOOB BURITIS - 04",
-        "id": 35,
-        "obs": "",
-        "cartao": "MASTER CARD 1369",
-        "status": "Rodando [REP TCHECA]",
-        "estrutura": "EST 4 - COFRE",
-        "fornecedor": "Rufino",
-        "restStartTime": null
-    },
-    {
-        "bm": "Cooperativa de Credito de Livre Admissao Buritis - Sicoob Buritis",
-        "ca": "SICOOB BURITIS - 03",
-        "id": 34,
-        "obs": "",
-        "cartao": "MASTER CARD 1599",
-        "status": "Rodando NUTRA [EUA]",
-        "estrutura": "EST 4 - COFRE",
-        "fornecedor": "Rufino",
-        "restStartTime": null
-    },
-    {
-        "bm": "HT 9761",
-        "ca": "HT 278746",
-        "id": 33,
-        "obs": "",
-        "cartao": "MASTER CARD 1126",
-        "status": "BAN",
-        "estrutura": "EST 4 - COFRE",
-        "fornecedor": "Alex - Scalefield",
-        "restStartTime": null
-    },
-    {
-        "bm": "pawffy.com",
-        "ca": "3",
-        "id": 1,
-        "obs": "",
-        "cartao": "VISA 4379",
-        "status": "Caiu",
-        "estrutura": "EST 1",
-        "fornecedor": "Não sei [BM COMPRADA ANTES DE EU ENTRAR NA FATHO]"
-    },
-    {
-        "bm": "Adriana Costa",
-        "ca": "Adriana Costa - 01",
-        "id": 2,
-        "obs": "Iniciou 04/08/26(Sexta)",
-        "cartao": "VISA 7446",
-        "status": "Rodando [REP TCHECA]",
-        "estrutura": "EST 7",
-        "fornecedor": "CONTIGENCIA SOCIAL"
-    },
-    {
-        "bm": "Elisa Pereira",
-        "ca": "Elisa Pereira - 01",
-        "id": 3,
-        "obs": "",
-        "cartao": "VISA 9234",
-        "status": "BAN",
-        "estrutura": "EST 5",
-        "fornecedor": "CONTIGENCIA SOCIAL"
-    },
-    {
-        "bm": "CLAUDIA MARTINS",
-        "ca": "CLAUDIA MARTINS - 02",
-        "id": 4,
-        "obs": "",
-        "cartao": "MASTER CARD 9527",
-        "status": "Caiu",
-        "estrutura": "EST 2",
-        "fornecedor": "CONTIGENCIA SOCIAL"
-    },
-    {
-        "bm": "CLAUDIA MARTINS",
-        "ca": "CLAUDIA MARTINS - 03",
-        "id": 5,
-        "obs": "",
-        "cartao": "MASTER CARD 2987",
-        "status": "Rodando [ED. REP TCHECA]",
-        "estrutura": "EST 2",
-        "fornecedor": "CONTIGENCIA SOCIAL",
-        "restStartTime": null
-    },
-    {
-        "bm": "Adriana Costa",
-        "ca": "Adriana Costa - 02",
-        "id": 6,
-        "obs": "",
-        "cartao": "MASTER CARD 9714",
-        "status": "Caiu",
-        "estrutura": "EST 7",
-        "fornecedor": "CONTIGENCIA SOCIAL"
-    },
-    {
-        "bm": "Adriana Costa",
-        "ca": "Adriana Costa - 03",
-        "id": 7,
-        "obs": "Caiu",
-        "cartao": "MASTER CARD 0967",
-        "status": "BAN",
-        "estrutura": "EST 7",
-        "fornecedor": "CONTIGENCIA SOCIAL"
-    },
-    {
-        "bm": "Elisa Pereira",
-        "ca": "Elisa Pereira - 02",
-        "id": 8,
-        "obs": "",
-        "cartao": "MASTER CARD 7520",
-        "status": "Rodando [ED. REP TCHECA]",
-        "estrutura": "EST 5",
-        "fornecedor": "CONTIGENCIA SOCIAL",
-        "restStartTime": null
-    },
-    {
-        "bm": "Elisa Pereira",
-        "ca": "Elisa Pereira - 03",
-        "id": 9,
-        "obs": "",
-        "cartao": "MASTER CARD 3239",
-        "status": "BAN",
-        "estrutura": "EST 5",
-        "fornecedor": "CONTIGENCIA SOCIAL"
-    },
-    {
-        "bm": "FAHTO - Bare Pantry Business Manager",
-        "ca": "C01 - FAHTO - UCL Social Media",
-        "id": 10,
-        "obs": "",
-        "cartao": "MASTER CARD 8310",
-        "status": "STAND BY",
-        "estrutura": "EST 4",
-        "fornecedor": "CONTA ALUGADA - PROSCALE"
-    },
-    {
-        "bm": "FAHTO - Bare Pantry Business Manager",
-        "ca": "01 - FAHTO - Rose Dallas1",
-        "id": 11,
-        "obs": "",
-        "cartao": "",
-        "status": "STAND BY",
-        "estrutura": "EST 4",
-        "fornecedor": "CONTA ALUGADA - PROSCALE"
-    },
-    {
-        "bm": "FAHTO - Bare Pantry Business Manager",
-        "ca": "C01 - FAHTO - Grupo Medina Leilões",
-        "id": 12,
-        "obs": "FAZER VERIFICAÇÃO C/CAIO",
-        "cartao": "",
-        "status": "STAND BY",
-        "estrutura": "EST 4",
-        "fornecedor": "CONTA ALUGADA - PROSCALE"
-    },
-    {
-        "bm": "BM 102",
-        "ca": "CA 09 BM102",
-        "id": 13,
-        "obs": "Offer ED PL parou",
-        "cartao": "MASTERCARD 4353",
-        "status": "STAND BY",
-        "estrutura": "EST 2 - AC",
-        "fornecedor": "Não sei [BM COMPRADA ANTES DE EU ENTRAR NA FATHO]"
-    },
-    {
-        "bm": "BM 102",
-        "ca": "CA 10 BM102",
-        "id": 14,
-        "obs": "Offer ED PL parou",
-        "cartao": "MASTER CARD 9690",
-        "status": "STAND BY",
-        "estrutura": "EST 2 - AC",
-        "fornecedor": "Não sei [BM COMPRADA ANTES DE EU ENTRAR NA FATHO]"
-    },
-    {
-        "bm": "Cooperativa de Credito de Livre Admissao Buritis - Sicoob Buritis",
-        "ca": "SICOOB BURITIS - 01",
-        "id": 15,
-        "obs": "CONTA LIVRE  PARA RODAR ALGO",
-        "cartao": "MASTER CARD 3818",
-        "status": "Rodando [REP TCHECA]",
-        "estrutura": "EST 4 -  COFRE",
-        "fornecedor": "Rufino",
-        "restStartTime": null
-    },
-    {
-        "bm": "Cooperativa de Credito de Livre Admissao Buritis - Sicoob Buritis",
-        "ca": "SICOOB BURITIS - 02",
-        "id": 16,
-        "obs": "",
-        "cartao": "MASTER CARD 2184",
-        "status": "Rodando [REP TCHECA]",
-        "estrutura": "EST 4 - COFRE",
-        "fornecedor": "Rufino",
-        "restStartTime": null
-    },
-    {
-        "bm": "Perfumaria Lupi LTDA",
-        "ca": "LUPI - 01",
-        "id": 18,
-        "obs": "Iniciou 04/08/26(Sexta)",
-        "cartao": "MASTER CARD 4396",
-        "status": "BAN",
-        "estrutura": "EST 7 - AC [P17] | EST 4 - BK [P25] | EST 7 - PG [P16]",
-        "fornecedor": "Rufino"
-    },
-    {
-        "bm": "Perfumaria Lupi LTDA",
-        "ca": "LUPI - 02",
-        "id": 19,
-        "obs": "Acompanhar - ADICIONADO COMO PARCEIRO [COFRE]",
-        "cartao": "MASTER CARD 1078 / MASTER CARD 8417",
-        "status": "BAN",
-        "estrutura": "EST 7 - AC [P17] | EST 4 - BK [P25] | EST 7 - PG [P16]",
-        "fornecedor": "Rufino"
-    },
-    {
-        "bm": "Perfumaria Lupi LTDA",
-        "ca": "LUPI - 03",
-        "id": 20,
-        "obs": "Acompanhar - ADICIONADO COMO PARCEIRO [COFRE]",
-        "cartao": "MASTER CARD 9259",
-        "status": "BAN",
-        "estrutura": "EST 7 - AC [P17] | EST 4 - BK [P25] | EST 7 - PG [P16]",
-        "fornecedor": "Rufino"
-    },
-    {
-        "bm": "G. C. Sales Perfumaria",
-        "ca": "Sales - 01",
-        "id": 21,
-        "obs": "",
-        "cartao": "MASTER CARD 0016",
-        "status": "Rodando [REP TCHECA]",
-        "estrutura": "EST 2 - BK [P22] | EST 2 - BK [P21] | EST 2 - BK [P3]",
-        "fornecedor": "Rufino",
-        "restStartTime": null
-    },
-    {
-        "bm": "G. C. Sales Perfumaria",
-        "ca": "Sales - 02",
-        "id": 22,
-        "obs": "",
-        "cartao": "MASTER CARD 9131",
-        "status": "Rodando NUTRA [EUA]",
-        "estrutura": "P32 - JUZELINA | FAHTO-COFRE-01 |EST 2 - BK [P22] | EST 2 - BK [P21] | EST 2 - BK [P3]",
-        "fornecedor": "Rufino"
-    },
-    {
-        "bm": "G. C. Sales Perfumaria",
-        "ca": "Sales - 03",
-        "id": 23,
-        "obs": "",
-        "cartao": "MASTER CARD 5624",
-        "status": "BAN",
-        "estrutura": "P32 - JUZELINA | FAHTO-COFRE-01 |- EST 2 - BK [P22] | EST 2 - BK [P21] | EST 2 - BK [P3]",
-        "fornecedor": "Rufino",
-        "restStartTime": null
-    },
-    {
-        "bm": "BP65- Verificado 08",
-        "ca": "BP65 - CA1",
-        "id": 24,
-        "obs": "SUBIR AQUECIMENTO [ADICIONADO COMO PARCEIRO COFRE]",
-        "cartao": "MASTER CARD 5330",
-        "status": "BAN",
-        "estrutura": "EST 5 - BK [P27] | EST 2 - BK [P22] | EST 2 - PG [P4] | EST 5 - PG [P15]",
-        "fornecedor": "Franklin Suerdes - FS",
-        "restStartTime": "2026-09-11T02:00:00.000Z"
-    },
-    {
-        "bm": "BP66 - Verificado 01",
-        "ca": "BP66 - CA1",
-        "id": 25,
-        "obs": "SUBIR AQUECIMENTO [ADICIONADO COMO PARCEIRO COFRE]",
-        "cartao": "MASTER CARD 7266",
-        "status": "BAN",
-        "estrutura": "EST 7 - AC [P17] | EST 5 - BK [P27] | EST 7 - PG [P16]",
-        "fornecedor": "Franklin Suerdes - FS",
-        "restStartTime": "2026-09-11T02:00:00.000Z"
-    },
-    {
-        "bm": "BP66 - Verificado 05",
-        "ca": "BP66[05] - CA1",
-        "id": 26,
-        "obs": "",
-        "cartao": "MASTER CARD 4357",
-        "status": "BAN",
-        "estrutura": "EST 2 - BK [P3] - EST 4 - PG [P7] -  EST 2 - BK [P22]",
-        "fornecedor": "Franklin Suerdes - FS",
-        "restStartTime": null
-    },
-    {
-        "bm": "BP47 - Verificado 03",
-        "ca": "BP47 - CA1",
-        "id": 27,
-        "obs": "CONTA CAIU POR NADA",
-        "cartao": "MASTER CARD 2606 [PEDIR PARA CANCELAR ESSE CARTÃO]",
-        "status": "BAN",
-        "estrutura": "EST 6 - AC [P14] | EST 4 - PG [P7] | EST 2 - BK [P3] | EST - 2 BK [P22]",
-        "fornecedor": "Franklin Suerdes - FS"
-    },
-    {
-        "bm": "BP47 - Verificado 03",
-        "ca": "BP47 - CA2",
-        "id": 28,
-        "obs": "CONTA CAIU POR NADA",
-        "cartao": "MASTER CARD 8865 [PEDIR PARA CANCELAR ESSE CARTÃO]",
-        "status": "BAN",
-        "estrutura": "EST 6 - PG [P14] | EST 4 - PG [P7] | EST 2 - BK [P3] | EST - 2 BK [P22]",
-        "fornecedor": "Franklin Suerdes - FS"
-    },
-    {
-        "bm": "BP47 - Verificado 03",
-        "ca": "BP47 - CA3",
-        "id": 29,
-        "obs": "CONTA CAIU POR NADA",
-        "cartao": "MASTER CARD 0983 [PEDIR PARA CANCELAR ESSE CARTÃO]",
-        "status": "BAN",
-        "estrutura": "EST 6 - AC [P14] | EST 4 - PG [P7] | EST 2 - BK [P3] | EST - 2 BK [P22]",
-        "fornecedor": "Franklin Suerdes - FS"
-    },
-    {
-        "bm": "Clara Montenegro 2",
-        "ca": "CLARA MONTENEGRO - CA01",
-        "id": 30,
-        "obs": "DEIXAR NO DOLPHIN 24hrs [ADICIONADO COMO PARCEIRO]",
-        "cartao": "AGUARDAR ATÉ AMANHÃ DE NOITE",
-        "status": "BAN",
-        "estrutura": "EST 2 - BK [P3] | EST 2 - BK [P22] | EST 2 - BK [P21]",
-        "fornecedor": "Safe Ads",
-        "restStartTime": "2026-09-11T08:00:00.000Z"
-    },
-    {
-        "bm": "Eduarda Fonseca",
-        "ca": "Não deu para criar conta de anúncio agora",
-        "id": 31,
-        "obs": "DEIXAR NO DOLPHIN 24hrs",
-        "cartao": "ESPERAR LIBERA PARA CRIAR CONTA",
-        "status": "BAN",
-        "estrutura": "EST 5 - BK [P27] | EST 4 - PG [P7] | EST 5 - PG [P15]",
-        "fornecedor": "Safe Ads",
-        "restStartTime": "2026-09-11T08:00:00.000Z"
-    },
-    {
-        "bm": "Eduarda Fonseca - 2",
-        "ca": "Eduarda Fonseca 2 - CA01",
-        "id": 32,
-        "obs": "DEIXAR NO DOLPHIN 24hrs [ADICIONADO COMO PARCEIRO]",
-        "cartao": "AGUARDAR ATÉ AMANHÃ DE NOITE",
-        "status": "BAN",
-        "estrutura": "EST 2 - BK [P22] | EST 5 - PG [P15] | EST 4 - PG [P7]",
-        "fornecedor": "Safe Ads",
-        "restStartTime": "2026-09-11T08:00:00.000Z"
-    },
-    {
-        "bm": "Sky Opportunity Investimentos e Participacoes S/A",
-        "ca": "SKY OPPORTUNITY - CA01",
-        "id": 60,
-        "obs": "",
-        "cartao": "MASTER CARD 1217",
-        "status": "Aquecendo [ACM]",
-        "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
-        "fornecedor": "Rufino",
-        "restStartTime": null
-    },
-    {
-        "bm": "Lavorare Participacoes e Investimentos",
-        "ca": "LAVORARE - CA01",
-        "id": 61,
-        "obs": "",
-        "cartao": "",
-        "status": "BAN",
-        "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
-        "fornecedor": "Rufino",
-        "restStartTime": null
-    },
-    {
-        "bm": "Camilo & Ghisi Ltda",
-        "ca": "CAMILO GHISI - CA01",
-        "id": 62,
-        "obs": "",
-        "cartao": "",
-        "status": "BAN",
-        "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
-        "fornecedor": "Rufino",
-        "restStartTime": null
-    },
-    {
-        "bm": "Evoca Brazil Comercio De Equipamentos Ltda",
-        "ca": "EVOCA BRAZIL - CA01",
-        "id": 63,
-        "obs": "",
-        "cartao": "",
-        "status": "BAN",
-        "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
-        "fornecedor": "CONTIGENCIA SOCIAL",
-        "restStartTime": null
-    },
-    {
-        "bm": "Tauranga Participacoes Ltda",
-        "ca": "Tauranga Principal",
-        "id": 64,
-        "obs": "",
-        "cartao": "MASTER CARD  8026",
-        "status": "Aquecendo [ACM]",
-        "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
-        "fornecedor": "CONTIGENCIA SOCIAL",
-        "restStartTime": null
-    },
-    {
-        "bm": "Npm Participacoes LTDA",
-        "ca": "NPM - CA01",
-        "id": 65,
-        "obs": "",
-        "cartao": "",
-        "status": "BAN",
-        "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
-        "fornecedor": "Rufino",
-        "restStartTime": null
-    },
-    {
-        "bm": "Planen Construcoes LTDA",
-        "ca": "PLANEN - CA01",
-        "id": 66,
-        "obs": "",
-        "cartao": "MASTER CARD 0728",
-        "status": "Aquecendo [ACM]",
-        "estrutura": "P32 - JUZELINA | FAHTO-COFRE-01",
-        "fornecedor": "Rufino",
-        "restStartTime": null
-    },
-    {
-        "bm": "Alterf Importadora De Artigos De Armarinho Ltda",
-        "ca": "ALTERF - CA01",
-        "id": 67,
-        "obs": "",
-        "cartao": "",
-        "status": "BAN",
-        "estrutura": "P32 - JUZELINA | FAHTO-COFRE-01",
-        "fornecedor": "CONTIGENCIA SOCIAL",
-        "restStartTime": null
-    },
-    {
-        "bm": "Lucas Vinicius Da Silva Oliveira",
-        "ca": "LUCAS VINICIUS - CA01",
-        "id": 68,
-        "obs": "Problema na criação.",
-        "cartao": "MASTER CARD 8118",
-        "status": "STAND BY",
-        "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
-        "fornecedor": "CONTIGENCIA SOCIAL",
-        "restStartTime": null
-    },
-    {
-        "bm": "Nildo Bebidas e Alimentos LTDA",
-        "ca": "NILDO - CA01",
-        "id": 69,
-        "obs": "",
-        "cartao": "MASTER CARD 4222",
-        "status": "Aquecendo [ACM]",
-        "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
-        "fornecedor": "CONTIGENCIA SOCIAL",
-        "restStartTime": null
-    },
-    {
-        "bm": "Celso Braga Dos Reis Junior",
-        "ca": "CELSO BRAGA - CA01",
-        "id": 70,
-        "obs": "",
-        "cartao": "MASTER CARD 2661",
-        "status": "Aquecendo [ACM]",
-        "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
-        "fornecedor": "Rufino",
-        "restStartTime": null
-    },
-    {
-        "bm": "Rodolfo Gabriel",
-        "ca": "RODOLFO GABRIEL - CA01",
-        "id": 71,
-        "obs": "",
-        "cartao": "MASTER CARD 4446",
-        "status": "Aquecendo [ACM]",
-        "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
-        "fornecedor": "Rufino",
-        "restStartTime": null
-    },
-    {
-        "bm": "Roberto Botega",
-        "ca": "ROBERTO BOTEGA - CA01",
-        "id": 72,
-        "obs": "",
-        "cartao": "MASTER CARD 5583",
-        "status": "Aquecendo [ACM]",
-        "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
-        "fornecedor": "Rufino",
-        "restStartTime": null
-    },
-    {
-        "bm": "Siena Nathaly Villarreal Condori",
-        "ca": "Apenas BM (Sem CA)",
-        "id": 73,
-        "obs": "Recuperamos a conta.",
-        "cartao": "",
-        "status": "Aquecer [ACM]",
-        "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
-        "fornecedor": "Rufino",
-        "restStartTime": "2026-09-16T17:06:00.000Z"
-    },
-    {
-        "bm": "Bruno E Duardo De Angelis",
-        "ca": "Apenas BM (Sem CA)",
-        "id": 74,
-        "obs": "Recuperamos a conta.",
-        "cartao": "",
-        "status": "Aquecer [ACM]",
-        "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
-        "fornecedor": "Rufino",
-        "restStartTime": "2026-09-16T17:06:00.000Z"
-    },
-    {
-        "bm": "Pauliana Ferreira Souto Dias",
-        "ca": "Apenas BM (Sem CA)",
-        "id": 75,
-        "obs": "Recuperamos a conta.",
-        "cartao": "",
-        "status": "Aquecer [ACM]",
-        "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
-        "fornecedor": "Rufino",
-        "restStartTime": "2026-09-16T17:05:00.000Z"
-    },
-    {
-        "bm": "Christine Joseph",
-        "ca": "CHRISTINE JOSEPH - CA01",
-        "id": 76,
-        "obs": "",
-        "cartao": "MASTER CARD 4454",
-        "status": "Aquecendo [ACM]",
-        "estrutura": "EST 4 -  COFRE",
-        "fornecedor": "FORNECEDOR DESCONHECIDO",
-        "restStartTime": "2026-09-17T04:32:00.000Z"
-    },
-    {
-        "bm": "Christine Joseph 1",
-        "ca": "CHRISTINE JOSEPH[1] - CA01",
-        "id": 77,
-        "obs": "",
-        "cartao": "MASTER CARD 4755",
-        "status": "Aquecendo [ACM]",
-        "estrutura": "EST 4 -  COFRE",
-        "fornecedor": "FORNECEDOR DESCONHECIDO",
-        "restStartTime": "2026-09-17T04:32:00.000Z"
-    },
-    {
-        "bm": "Tatiana Maria da Silva",
-        "ca": "TATIANA SILVA - CA02",
-        "id": 78,
-        "obs": "",
-        "cartao": "",
-        "status": "Aquecer[ACM]",
-        "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
-        "fornecedor": "Rufino",
-        "restStartTime": "2026-09-17T02:31:00.000Z"
-    },
-    {
-        "bm": "Tatiana Maria da Silva",
-        "ca": "TATIANA SILVA - CA03",
-        "id": 79,
-        "obs": "",
-        "cartao": "",
-        "status": "Aquecer[ACM]",
-        "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
-        "fornecedor": "Rufino",
-        "restStartTime": "2026-09-17T02:32:00.000Z"
-    },
-    {
-        "bm": "Fernanda Almeida Mendonca Santos",
-        "ca": "FERNANDA ALMS - 03",
-        "id": 80,
-        "obs": "",
-        "cartao": "",
-        "status": "Aquecer [ACM]",
-        "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
-        "fornecedor": "Rufino",
-        "restStartTime": "2026-09-17T02:36:00.000Z"
-    },
-    {
-        "bm": "Fernanda Almeida Mendonca Santos",
-        "ca": "FERNANDA ALMS - 02",
-        "id": 81,
-        "obs": "",
-        "cartao": "",
-        "status": "Aquecer [ACM]",
-        "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
-        "fornecedor": "Rufino",
-        "restStartTime": "2026-09-17T02:37:00.000Z"
-    },
-    {
-        "bm": "Tamara Veiga",
-        "ca": "TAMARA VEIGA - CA02",
-        "id": 82,
-        "obs": "",
-        "cartao": "",
-        "status": "Aquecer [ACM]",
-        "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
-        "fornecedor": "Safe Ads",
-        "restStartTime": "2026-09-17T02:39:00.000Z"
-    },
-    {
-        "bm": "Tamara Veiga",
-        "ca": "TAMARA VEIGA - CA03",
-        "id": 83,
-        "obs": "",
-        "cartao": "",
-        "status": "Aquecer [ACM]",
-        "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
-        "fornecedor": "Safe Ads",
-        "restStartTime": "2026-09-17T02:40:00.000Z"
-    },
-    {
-        "bm": "Gabriele Macedo da Silva Feijo Rodrigues",
-        "ca": "Gabriele MSFR - 02",
-        "id": 84,
-        "obs": "",
-        "cartao": "",
-        "status": "Aquecer [ACM]",
-        "estrutura": "P32 - JUZELINA | FAHTO-COFRE-01",
-        "fornecedor": "Rufino",
-        "restStartTime": "2026-09-17T02:45:00.000Z"
-    },
-    {
-        "bm": "Gabriele Macedo da Silva Feijo Rodrigues",
-        "ca": "Gabriele MSFR - 03",
-        "id": 85,
-        "obs": "",
-        "cartao": "",
-        "status": "Aquecer[ACM]",
-        "estrutura": "P32 - JUZELINA | FAHTO-COFRE-01",
-        "fornecedor": "Rufino",
-        "restStartTime": "2026-09-17T02:46:00.000Z"
-    },
-    {
-        "bm": "Savannah Collins",
-        "ca": "SAVANNAH COLLINS - CA02",
-        "id": 86,
-        "obs": "",
-        "cartao": "",
-        "status": "Aquecer [ACM]",
-        "estrutura": "P32 - JUZELINA | FAHTO-COFRE-01",
-        "fornecedor": "Safe Ads",
-        "restStartTime": "2026-09-17T02:50:00.000Z"
-    },
-    {
-        "bm": "Savannah Collins",
-        "ca": "SAVANNAH COLLINS - CA03",
-        "id": 87,
-        "obs": "",
-        "cartao": "",
-        "status": "Aquecer [ACM]",
-        "estrutura": "P32 - JUZELINA | FAHTO-COFRE-01",
-        "fornecedor": "Safe Ads",
-        "restStartTime": "2026-09-17T02:50:00.000Z"
-    }
-];
+  {
+    "bm": "Violetta Bellaflora 1",
+    "ca": "[CS] VIOLETTA BELLAFLORA[1] - CA03",
+    "id": 130,
+    "obs": "",
+    "cartao": "MASTER CARD 7407",
+    "status": "Aquecendo [ACM]",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "CONTIGENCIA SOCIAL",
+    "restStartTime": null
+  },
+  {
+    "bm": "Violetta Bellaflora 1",
+    "ca": "[CS] VIOLETTA BELLAFLORA[1] - CA02",
+    "id": 129,
+    "obs": "",
+    "cartao": "MASTER CARD 6554",
+    "status": "Aquecendo [ACM]",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "CONTIGENCIA SOCIAL",
+    "restStartTime": null
+  },
+  {
+    "bm": "Geneva Bellamora 1",
+    "ca": "[CS] GENEVA BELLAMORA [1] - CA03",
+    "id": 128,
+    "obs": "",
+    "cartao": "MASTER CARD 2459",
+    "status": "BAN",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "CONTIGENCIA SOCIAL",
+    "restStartTime": null
+  },
+  {
+    "bm": "Geneva Bellamora 1",
+    "ca": "[CS] GENEVA BELLAMORA [1] - CA02",
+    "id": 127,
+    "obs": "",
+    "cartao": "MASTER CARD 5247",
+    "status": "BAN",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "CONTIGENCIA SOCIAL",
+    "restStartTime": null
+  },
+  {
+    "bm": "Geneva Bellamora",
+    "ca": "[CS] GENEVA BELLAMORA - CA03",
+    "id": 126,
+    "obs": "",
+    "cartao": "MASTER CARD 7703",
+    "status": "Aquecendo [ACM]",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "CONTIGENCIA SOCIAL",
+    "restStartTime": null
+  },
+  {
+    "bm": "Geneva Bellamora",
+    "ca": "[CS] GENEVA BELLAMORA - CA02",
+    "id": 125,
+    "obs": "",
+    "cartao": "",
+    "status": "Aquecendo [ACM]",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "CONTIGENCIA SOCIAL",
+    "restStartTime": null
+  },
+  {
+    "bm": "MARIA DAS GRAÇAS CAMARA",
+    "ca": "[CS] MARIA DAS GRAÇAS CAMARA[1] - CA01",
+    "id": 124,
+    "obs": "",
+    "cartao": "MASTER CARD 8127",
+    "status": "BAN",
+    "estrutura": "P29 - SALOMAO | FAHTO-COFRE[BACKUP] 🇺🇸",
+    "fornecedor": "CONTIGENCIA SOCIAL",
+    "restStartTime": null
+  },
+  {
+    "bm": "MARIA DAS GRAÇAS CÃMARA",
+    "ca": "[CS] MARIA DAS GRAÇAS - CA01",
+    "id": 121,
+    "obs": "",
+    "cartao": "MASTER CARD 3149",
+    "status": "Aquecendo [ACM]",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "CONTIGENCIA SOCIAL",
+    "restStartTime": null
+  },
+  {
+    "bm": "KARINA OLIVEIRA 1",
+    "ca": "[CS] KARINA OLIVEIRA[1] - CA01",
+    "id": 120,
+    "obs": "",
+    "cartao": "MASTER CARD 8777",
+    "status": "Aquecendo [ACM]",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "CONTIGENCIA SOCIAL",
+    "restStartTime": null
+  },
+  {
+    "bm": "KARINA OLIVEIRA",
+    "ca": "[CS] KARINA OLIVEIRA - CA01",
+    "id": 119,
+    "obs": "",
+    "cartao": "MASTER CARD 6053",
+    "status": "BAN",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "CONTIGENCIA SOCIAL",
+    "restStartTime": null
+  },
+  {
+    "bm": "VALENTINA OLIVEIRA 1",
+    "ca": "[CS] VALENTINA OLIVEIRA[1] - CA01",
+    "id": 118,
+    "obs": "",
+    "cartao": "MASTER CARD 9256",
+    "status": "Aquecendo [ACM]",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "CONTIGENCIA SOCIAL",
+    "restStartTime": null
+  },
+  {
+    "bm": "VALENTINA OLIVEIRA",
+    "ca": "[CS] VALENTINA OLIVEIRA - CA01",
+    "id": 117,
+    "obs": "",
+    "cartao": "MASTER CARD 7444",
+    "status": "Aquecendo [ACM]",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "CONTIGENCIA SOCIAL",
+    "restStartTime": null
+  },
+  {
+    "bm": "Siena Nathaly Villarreal Condori",
+    "ca": "[RF] SIENA NATHALY - CA03",
+    "id": 116,
+    "obs": "",
+    "cartao": "MASTER CARD 0607",
+    "status": "BAN",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "Rufino",
+    "restStartTime": "2026-09-28T18:06:26.439Z"
+  },
+  {
+    "bm": "Siena Nathaly Villarreal Condori",
+    "ca": "[RF] SIENA NATHALY - CA02",
+    "id": 115,
+    "obs": "",
+    "cartao": "MASTER CARD 2030",
+    "status": "BAN",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "Rufino",
+    "restStartTime": "2026-09-28T18:06:38.505Z"
+  },
+  {
+    "bm": "Pauliana Ferreira Souto Dias",
+    "ca": "[RF] PAULIANA - CA03",
+    "id": 114,
+    "obs": "",
+    "cartao": "MASTER CARD 0771",
+    "status": "BAN",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "Rufino",
+    "restStartTime": null
+  },
+  {
+    "bm": "Pauliana Ferreira Souto Dias",
+    "ca": "[RF] PAULIANA - CA02",
+    "id": 112,
+    "obs": "",
+    "cartao": "MASTER CARD 1557",
+    "status": "BAN",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "Rufino",
+    "restStartTime": "2026-09-28T21:02:00.000Z"
+  },
+  {
+    "bm": "Wagner Luzia Silva Milagre",
+    "ca": "[CS] WAGNER LUZIA SILVA MILAGRE - CA01",
+    "id": 111,
+    "obs": "",
+    "cartao": "MASTER CARD 7837",
+    "status": "Aquecendo [ACM]",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "CONTIGENCIA SOCIAL",
+    "restStartTime": null
+  },
+  {
+    "bm": "Wagner Luzia Silva Milagre 2",
+    "ca": "[CS] WAGNER LUZIA SILVA MILAGRE [2] - CA01",
+    "id": 110,
+    "obs": "",
+    "cartao": "MASTER CARD 5501",
+    "status": "Aquecendo [ACM]",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "CONTIGENCIA SOCIAL",
+    "restStartTime": null
+  },
+  {
+    "bm": "Domingos Dionizio 2",
+    "ca": "[CS] DOMINGOS DIONIZIO [2] - CA01",
+    "id": 109,
+    "obs": "",
+    "cartao": "MASTER CARD 9878",
+    "status": "Aquecendo [ACM]",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "CONTIGENCIA SOCIAL",
+    "restStartTime": null
+  },
+  {
+    "bm": "Geneva Bellamora 1",
+    "ca": "[CS] GENEVA BELLAMORA [1] - CA01",
+    "id": 108,
+    "obs": "",
+    "cartao": "MASTER CARD 2746",
+    "status": "BAN",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "CONTIGENCIA SOCIAL",
+    "restStartTime": null
+  },
+  {
+    "bm": "Geneva Bellamora",
+    "ca": "[CS] GENEVA BELLAMORA - CA01",
+    "id": 107,
+    "obs": "",
+    "cartao": "MASTER CARD 7060",
+    "status": "Rodando [REP TCHECA]",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "CONTIGENCIA SOCIAL",
+    "restStartTime": null
+  },
+  {
+    "bm": "Violetta Bellaflora 1",
+    "ca": "[CS] VIOLETTA BELLAFLORA[1] - CA01",
+    "id": 106,
+    "obs": "",
+    "cartao": "MASTER CARD 0958",
+    "status": "Rodando [REP TCHECA]",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "CONTIGENCIA SOCIAL",
+    "restStartTime": null
+  },
+  {
+    "bm": "Roberto Botega",
+    "ca": "ROBERTO BOTEGA - CA03",
+    "id": 105,
+    "obs": "",
+    "cartao": "MASTER CARD 0783",
+    "status": "BAN",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "Rufino",
+    "restStartTime": "2026-09-20T22:13:00.000Z"
+  },
+  {
+    "bm": "Roberto Botega",
+    "ca": "ROBERTO BOTEGA - CA02",
+    "id": 104,
+    "obs": "",
+    "cartao": "MASTER CARD  6981",
+    "status": "BAN",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "Rufino",
+    "restStartTime": "2026-09-21T18:23:00.000Z"
+  },
+  {
+    "bm": "Rodolfo Gabriel",
+    "ca": "RODOLFO GABRIEL - CA03",
+    "id": 103,
+    "obs": "",
+    "cartao": "MASTER CARD 5051",
+    "status": "BAN",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "Rufino",
+    "restStartTime": null
+  },
+  {
+    "bm": "Rodolfo Gabriel",
+    "ca": "RODOLFO GABRIEL - CA02",
+    "id": 102,
+    "obs": "",
+    "cartao": "MASTER CARD 6092",
+    "status": "BAN",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "Rufino",
+    "restStartTime": "2026-09-21T15:23:00.000Z"
+  },
+  {
+    "bm": "Celso Braga Dos Reis Junior",
+    "ca": "CELSO BRAGA - CA03",
+    "id": 101,
+    "obs": "",
+    "cartao": "MASTER CARD 0132",
+    "status": "BAN",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "Rufino",
+    "restStartTime": "2026-09-20T22:35:00.000Z"
+  },
+  {
+    "bm": "Celso Braga Dos Reis Junior",
+    "ca": "CELSO BRAGA - CA02",
+    "id": 100,
+    "obs": "",
+    "cartao": "MASTER CARD  0531",
+    "status": "BAN",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "Rufino",
+    "restStartTime": null
+  },
+  {
+    "bm": "Nildo Bebidas e Alimentos LTDA",
+    "ca": "NILDO - CA03",
+    "id": 99,
+    "obs": "",
+    "cartao": "MASTER CARD 4468",
+    "status": "BAN",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "CONTIGENCIA SOCIAL",
+    "restStartTime": "2026-09-21T02:07:00.000Z"
+  },
+  {
+    "bm": "Nildo Bebidas e Alimentos LTDA",
+    "ca": "NILDO - CA02",
+    "id": 98,
+    "obs": "",
+    "cartao": "MASTER CARD 6293",
+    "status": "BAN",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "CONTIGENCIA SOCIAL",
+    "restStartTime": null
+  },
+  {
+    "bm": "Sky Opportunity Investimentos e Participacoes S/A",
+    "ca": "SKY OPPORTUNITY - CA02",
+    "id": 95,
+    "obs": "",
+    "cartao": "MASTER CARD 0490",
+    "status": "BAN",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "Rufino",
+    "restStartTime": "2026-09-21T14:45:00.000Z"
+  },
+  {
+    "bm": "Sky Opportunity Investimentos e Participacoes S/A",
+    "ca": "SKY OPPORTUNITY - CA03",
+    "id": 94,
+    "obs": "",
+    "cartao": "",
+    "status": "BAN",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "Rufino",
+    "restStartTime": "2026-09-17T21:28:00.000Z"
+  },
+  {
+    "bm": "Christine Joseph",
+    "ca": "CHRISTINE JOSEPH - CA02",
+    "id": 93,
+    "obs": "",
+    "cartao": "MASTER CARD 2114",
+    "status": "RODANDO [PINK SALT}",
+    "estrutura": "EST 4 -  COFRE",
+    "fornecedor": "FORNECEDOR DESCONHECIDO",
+    "restStartTime": null
+  },
+  {
+    "bm": "Christine Joseph",
+    "ca": "CHRISTINE JOSEPH - CA03",
+    "id": 92,
+    "obs": "",
+    "cartao": "MASTER CARD 173",
+    "status": "Rodando [ED. REP TCHECA]",
+    "estrutura": "EST 4 -  COFRE",
+    "fornecedor": "FORNECEDOR DESCONHECIDO",
+    "restStartTime": null
+  },
+  {
+    "bm": "Christine Joseph 1",
+    "ca": "CHRISTINE JOSEPH[1] - CA03",
+    "id": 91,
+    "obs": "",
+    "cartao": "",
+    "status": "BAN",
+    "estrutura": "EST 4 -  COFRE",
+    "fornecedor": "FORNECEDOR DESCONHECIDO",
+    "restStartTime": null
+  },
+  {
+    "bm": "Christine Joseph 1",
+    "ca": "CHRISTINE JOSEPH[1] - CA02",
+    "id": 90,
+    "obs": "",
+    "cartao": "",
+    "status": "BAN",
+    "estrutura": "EST 4 -  COFRE",
+    "fornecedor": "FORNECEDOR DESCONHECIDO",
+    "restStartTime": null
+  },
+  {
+    "bm": "Tauranga Participacoes Ltda",
+    "ca": "TAURANGA - CA03",
+    "id": 89,
+    "obs": "Alterou oferta para ED REP TCHECA em 28/09/2026",
+    "cartao": "MASTER CARD 8506",
+    "status": "Rodando [ED REP TCHECA]",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "CONTIGENCIA SOCIAL",
+    "restStartTime": null
+  },
+  {
+    "bm": "Tauranga Participacoes Ltda",
+    "ca": "TAURANGA - CA02",
+    "id": 88,
+    "obs": "",
+    "cartao": "MASTER CARD 0961",
+    "status": "Rodando NUTRA [EUA]",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "CONTIGENCIA SOCIAL",
+    "restStartTime": null
+  },
+  {
+    "bm": "Tatiana Maria da Silva",
+    "ca": "TATIANA SILVA - CA01",
+    "id": 59,
+    "obs": "",
+    "cartao": "MASTER CARD - 7056",
+    "status": "BAN",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "Rufino",
+    "restStartTime": null
+  },
+  {
+    "bm": "Gabriel Henrique Gaidos",
+    "ca": "GABRIEL HNRG - 01",
+    "id": 58,
+    "obs": "Acompanhar aquecimento.",
+    "cartao": "MASTER CARD - 7334",
+    "status": "BAN",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "Rufino",
+    "restStartTime": null
+  },
+  {
+    "bm": "Fernanda Almeida Mendonca Santos",
+    "ca": "FERNANDA ALMS - 01",
+    "id": 57,
+    "obs": "",
+    "cartao": "MASTER CARD 1849",
+    "status": "BAN",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "Rufino",
+    "restStartTime": null
+  },
+  {
+    "bm": "BP66 - Verificado 05",
+    "ca": "BP65[05] - CA03",
+    "id": 56,
+    "obs": "",
+    "cartao": "",
+    "status": "BAN",
+    "estrutura": "EST 2",
+    "fornecedor": "Franklin Suerdes - FS",
+    "restStartTime": "2026-09-11T04:33:00.000Z"
+  },
+  {
+    "bm": "BP66 - Verificado 05",
+    "ca": "BP65[05] - CA02",
+    "id": 55,
+    "obs": "",
+    "cartao": "",
+    "status": "BAN",
+    "estrutura": "EST 4 - COFRE",
+    "fornecedor": "Franklin Suerdes - FS",
+    "restStartTime": "2026-09-11T04:33:00.000Z"
+  },
+  {
+    "bm": "G. C. Sales Perfumaria",
+    "ca": "Sales - 05",
+    "id": 54,
+    "obs": "",
+    "cartao": "MASTER CARD 8024",
+    "status": "Rodando NUTRA [EUA]",
+    "estrutura": "EST 4 - COFRE",
+    "fornecedor": "Rufino",
+    "restStartTime": null
+  },
+  {
+    "bm": "G. C. Sales Perfumaria",
+    "ca": "Sales - 04",
+    "id": 53,
+    "obs": "",
+    "cartao": "MASTER CARD  5476",
+    "status": "Rodando [REP TCHECA]",
+    "estrutura": "EST 4 - COFRE",
+    "fornecedor": "Rufino",
+    "restStartTime": null
+  },
+  {
+    "bm": "Karina Costa",
+    "ca": "Karina Costa - CA01",
+    "id": 52,
+    "obs": "",
+    "cartao": "MASTER CARD 7057",
+    "status": "BAN",
+    "estrutura": "P32 - JUZELINA | FAHTO-COFRE-01",
+    "fornecedor": "CONTIGENCIA SOCIAL",
+    "restStartTime": null
+  },
+  {
+    "bm": "Gabriele Macedo da Silva Feijo Rodrigues",
+    "ca": "Gabriele MSFR - 01",
+    "id": 51,
+    "obs": "",
+    "cartao": "MASTER CARD 2325",
+    "status": "Rodando [ED. REP TCHECA]",
+    "estrutura": "P32 - JUZELINA | FAHTO-COFRE-01",
+    "fornecedor": "Rufino",
+    "restStartTime": null
+  },
+  {
+    "bm": "Debora Regina da Silva dos Reis",
+    "ca": "DEBORA RSR - CA01",
+    "id": 50,
+    "obs": "",
+    "cartao": "MASTER CARD  9479",
+    "status": "BAN",
+    "estrutura": "P32 - JUZELINA | FAHTO-COFRE-01",
+    "fornecedor": "Rufino",
+    "restStartTime": null
+  },
+  {
+    "bm": "Tamara Veiga",
+    "ca": "ct 01",
+    "id": 49,
+    "obs": "Card cancelado",
+    "cartao": "MASTER CARD 5875",
+    "status": "BAN",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "Safe Ads",
+    "restStartTime": null
+  },
+  {
+    "bm": "Savannah Collins",
+    "ca": "CT 01",
+    "id": 48,
+    "obs": "",
+    "cartao": "MASTER CARD 4558",
+    "status": "Rodando [ED. REP TCHECA]",
+    "estrutura": "P32 - JUZELINA | FAHTO-COFRE-01",
+    "fornecedor": "Safe Ads",
+    "restStartTime": null
+  },
+  {
+    "bm": "Suelen Camargo",
+    "ca": "Suelen Camargo",
+    "id": 47,
+    "obs": "",
+    "cartao": "MASTER CARD 0763",
+    "status": "BAN",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "Safe Ads",
+    "restStartTime": null
+  },
+  {
+    "bm": "PAWFFY.COM",
+    "ca": "New Ad Account",
+    "id": 46,
+    "obs": "",
+    "cartao": "MASTER CARD 7371",
+    "status": "Rodando [REP TCHECA]",
+    "estrutura": "EST 4 - COFRE",
+    "fornecedor": "Não sei [BM COMPRADA ANTES DE EU ENTRAR NA FATHO]",
+    "restStartTime": null
+  },
+  {
+    "bm": "Ludmila Souza",
+    "ca": "Sharkwares 1186",
+    "id": 45,
+    "obs": "",
+    "cartao": "VISA 2391",
+    "status": "Rodando [REP TCHECA]",
+    "estrutura": "EST 4 - COFRE",
+    "fornecedor": "Alex - Scalefield"
+  },
+  {
+    "bm": "BM 102",
+    "ca": "CA 04 - BM102",
+    "id": 44,
+    "obs": "",
+    "cartao": "TEM QUE SETAR CARTÃO",
+    "status": "STAND BY",
+    "estrutura": "EST 4 - COFRE",
+    "fornecedor": "Não sei [BM COMPRADA ANTES DE EU ENTRAR NA FATHO]"
+  },
+  {
+    "bm": "BM 102",
+    "ca": "CA 06 - BM 102",
+    "id": 43,
+    "obs": "",
+    "cartao": "TEM QUE SETAR CARTÃO",
+    "status": "STAND BY",
+    "estrutura": "EST 4 - COFRE",
+    "fornecedor": "Não sei [BM COMPRADA ANTES DE EU ENTRAR NA FATHO]"
+  },
+  {
+    "bm": "BM 102",
+    "ca": "CA 07 - BM102",
+    "id": 42,
+    "obs": "",
+    "cartao": "TEM QUE SETAR CARTÃO",
+    "status": "STAND BY",
+    "estrutura": "EST 4 - COFRE",
+    "fornecedor": "Não sei [BM COMPRADA ANTES DE EU ENTRAR NA FATHO]"
+  },
+  {
+    "bm": "BM 102",
+    "ca": "CA 08 - BM102",
+    "id": 41,
+    "obs": "",
+    "cartao": "TEM QUE SETAR CARTÃO",
+    "status": "STAND BY",
+    "estrutura": "EST 4 - COFRE",
+    "fornecedor": "Não sei [BM COMPRADA ANTES DE EU ENTRAR NA FATHO]"
+  },
+  {
+    "bm": "HT 9761",
+    "ca": "HT 965450",
+    "id": 40,
+    "obs": "",
+    "cartao": "MASTER CARD 4662",
+    "status": "BAN",
+    "estrutura": "EST 4 - COFRE",
+    "fornecedor": "Alex - Scalefield",
+    "restStartTime": null
+  },
+  {
+    "bm": "HT 9761",
+    "ca": "HT 918393",
+    "id": 39,
+    "obs": "",
+    "cartao": "MASTER CARD 8132",
+    "status": "BAN",
+    "estrutura": "EST 4 - COFRE",
+    "fornecedor": "Alex - Scalefield",
+    "restStartTime": null
+  },
+  {
+    "bm": "KARINA FERREIRA",
+    "ca": "KARINA FERREIRA - 01",
+    "id": 38,
+    "obs": "BM de cortesia - Cancelar Card.",
+    "cartao": "MASTER CARD  9187",
+    "status": "BAN",
+    "estrutura": "EST 4 - COFRE",
+    "fornecedor": "CONTIGENCIA SOCIAL"
+  },
+  {
+    "bm": "Propriedade de: Cooperativa de Credito de Livre Admissao Buritis - Sicoob Buritis",
+    "ca": "SICOOB BURITIS - 05",
+    "id": 36,
+    "obs": "",
+    "cartao": "MASTER CARD 8626",
+    "status": "BAN",
+    "estrutura": "EST 4 - COFRE",
+    "fornecedor": "Rufino",
+    "restStartTime": null
+  },
+  {
+    "bm": "Propriedade de: Cooperativa de Credito de Livre Admissao Buritis - Sicoob Buritis",
+    "ca": "SICOOB BURITIS - 04",
+    "id": 35,
+    "obs": "",
+    "cartao": "MASTER CARD 1369",
+    "status": "Rodando [REP TCHECA]",
+    "estrutura": "EST 4 - COFRE",
+    "fornecedor": "Rufino",
+    "restStartTime": null
+  },
+  {
+    "bm": "Cooperativa de Credito de Livre Admissao Buritis - Sicoob Buritis",
+    "ca": "SICOOB BURITIS - 03",
+    "id": 34,
+    "obs": "",
+    "cartao": "MASTER CARD 1599",
+    "status": "BAN",
+    "estrutura": "EST 4 - COFRE",
+    "fornecedor": "Rufino",
+    "restStartTime": null
+  },
+  {
+    "bm": "HT 9761",
+    "ca": "HT 278746",
+    "id": 33,
+    "obs": "",
+    "cartao": "MASTER CARD 1126",
+    "status": "BAN",
+    "estrutura": "EST 4 - COFRE",
+    "fornecedor": "Alex - Scalefield",
+    "restStartTime": null
+  },
+  {
+    "bm": "pawffy.com",
+    "ca": "3",
+    "id": 1,
+    "obs": "",
+    "cartao": "VISA 4379",
+    "status": "Caiu",
+    "estrutura": "EST 1",
+    "fornecedor": "Não sei [BM COMPRADA ANTES DE EU ENTRAR NA FATHO]"
+  },
+  {
+    "bm": "Adriana Costa",
+    "ca": "Adriana Costa - 01",
+    "id": 2,
+    "obs": "Iniciou 04/08/26(Sexta)",
+    "cartao": "VISA 7446",
+    "status": "Rodando [REP TCHECA]",
+    "estrutura": "EST 7",
+    "fornecedor": "CONTIGENCIA SOCIAL"
+  },
+  {
+    "bm": "Elisa Pereira",
+    "ca": "Elisa Pereira - 01",
+    "id": 3,
+    "obs": "",
+    "cartao": "VISA 9234",
+    "status": "BAN",
+    "estrutura": "EST 5",
+    "fornecedor": "CONTIGENCIA SOCIAL"
+  },
+  {
+    "bm": "CLAUDIA MARTINS",
+    "ca": "CLAUDIA MARTINS - 02",
+    "id": 4,
+    "obs": "",
+    "cartao": "MASTER CARD 9527",
+    "status": "Caiu",
+    "estrutura": "EST 2",
+    "fornecedor": "CONTIGENCIA SOCIAL"
+  },
+  {
+    "bm": "CLAUDIA MARTINS",
+    "ca": "CLAUDIA MARTINS - 03",
+    "id": 5,
+    "obs": "",
+    "cartao": "MASTER CARD 2987",
+    "status": "Rodando [ED. REP TCHECA]",
+    "estrutura": "EST 2",
+    "fornecedor": "CONTIGENCIA SOCIAL",
+    "restStartTime": null
+  },
+  {
+    "bm": "Adriana Costa",
+    "ca": "Adriana Costa - 02",
+    "id": 6,
+    "obs": "",
+    "cartao": "MASTER CARD 9714",
+    "status": "Caiu",
+    "estrutura": "EST 7",
+    "fornecedor": "CONTIGENCIA SOCIAL"
+  },
+  {
+    "bm": "Adriana Costa",
+    "ca": "Adriana Costa - 03",
+    "id": 7,
+    "obs": "Caiu",
+    "cartao": "MASTER CARD 0967",
+    "status": "BAN",
+    "estrutura": "EST 7",
+    "fornecedor": "CONTIGENCIA SOCIAL"
+  },
+  {
+    "bm": "Elisa Pereira",
+    "ca": "Elisa Pereira - 02",
+    "id": 8,
+    "obs": "",
+    "cartao": "MASTER CARD 7520",
+    "status": "Rodando [ED. REP TCHECA]",
+    "estrutura": "EST 5",
+    "fornecedor": "CONTIGENCIA SOCIAL",
+    "restStartTime": null
+  },
+  {
+    "bm": "Elisa Pereira",
+    "ca": "Elisa Pereira - 03",
+    "id": 9,
+    "obs": "",
+    "cartao": "MASTER CARD 3239",
+    "status": "BAN",
+    "estrutura": "EST 5",
+    "fornecedor": "CONTIGENCIA SOCIAL"
+  },
+  {
+    "bm": "FAHTO - Bare Pantry Business Manager",
+    "ca": "C01 - FAHTO - UCL Social Media",
+    "id": 10,
+    "obs": "",
+    "cartao": "MASTER CARD 8310",
+    "status": "STAND BY",
+    "estrutura": "EST 4",
+    "fornecedor": "CONTA ALUGADA - PROSCALE"
+  },
+  {
+    "bm": "FAHTO - Bare Pantry Business Manager",
+    "ca": "01 - FAHTO - Rose Dallas1",
+    "id": 11,
+    "obs": "",
+    "cartao": "",
+    "status": "STAND BY",
+    "estrutura": "EST 4",
+    "fornecedor": "CONTA ALUGADA - PROSCALE"
+  },
+  {
+    "bm": "FAHTO - Bare Pantry Business Manager",
+    "ca": "C01 - FAHTO - Grupo Medina Leilões",
+    "id": 12,
+    "obs": "FAZER VERIFICAÇÃO C/CAIO",
+    "cartao": "",
+    "status": "STAND BY",
+    "estrutura": "EST 4",
+    "fornecedor": "CONTA ALUGADA - PROSCALE"
+  },
+  {
+    "bm": "BM 102",
+    "ca": "CA 09 BM102",
+    "id": 13,
+    "obs": "Offer ED PL parou",
+    "cartao": "MASTERCARD 4353",
+    "status": "STAND BY",
+    "estrutura": "EST 2 - AC",
+    "fornecedor": "Não sei [BM COMPRADA ANTES DE EU ENTRAR NA FATHO]"
+  },
+  {
+    "bm": "BM 102",
+    "ca": "CA 10 BM102",
+    "id": 14,
+    "obs": "Offer ED PL parou",
+    "cartao": "MASTER CARD 9690",
+    "status": "STAND BY",
+    "estrutura": "EST 2 - AC",
+    "fornecedor": "Não sei [BM COMPRADA ANTES DE EU ENTRAR NA FATHO]"
+  },
+  {
+    "bm": "Cooperativa de Credito de Livre Admissao Buritis - Sicoob Buritis",
+    "ca": "SICOOB BURITIS - 01",
+    "id": 15,
+    "obs": "CONTA LIVRE  PARA RODAR ALGO",
+    "cartao": "MASTER CARD 3818",
+    "status": "BAN",
+    "estrutura": "EST 4 -  COFRE",
+    "fornecedor": "Rufino",
+    "restStartTime": null
+  },
+  {
+    "bm": "Cooperativa de Credito de Livre Admissao Buritis - Sicoob Buritis",
+    "ca": "SICOOB BURITIS - 02",
+    "id": 16,
+    "obs": "",
+    "cartao": "MASTER CARD 2184",
+    "status": "BAN",
+    "estrutura": "EST 4 - COFRE",
+    "fornecedor": "Rufino",
+    "restStartTime": null
+  },
+  {
+    "bm": "Perfumaria Lupi LTDA",
+    "ca": "LUPI - 01",
+    "id": 18,
+    "obs": "Iniciou 04/08/26(Sexta)",
+    "cartao": "MASTER CARD 4396",
+    "status": "BAN",
+    "estrutura": "EST 7 - AC [P17] | EST 4 - BK [P25] | EST 7 - PG [P16]",
+    "fornecedor": "Rufino"
+  },
+  {
+    "bm": "Perfumaria Lupi LTDA",
+    "ca": "LUPI - 02",
+    "id": 19,
+    "obs": "Acompanhar - ADICIONADO COMO PARCEIRO [COFRE]",
+    "cartao": "MASTER CARD 1078 / MASTER CARD 8417",
+    "status": "BAN",
+    "estrutura": "EST 7 - AC [P17] | EST 4 - BK [P25] | EST 7 - PG [P16]",
+    "fornecedor": "Rufino"
+  },
+  {
+    "bm": "Perfumaria Lupi LTDA",
+    "ca": "LUPI - 03",
+    "id": 20,
+    "obs": "Acompanhar - ADICIONADO COMO PARCEIRO [COFRE]",
+    "cartao": "MASTER CARD 9259",
+    "status": "BAN",
+    "estrutura": "EST 7 - AC [P17] | EST 4 - BK [P25] | EST 7 - PG [P16]",
+    "fornecedor": "Rufino"
+  },
+  {
+    "bm": "G. C. Sales Perfumaria",
+    "ca": "Sales - 01",
+    "id": 21,
+    "obs": "",
+    "cartao": "MASTER CARD 0016",
+    "status": "Rodando [REP TCHECA]",
+    "estrutura": "EST 2 - BK [P22] | EST 2 - BK [P21] | EST 2 - BK [P3]",
+    "fornecedor": "Rufino",
+    "restStartTime": null
+  },
+  {
+    "bm": "G. C. Sales Perfumaria",
+    "ca": "Sales - 02",
+    "id": 22,
+    "obs": "",
+    "cartao": "MASTER CARD 9131",
+    "status": "Rodando NUTRA [EUA]",
+    "estrutura": "P32 - JUZELINA | FAHTO-COFRE-01 |EST 2 - BK [P22] | EST 2 - BK [P21] | EST 2 - BK [P3]",
+    "fornecedor": "Rufino"
+  },
+  {
+    "bm": "G. C. Sales Perfumaria",
+    "ca": "Sales - 03",
+    "id": 23,
+    "obs": "",
+    "cartao": "MASTER CARD 5624",
+    "status": "BAN",
+    "estrutura": "P32 - JUZELINA | FAHTO-COFRE-01 |- EST 2 - BK [P22] | EST 2 - BK [P21] | EST 2 - BK [P3]",
+    "fornecedor": "Rufino",
+    "restStartTime": null
+  },
+  {
+    "bm": "BP65- Verificado 08",
+    "ca": "BP65 - CA1",
+    "id": 24,
+    "obs": "SUBIR AQUECIMENTO [ADICIONADO COMO PARCEIRO COFRE]",
+    "cartao": "MASTER CARD 5330",
+    "status": "BAN",
+    "estrutura": "EST 5 - BK [P27] | EST 2 - BK [P22] | EST 2 - PG [P4] | EST 5 - PG [P15]",
+    "fornecedor": "Franklin Suerdes - FS",
+    "restStartTime": "2026-09-11T02:00:00.000Z"
+  },
+  {
+    "bm": "BP66 - Verificado 01",
+    "ca": "BP66 - CA1",
+    "id": 25,
+    "obs": "SUBIR AQUECIMENTO [ADICIONADO COMO PARCEIRO COFRE]",
+    "cartao": "MASTER CARD 7266",
+    "status": "BAN",
+    "estrutura": "EST 7 - AC [P17] | EST 5 - BK [P27] | EST 7 - PG [P16]",
+    "fornecedor": "Franklin Suerdes - FS",
+    "restStartTime": "2026-09-11T02:00:00.000Z"
+  },
+  {
+    "bm": "BP66 - Verificado 05",
+    "ca": "BP66[05] - CA1",
+    "id": 26,
+    "obs": "",
+    "cartao": "MASTER CARD 4357",
+    "status": "BAN",
+    "estrutura": "EST 2 - BK [P3] - EST 4 - PG [P7] -  EST 2 - BK [P22]",
+    "fornecedor": "Franklin Suerdes - FS",
+    "restStartTime": null
+  },
+  {
+    "bm": "BP47 - Verificado 03",
+    "ca": "BP47 - CA1",
+    "id": 27,
+    "obs": "CONTA CAIU POR NADA",
+    "cartao": "MASTER CARD 2606 [PEDIR PARA CANCELAR ESSE CARTÃO]",
+    "status": "BAN",
+    "estrutura": "EST 6 - AC [P14] | EST 4 - PG [P7] | EST 2 - BK [P3] | EST - 2 BK [P22]",
+    "fornecedor": "Franklin Suerdes - FS"
+  },
+  {
+    "bm": "BP47 - Verificado 03",
+    "ca": "BP47 - CA2",
+    "id": 28,
+    "obs": "CONTA CAIU POR NADA",
+    "cartao": "MASTER CARD 8865 [PEDIR PARA CANCELAR ESSE CARTÃO]",
+    "status": "BAN",
+    "estrutura": "EST 6 - PG [P14] | EST 4 - PG [P7] | EST 2 - BK [P3] | EST - 2 BK [P22]",
+    "fornecedor": "Franklin Suerdes - FS"
+  },
+  {
+    "bm": "BP47 - Verificado 03",
+    "ca": "BP47 - CA3",
+    "id": 29,
+    "obs": "CONTA CAIU POR NADA",
+    "cartao": "MASTER CARD 0983 [PEDIR PARA CANCELAR ESSE CARTÃO]",
+    "status": "BAN",
+    "estrutura": "EST 6 - AC [P14] | EST 4 - PG [P7] | EST 2 - BK [P3] | EST - 2 BK [P22]",
+    "fornecedor": "Franklin Suerdes - FS"
+  },
+  {
+    "bm": "Clara Montenegro 2",
+    "ca": "CLARA MONTENEGRO - CA01",
+    "id": 30,
+    "obs": "DEIXAR NO DOLPHIN 24hrs [ADICIONADO COMO PARCEIRO]",
+    "cartao": "AGUARDAR ATÉ AMANHÃ DE NOITE",
+    "status": "BAN",
+    "estrutura": "EST 2 - BK [P3] | EST 2 - BK [P22] | EST 2 - BK [P21]",
+    "fornecedor": "Safe Ads",
+    "restStartTime": "2026-09-11T08:00:00.000Z"
+  },
+  {
+    "bm": "Eduarda Fonseca",
+    "ca": "Não deu para criar conta de anúncio agora",
+    "id": 31,
+    "obs": "DEIXAR NO DOLPHIN 24hrs",
+    "cartao": "ESPERAR LIBERA PARA CRIAR CONTA",
+    "status": "BAN",
+    "estrutura": "EST 5 - BK [P27] | EST 4 - PG [P7] | EST 5 - PG [P15]",
+    "fornecedor": "Safe Ads",
+    "restStartTime": "2026-09-11T08:00:00.000Z"
+  },
+  {
+    "bm": "Eduarda Fonseca - 2",
+    "ca": "Eduarda Fonseca 2 - CA01",
+    "id": 32,
+    "obs": "DEIXAR NO DOLPHIN 24hrs [ADICIONADO COMO PARCEIRO]",
+    "cartao": "AGUARDAR ATÉ AMANHÃ DE NOITE",
+    "status": "BAN",
+    "estrutura": "EST 2 - BK [P22] | EST 5 - PG [P15] | EST 4 - PG [P7]",
+    "fornecedor": "Safe Ads",
+    "restStartTime": "2026-09-11T08:00:00.000Z"
+  },
+  {
+    "bm": "Sky Opportunity Investimentos e Participacoes S/A",
+    "ca": "SKY OPPORTUNITY - CA01",
+    "id": 60,
+    "obs": "",
+    "cartao": "MASTER CARD 1217",
+    "status": "Rodando [REP TCHECA]",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "Rufino",
+    "restStartTime": null
+  },
+  {
+    "bm": "Lavorare Participacoes e Investimentos",
+    "ca": "LAVORARE - CA01",
+    "id": 61,
+    "obs": "",
+    "cartao": "",
+    "status": "BAN",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "Rufino",
+    "restStartTime": null
+  },
+  {
+    "bm": "Camilo & Ghisi Ltda",
+    "ca": "CAMILO GHISI - CA01",
+    "id": 62,
+    "obs": "",
+    "cartao": "",
+    "status": "BAN",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "Rufino",
+    "restStartTime": null
+  },
+  {
+    "bm": "Evoca Brazil Comercio De Equipamentos Ltda",
+    "ca": "EVOCA BRAZIL - CA01",
+    "id": 63,
+    "obs": "",
+    "cartao": "",
+    "status": "BAN",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "CONTIGENCIA SOCIAL",
+    "restStartTime": null
+  },
+  {
+    "bm": "Tauranga Participacoes Ltda",
+    "ca": "Tauranga Principal",
+    "id": 64,
+    "obs": "",
+    "cartao": "MASTER CARD  8026",
+    "status": "Rodando NUTRA [EUA]",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "CONTIGENCIA SOCIAL",
+    "restStartTime": null
+  },
+  {
+    "bm": "Npm Participacoes LTDA",
+    "ca": "NPM - CA01",
+    "id": 65,
+    "obs": "",
+    "cartao": "",
+    "status": "BAN",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "Rufino",
+    "restStartTime": null
+  },
+  {
+    "bm": "Alterf Importadora De Artigos De Armarinho Ltda",
+    "ca": "ALTERF - CA01",
+    "id": 67,
+    "obs": "",
+    "cartao": "",
+    "status": "BAN",
+    "estrutura": "P32 - JUZELINA | FAHTO-COFRE-01",
+    "fornecedor": "CONTIGENCIA SOCIAL",
+    "restStartTime": null
+  },
+  {
+    "bm": "Lucas Vinicius Da Silva Oliveira",
+    "ca": "LUCAS VINICIUS - CA01",
+    "id": 68,
+    "obs": "Problema na criação.",
+    "cartao": "MASTER CARD 8118",
+    "status": "STAND BY",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "CONTIGENCIA SOCIAL",
+    "restStartTime": null
+  },
+  {
+    "bm": "Nildo Bebidas e Alimentos LTDA",
+    "ca": "NILDO - CA01",
+    "id": 69,
+    "obs": "Card cancelado",
+    "cartao": "MASTER CARD 4222",
+    "status": "BAN",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "CONTIGENCIA SOCIAL",
+    "restStartTime": null
+  },
+  {
+    "bm": "Celso Braga Dos Reis Junior",
+    "ca": "CELSO BRAGA - CA01",
+    "id": 70,
+    "obs": "",
+    "cartao": "MASTER CARD 2661",
+    "status": "BAN",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "Rufino",
+    "restStartTime": null
+  },
+  {
+    "bm": "Rodolfo Gabriel",
+    "ca": "RODOLFO GABRIEL - CA01",
+    "id": 71,
+    "obs": "",
+    "cartao": "MASTER CARD 4446",
+    "status": "BAN",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "Rufino",
+    "restStartTime": null
+  },
+  {
+    "bm": "Siena Nathaly Villarreal Condori",
+    "ca": "Siena ACC1",
+    "id": 73,
+    "obs": "",
+    "cartao": "MASTER CARD 5793",
+    "status": "BAN",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "Rufino",
+    "restStartTime": null
+  },
+  {
+    "bm": "Bruno E Duardo De Angelis",
+    "ca": "Bruno ACC1",
+    "id": 74,
+    "obs": "",
+    "cartao": "MASTER CARD 1886",
+    "status": "BAN",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "Rufino",
+    "restStartTime": "2026-09-18T00:24:00.000Z"
+  },
+  {
+    "bm": "Pauliana Ferreira Souto Dias",
+    "ca": "Pauliane ACC1",
+    "id": 75,
+    "obs": "",
+    "cartao": "MASTER CARD 9236",
+    "status": "BAN",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "Rufino",
+    "restStartTime": "2026-09-25T07:03:00.000Z"
+  },
+  {
+    "bm": "Christine Joseph",
+    "ca": "CHRISTINE JOSEPH - CA01",
+    "id": 76,
+    "obs": "",
+    "cartao": "MASTER CARD 4454",
+    "status": "Rodando [ED ROM]",
+    "estrutura": "EST 4 -  COFRE",
+    "fornecedor": "FORNECEDOR DESCONHECIDO",
+    "restStartTime": null
+  },
+  {
+    "bm": "Christine Joseph 1",
+    "ca": "CHRISTINE JOSEPH[1] - CA01",
+    "id": 77,
+    "obs": "",
+    "cartao": "MASTER CARD 4755",
+    "status": "BAN",
+    "estrutura": "EST 4 -  COFRE",
+    "fornecedor": "FORNECEDOR DESCONHECIDO",
+    "restStartTime": null
+  },
+  {
+    "bm": "Tatiana Maria da Silva",
+    "ca": "TATIANA SILVA - CA02",
+    "id": 78,
+    "obs": "",
+    "cartao": "",
+    "status": "BAN",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "Rufino",
+    "restStartTime": "2026-09-17T05:31:00.000Z"
+  },
+  {
+    "bm": "Tatiana Maria da Silva",
+    "ca": "TATIANA SILVA - CA03",
+    "id": 79,
+    "obs": "",
+    "cartao": "",
+    "status": "BAN",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "Rufino",
+    "restStartTime": "2026-09-17T05:32:00.000Z"
+  },
+  {
+    "bm": "Fernanda Almeida Mendonca Santos",
+    "ca": "FERNANDA ALMS - 03",
+    "id": 80,
+    "obs": "",
+    "cartao": "",
+    "status": "BAN",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "Rufino",
+    "restStartTime": "2026-09-17T05:36:00.000Z"
+  },
+  {
+    "bm": "Fernanda Almeida Mendonca Santos",
+    "ca": "FERNANDA ALMS - 02",
+    "id": 81,
+    "obs": "",
+    "cartao": "",
+    "status": "BAN",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "Rufino",
+    "restStartTime": "2026-09-17T05:37:00.000Z"
+  },
+  {
+    "bm": "Tamara Veiga",
+    "ca": "TAMARA VEIGA - CA02",
+    "id": 82,
+    "obs": "",
+    "cartao": "MASTER CARD 3422",
+    "status": "BAN",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "Safe Ads",
+    "restStartTime": null
+  },
+  {
+    "bm": "Tamara Veiga",
+    "ca": "TAMARA VEIGA - CA03",
+    "id": 83,
+    "obs": "",
+    "cartao": "MASTER CARD 2877",
+    "status": "BAN",
+    "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+    "fornecedor": "Safe Ads",
+    "restStartTime": null
+  },
+  {
+    "bm": "Gabriele Macedo da Silva Feijo Rodrigues",
+    "ca": "Gabriele MSFR - 02",
+    "id": 84,
+    "obs": "",
+    "cartao": "MASTER CARD 4142",
+    "status": "⚡ Aquecida & Livre (Pronta)",
+    "estrutura": "P32 - JUZELINA | FAHTO-COFRE-01",
+    "fornecedor": "Rufino",
+    "restStartTime": null
+  },
+  {
+    "bm": "Gabriele Macedo da Silva Feijo Rodrigues",
+    "ca": "Gabriele MSFR - 03",
+    "id": 85,
+    "obs": "",
+    "cartao": "MASTER CARD 3672",
+    "status": "⚡ Aquecida & Livre (Pronta)",
+    "estrutura": "P32 - JUZELINA | FAHTO-COFRE-01",
+    "fornecedor": "Rufino",
+    "restStartTime": null
+  },
+  {
+    "bm": "Savannah Collins",
+    "ca": "SAVANNAH COLLINS - CA02",
+    "id": 86,
+    "obs": "",
+    "cartao": "MASTER CARD 6486",
+    "status": "BAN",
+    "estrutura": "P32 - JUZELINA | FAHTO-COFRE-01",
+    "fornecedor": "Safe Ads",
+    "restStartTime": null
+  },
+  {
+    "bm": "Savannah Collins",
+    "ca": "SAVANNAH COLLINS - CA03",
+    "id": 87,
+    "obs": "",
+    "cartao": "MASTER CARD 8763",
+    "status": "Aquecendo [ACM]",
+    "estrutura": "P32 - JUZELINA | FAHTO-COFRE-01",
+    "fornecedor": "Safe Ads",
+    "restStartTime": null
+  }
+]];
 
     function getProfileBms(p) {
       if (!p) return [];
@@ -4601,52 +4997,20 @@
     let bmsData = loadLocalData(LOCAL_STORAGE_KEY_BMS) || [...INITIAL_BMS];
     let profilesData = loadLocalData(LOCAL_STORAGE_KEY_PROFILES) || [...INITIAL_PROFILES];
 
-    // SANITIZADOR E FIREWALL DE INICIALIZAÇÃO COM MERGE AUTOMÁTICO:
-    // Garante que a base oficial atualizada nunca falte no estado inicial e NUNCA duplique
-    if (!Array.isArray(bmsData) || bmsData.length < 70) {
-      console.warn("⚠️ Cache local obsoleto de BMs detectado (< 70). Restaurando base completa oficial...");
+    // SANITIZADOR E FIREWALL DE INICIALIZAÇÃO:
+    // Se não houver dados no cache local (ou cache vazio), carrega o snapshot oficial
+    if (!Array.isArray(bmsData) || bmsData.length === 0) {
+      console.warn("⚠️ Cache local vazio de BMs detectado. Carregando base oficial...");
       bmsData = JSON.parse(JSON.stringify(INITIAL_BMS));
-      saveLocalData(LOCAL_STORAGE_KEY_BMS, bmsData);
+      saveLocalData(LOCAL_STORAGE_KEY_BMS, bmsData, false);
     } else {
-      const initialIds = new Set(bmsData.map(b => b.id));
-      const existingBmCa = new Set(
-        bmsData
-          .filter(b => b && b.bm && b.ca && b.ca.trim() !== 'Apenas BM (Sem CA)')
-          .map(b => `${b.bm.trim().toLowerCase()}:::${b.ca.trim().toLowerCase()}`)
-      );
-      let addedAny = false;
-      INITIAL_BMS.forEach(b => {
-        const bmCaKey = (b.bm && b.ca && b.ca.trim() !== 'Apenas BM (Sem CA)')
-          ? `${b.bm.trim().toLowerCase()}:::${b.ca.trim().toLowerCase()}`
-          : null;
-
-        if (!initialIds.has(b.id) && (!bmCaKey || !existingBmCa.has(bmCaKey))) {
-          bmsData.push(b);
-          initialIds.add(b.id);
-          if (bmCaKey) existingBmCa.add(bmCaKey);
-          addedAny = true;
-        }
-      });
       bmsData = deduplicateAccountsList(bmsData);
-      if (addedAny || bmsData.length !== loadLocalData(LOCAL_STORAGE_KEY_BMS)?.length) {
-        saveLocalData(LOCAL_STORAGE_KEY_BMS, bmsData);
-      }
     }
 
-    if (!Array.isArray(profilesData) || profilesData.length < 25) {
-      console.warn("⚠️ Cache local obsoleto de perfis detectado (< 25). Restaurando base completa oficial...");
+    if (!Array.isArray(profilesData) || profilesData.length === 0) {
+      console.warn("⚠️ Cache local vazio de perfis detectado. Carregando base oficial...");
       profilesData = JSON.parse(JSON.stringify(INITIAL_PROFILES));
-      saveLocalData(LOCAL_STORAGE_KEY_PROFILES, profilesData);
-    } else {
-      const profIds = new Set(profilesData.map(p => p.id));
-      let addedProf = false;
-      INITIAL_PROFILES.forEach(p => {
-        if (!profIds.has(p.id)) {
-          profilesData.push(p);
-          addedProf = true;
-        }
-      });
-      if (addedProf) saveLocalData(LOCAL_STORAGE_KEY_PROFILES, profilesData);
+      saveLocalData(LOCAL_STORAGE_KEY_PROFILES, profilesData, false);
     }
 
     // Normalize profilesData so bms array is present for all profiles
