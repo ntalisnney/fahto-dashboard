@@ -5303,7 +5303,90 @@
     }
     let accessData = loadLocalData(LOCAL_STORAGE_KEY_ACCESS) || [...INITIAL_ACCESS];
     let bmOverrides = loadLocalData(LOCAL_STORAGE_KEY_BM_OVERRIDES) || {};
-    let deletedAccountsData = loadLocalData(LOCAL_STORAGE_KEY_DELETED_ACCOUNTS) || [];
+
+    const HISTORICAL_DELETED_ACCOUNTS = [
+      {
+        "bm": "Planen Construcoes LTDA",
+        "ca": "PLANEN - CA01",
+        "id": 66,
+        "obs": "",
+        "cartao": "MASTER CARD 0728",
+        "status": "Aquecendo [ACM]",
+        "estrutura": "P32 - JUZELINA | FAHTO-COFRE-01",
+        "fornecedor": "Rufino",
+        "restStartTime": null,
+        "deletedAt": "2026-09-28T20:25:00.000Z"
+      },
+      {
+        "bm": "Roberto Botega",
+        "ca": "ROBERTO BOTEGA - CA01",
+        "id": 72,
+        "obs": "",
+        "cartao": "MASTER CARD 5583",
+        "status": "Aquecendo [ACM]",
+        "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+        "fornecedor": "Rufino",
+        "restStartTime": null,
+        "deletedAt": "2026-09-28T20:25:00.000Z"
+      },
+      {
+        "bm": "Siena Nathaly Villarreal Condori",
+        "ca": "Apenas BM (Sem CA)",
+        "id": 73,
+        "obs": "Recuperamos a conta.",
+        "cartao": "",
+        "status": "Aquecer [ACM]",
+        "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+        "fornecedor": "Rufino",
+        "restStartTime": "2026-09-16T17:06:00.000Z",
+        "deletedAt": "2026-09-28T20:25:00.000Z"
+      },
+      {
+        "bm": "Bruno E Duardo De Angelis",
+        "ca": "Apenas BM (Sem CA)",
+        "id": 74,
+        "obs": "Recuperamos a conta.",
+        "cartao": "",
+        "status": "Aquecer [ACM]",
+        "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+        "fornecedor": "Rufino",
+        "restStartTime": "2026-09-16T17:06:00.000Z",
+        "deletedAt": "2026-09-28T20:25:00.000Z"
+      },
+      {
+        "bm": "Pauliana Ferreira Souto Dias",
+        "ca": "Apenas BM (Sem CA)",
+        "id": 75,
+        "obs": "Recuperamos a conta.",
+        "cartao": "",
+        "status": "Aquecer [ACM]",
+        "estrutura": "P31 - JOAQUIM | FAHTO-COFRE-02",
+        "fornecedor": "Rufino",
+        "restStartTime": "2026-09-16T17:05:00.000Z",
+        "deletedAt": "2026-09-28T20:25:00.000Z"
+      }
+    ];
+
+    let deletedAccountsData = loadLocalData(LOCAL_STORAGE_KEY_DELETED_ACCOUNTS);
+    if (!Array.isArray(deletedAccountsData) || deletedAccountsData.length === 0) {
+      deletedAccountsData = [...HISTORICAL_DELETED_ACCOUNTS];
+      saveLocalData(LOCAL_STORAGE_KEY_DELETED_ACCOUNTS, deletedAccountsData, false);
+    } else {
+      // Mescla contas históricas se ainda não estiverem na lixeira nem em bmsData
+      const curDelIds = new Set(deletedAccountsData.map(d => d.id));
+      const curBmIds = new Set((bmsData || []).map(b => b.id));
+      let addedHistorical = false;
+      HISTORICAL_DELETED_ACCOUNTS.forEach(h => {
+        if (!curDelIds.has(h.id) && !curBmIds.has(h.id)) {
+          deletedAccountsData.push(h);
+          curDelIds.add(h.id);
+          addedHistorical = true;
+        }
+      });
+      if (addedHistorical) {
+        saveLocalData(LOCAL_STORAGE_KEY_DELETED_ACCOUNTS, deletedAccountsData, false);
+      }
+    }
 
     function getBmOverride(bmName) {
       if (!bmName || typeof bmName !== 'string') return {};
