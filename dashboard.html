@@ -2060,6 +2060,33 @@
     <div class="tab-pane active" id="tab-overview">
       <!-- KPI METRICS -->
       <div class="kpi-grid">
+        <div class="kpi-card clickable" onclick="switchOpsTab('RODANDO')" title="Ver todas as contas ativas e operacionais da operação" style="border-color: rgba(16, 185, 129, 0.45); background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, var(--bg-surface-elevated) 100%);">
+          <div class="kpi-top">
+            <span class="kpi-title" style="color: #34d399; font-weight: 700;">Total de Contas Ativas</span>
+            <div class="kpi-icon" style="background: rgba(16, 185, 129, 0.22); color: #34d399; box-shadow: 0 0 16px rgba(16, 185, 129, 0.35);">
+              <i data-lucide="shield-check" style="width:20px; height:20px;"></i>
+            </div>
+          </div>
+          <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:4px; flex-wrap:wrap; gap:6px;">
+            <div style="display:flex; align-items:baseline; gap:8px;">
+              <span class="kpi-value" id="kpiTotalActiveCAs" style="color: #34d399; margin-bottom:0;">35</span>
+              <span style="font-size:0.95rem; font-weight:700; color:#34d399;">Ativas</span>
+            </div>
+            <span class="badge" id="kpiTotalActivePctBadge" style="background:rgba(16, 185, 129, 0.2); color:#34d399; border:1px solid rgba(16, 185, 129, 0.4); font-size:0.75rem; font-weight:800; padding:2px 8px; border-radius:6px;">
+              Operação Ativa
+            </span>
+          </div>
+          <div class="kpi-meta" style="display:flex; flex-direction:column; align-items:flex-start; gap:4px; width:100%; border-top:1px solid rgba(255,255,255,0.06); padding-top:6px; margin-top:4px;">
+            <div style="font-size: 0.72rem; color: var(--text-muted); display:flex; flex-wrap:wrap; gap:4px; align-items:center;">
+              <span style="color:#10b981; font-weight:600;"><span id="kpiActiveSubRunning">0</span> rodando</span> •
+              <span style="color:#38bdf8; font-weight:600;"><span id="kpiActiveSubWarming">0</span> aquecendo</span> •
+              <span style="color:#c084fc; font-weight:600;"><span id="kpiActiveSubReady">0</span> prontas</span> •
+              <span style="color:#fb923c; font-weight:600;"><span id="kpiActiveSubToWarm">0</span> fila</span>
+            </div>
+          </div>
+          <div class="kpi-click-hint"><i data-lucide="arrow-right" style="width:10px;height:10px;"></i> ver cockpit ativo</div>
+        </div>
+
         <div class="kpi-card clickable" onclick="switchOpsTab('EMPTY_BMS')" title="Ver e gerenciar Business Managers e suas contas de anúncios">
           <div class="kpi-top">
             <span class="kpi-title" style="color:#38bdf8;">BMs Operacionais</span>
@@ -2221,7 +2248,7 @@
       <!-- CHARTS SECTION -->
       <div class="charts-grid">
         <div class="card">
-          <div class="card-header">
+          <div class="card-header" style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px;">
             <div>
               <div class="card-title">
                 <i data-lucide="pie-chart" style="color:var(--primary); width:18px; height:18px;"></i>
@@ -2229,9 +2256,38 @@
               </div>
               <div class="card-subtitle">Distribuição geral das Contas de Anúncios</div>
             </div>
+            <div id="chartActiveBadgeSummary" style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+              <span class="badge" style="background: rgba(16, 185, 129, 0.18); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); font-size: 0.8rem; font-weight: 800; padding: 4px 10px; border-radius: 8px;">
+                <i data-lucide="shield-check" style="width:13px; height:13px; display:inline-block; vertical-align:middle; margin-right:4px;"></i>
+                <span id="chartActiveTotalCount">35</span> Contas Ativas
+              </span>
+            </div>
           </div>
-          <div class="chart-box">
+          <!-- Pills de Resumo Executivo para Apresentação -->
+          <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 10px 14px; margin-bottom: 8px; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); font-size: 0.72rem;">
+            <div style="text-align: center;">
+              <div style="color: var(--text-dim); font-size: 0.68rem;">Rodando</div>
+              <div style="color: #10b981; font-weight: 800; font-size: 0.95rem;" id="chartMiniRunning">0</div>
+            </div>
+            <div style="text-align: center; border-left: 1px solid rgba(255,255,255,0.06);">
+              <div style="color: var(--text-dim); font-size: 0.68rem;">Aquecendo</div>
+              <div style="color: #0052ff; font-weight: 800; font-size: 0.95rem;" id="chartMiniWarming">0</div>
+            </div>
+            <div style="text-align: center; border-left: 1px solid rgba(255,255,255,0.06);">
+              <div style="color: var(--text-dim); font-size: 0.68rem;">Prontas/Livres</div>
+              <div style="color: #a855f7; font-weight: 800; font-size: 0.95rem;" id="chartMiniReady">0</div>
+            </div>
+            <div style="text-align: center; border-left: 1px solid rgba(255,255,255,0.06);">
+              <div style="color: var(--text-dim); font-size: 0.68rem;">P/ Aquecer</div>
+              <div style="color: #f97316; font-weight: 800; font-size: 0.95rem;" id="chartMiniToWarm">0</div>
+            </div>
+          </div>
+          <div class="chart-box" style="position:relative;">
             <canvas id="statusDonutChart"></canvas>
+            <div id="donutCenterLabel" style="position: absolute; top: 43%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none;">
+              <div id="donutCenterNumber" style="font-size: 1.55rem; font-weight: 800; color: #34d399; line-height: 1;">35</div>
+              <div style="font-size: 0.68rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px;">Ativas</div>
+            </div>
           </div>
         </div>
 
@@ -7004,6 +7060,28 @@
         const totalCAsEl = document.getElementById('kpiTotalCAs');
         if (totalCAsEl) totalCAsEl.textContent = total;
 
+        // ===============================================
+        // TOTAL DE CONTAS ATIVAS (RODANDO + AQUECENDO + PRONTAS + FILA)
+        // ===============================================
+        const totalActiveAccounts = running + warmingActive + warmedReady + toWarm;
+        const totalActiveEl = document.getElementById('kpiTotalActiveCAs');
+        if (totalActiveEl) totalActiveEl.textContent = totalActiveAccounts;
+
+        const subRunEl = document.getElementById('kpiActiveSubRunning');
+        if (subRunEl) subRunEl.textContent = running;
+        const subWarmEl = document.getElementById('kpiActiveSubWarming');
+        if (subWarmEl) subWarmEl.textContent = warmingActive;
+        const subReadyEl = document.getElementById('kpiActiveSubReady');
+        if (subReadyEl) subReadyEl.textContent = warmedReady;
+        const subToWarmEl = document.getElementById('kpiActiveSubToWarm');
+        if (subToWarmEl) subToWarmEl.textContent = toWarm;
+
+        const activePctBadge = document.getElementById('kpiTotalActivePctBadge');
+        if (activePctBadge) {
+          const activePct = total > 0 ? ((totalActiveAccounts / total) * 100).toFixed(0) : 0;
+          activePctBadge.textContent = `${activePct}% Ativas`;
+        }
+
         const runningEl = document.getElementById('kpiRunningCAs');
         if (runningEl) runningEl.textContent = running;
 
@@ -7227,6 +7305,23 @@
           chartColors.push('#38bdf8');
         }
 
+        // Atualiza indicadores executivos de Contas Ativas no Card do Gráfico
+        const totalActiveInChart = running + warming + toWarm + warmedReady;
+        const donutCenterNumEl = document.getElementById('donutCenterNumber');
+        if (donutCenterNumEl) donutCenterNumEl.textContent = totalActiveInChart;
+
+        const chartActiveCountEl = document.getElementById('chartActiveTotalCount');
+        if (chartActiveCountEl) chartActiveCountEl.textContent = totalActiveInChart;
+
+        const miniRunEl = document.getElementById('chartMiniRunning');
+        if (miniRunEl) miniRunEl.textContent = running;
+        const miniWarmEl = document.getElementById('chartMiniWarming');
+        if (miniWarmEl) miniWarmEl.textContent = warming;
+        const miniReadyEl = document.getElementById('chartMiniReady');
+        if (miniReadyEl) miniReadyEl.textContent = warmedReady;
+        const miniToWarmEl = document.getElementById('chartMiniToWarm');
+        if (miniToWarmEl) miniToWarmEl.textContent = toWarm;
+
         const statusCanvas = document.getElementById('statusDonutChart');
         if (statusCanvas && statusCanvas.getContext) {
           const ctxStatus = statusCanvas.getContext('2d');
@@ -7247,7 +7342,18 @@
               maintainAspectRatio: false,
               animation: { duration: 400 },
               plugins: {
-                legend: { position: 'bottom', labels: { color: '#94a3b8', font: { family: 'Plus Jakarta Sans', size: 12 } } }
+                legend: { position: 'bottom', labels: { color: '#94a3b8', font: { family: 'Plus Jakarta Sans', size: 12 } } },
+                tooltip: {
+                  callbacks: {
+                    afterBody: function(context) {
+                      const label = context[0]?.label || '';
+                      if (label.includes('Rodando') || label.includes('Aquecendo') || label.includes('Aquecer') || label.includes('Aquecidas')) {
+                        return `⚡ Parte do Total de Contas Ativas (${totalActiveInChart} no total)`;
+                      }
+                      return '';
+                    }
+                  }
+                }
               },
               cutout: '72%'
             }
